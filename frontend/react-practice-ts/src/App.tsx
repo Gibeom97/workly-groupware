@@ -1,3 +1,4 @@
+
 import { Routes, Route } from "react-router-dom";
 import Calendar from "./components/Calendar";
 import Login from "./pages/Login";
@@ -6,7 +7,6 @@ import MainPage from "./pages/MainPage";
 function App() {
   return (
       <Routes>
-        {/* 기본 페이지 ("/")를 빈 화면으로 설정 */}
         <Route path="/" element={<Login/>} />
         <Route path="/main" element={<MainPage/>} />
         <Route path="/calendar" element={<Calendar />} />
