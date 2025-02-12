@@ -1,3 +1,8 @@
+import changePwd from '../../assets/images/icon/changePwd.png';
+import down from '../../assets/images/icon/down.png';
+import logout from '../../assets/images/icon/logout.png';
+import mypage from '../../assets/images/icon/mypage.png';
+import profileImg from '../../assets/images/icon/passion.jpg';
 import { useState } from 'react';
 import styles from './Header.module.css'; // 변경: 일반 CSS 대신 module.css 사용
 
@@ -14,7 +19,7 @@ function Header() {
       <div className={styles.profileArea}>
         <img
           className={styles.profileImage}
-          src="../../public/images/icon/passion.jpg"
+          src={profileImg}
           alt="프로필이미지"
         />
         <div className={styles.profileInfo}>
@@ -24,7 +29,7 @@ function Header() {
         <button className={styles.dropdownButton}>
           <div>
             <img
-              src="../../public/images/icon/down.png"
+              src={down}
               alt="드롭다운"
               onClick={toggleDown}
             />
@@ -34,15 +39,15 @@ function Header() {
         {dropDownOpen && (
           <div className={styles.dropdownMenu}>
             <div className={styles.menuItem}>
-              <img src="../../public/images/icon/mypage.png" alt="마이 페이지" />
+              <img src={mypage} alt="마이 페이지" />
               <span>마이 페이지</span>
             </div>
             <div className={styles.menuItem}>
-              <img src="../../public/images/icon/changePwd.png" alt="비밀번호 변경" />
+              <img src={changePwd} alt="비밀번호 변경" />
               <span>비밀번호 변경</span>
             </div>
             <div className={styles.menuItem}>
-              <img src="../../public/images/icon/logout.png" alt="로그아웃" />
+              <img src={logout} alt="로그아웃" />
               <span>로그아웃</span>
             </div>
           </div>

@@ -1,7 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import Calendar from "./components/Calendar";
 import Login from "./pages/Login";
 import MainPage from "./pages/MainPage";
+import Calendar from "./components/calendar/Calendar";
+
 
 function App() {
   return (
@@ -14,3 +15,4 @@ function App() {
 }
 
 export default App;
+
