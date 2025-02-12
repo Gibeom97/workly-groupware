@@ -1,5 +1,5 @@
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from "../components/common/Header";
+import Sidebar from "../components/common/Sidebar";
 import styles from "./MainPage.module.css"
 
 const MainPage = () => {
