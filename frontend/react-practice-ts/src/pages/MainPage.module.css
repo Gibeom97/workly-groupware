@@ -1,0 +1,19 @@
+/* 컴포넌트 전역 css * */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.mainpageContainer {
+    display: flex;       /* 사이드바와 우측 콘텐츠를 가로로 배치 */
+    width: 100%;
+    height: 100vh;       /* 전체 높이로 설정 */
+}
+
+.componentContainer {
+    flex: 1;             /* 남은 공간을 전부 차지 */
+    display: flex;       /* 내부에서도 헤더와 본문을 배치하려면 flex 사용 */
+    flex-direction: column; /* 헤더를 위쪽, 나머지 콘텐츠를 아래쪽 */
+}

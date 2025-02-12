@@ -1,10 +1,8 @@
-
 import { configureStore } from "@reduxjs/toolkit";
 
 const store = configureStore({
-    reducer: {
-       // approval : approvalSlice
-        //chat : chatSlice
+    reducer : { // 등록할 state 추가
+
     }
 });
 

@@ -1,14 +1,17 @@
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import Chat from './Chat.tsx'
-
+// import './index.css'
+import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
-// import store from './type/store.ts'
+import { Provider } from 'react-redux'
+import store from './store.ts'
 
 createRoot(document.getElementById('root')!).render(
-  // <Provider store={store}>
-    <BrowserRouter>
-    <Chat/>
-    </BrowserRouter>
-  // </Provider>
+  <Provider store={store}>
+  <BrowserRouter>
+    <StrictMode>
+    <App />
+  </StrictMode>
+  </BrowserRouter>
+  </Provider>
+  ,
 )
