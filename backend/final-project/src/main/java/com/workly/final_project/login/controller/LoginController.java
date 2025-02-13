@@ -18,7 +18,7 @@ public class LoginController {
 	
 	private final MemberService service;
 	
-	@CrossOrigin("http://localhost:5173")
+	@CrossOrigin(origins = {"http://localhost:5173"})
 	@PostMapping("/login")
 	public Member login(HttpServletResponse response) {
 //		service.login();
