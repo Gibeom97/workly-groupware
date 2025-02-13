@@ -9,18 +9,18 @@ import styles from "./MainPage.module.css"
 
 export const ApprovalMain = () => {
 
-      return (   
-        <div className={styles.mainpageContainer}>
-            <Sidebar/>           
-            <div className={styles.componentContainer}>
-            <Header/>
-        <div id="container">        
+  return (
+    <div className={styles.mainpageContainer}>
+      <Sidebar />
+      <div className={styles.componentContainer}>
+        <Header />
+        <div id="container">
           <ApprovalHeader />
-            <ApprovalSearchBar />
-            <ApprovalPost />       
-          <ApprovalFooter />          
+          <ApprovalSearchBar />
+          <ApprovalPost />
+          <ApprovalFooter />
         </div>
-        </div>
-        </div>
-      );
+      </div>
+    </div>
+  );
 }
