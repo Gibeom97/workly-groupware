@@ -4,9 +4,9 @@ import { DateSelectArg, EventApi, EventClickArg, EventInput } from "@fullcalenda
 import dayGridPlugin from "@fullcalendar/daygrid";
 import allLocales from "@fullcalendar/core/locales-all";
 import interactionPlugin from "@fullcalendar/interaction";
-import styles from "./Calendar.module.css"; // ✅ module.css 객체로 불러오기
+import styles from "./Calendar1.module.css"; // ✅ module.css 객체로 불러오기
 
-// ✅ 고유 ID 생성 함수
+// ✅ 고유 ID 생성 함수S
 let eventGuid = 0;
 const createEventId = () => String(eventGuid++);
 
