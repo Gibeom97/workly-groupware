@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ApprovalFavoriteLineModal from "./approvalFavoriteLineModal";
 
 const ApprovalLineModal = ( {onClose} ) => {
   const [approvalLine, setApprovalLine] = useState([
@@ -9,6 +10,7 @@ const ApprovalLineModal = ( {onClose} ) => {
 
   const [favorites, setFavorites] = useState(["지출 결재라인"]);
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
+  const [showFavoriteModal, setShowFavoriteModal] = useState(false);
 
   return (
     <div
@@ -26,19 +28,19 @@ const ApprovalLineModal = ( {onClose} ) => {
     >
 
     <div
-  style={{
-    width: 750,
-    height: 500,
-    background: "white",
-    borderRadius: 8,
-    border: "1px solid black",
-    padding: 15,
-    position: "fixed", // 화면 중앙 정렬을 위해 fixed 사용
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)", // 가로 세로 중앙 정렬
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // 살짝 그림자 추가 (선택 사항)
-  }}
+      style={{
+        width: 750,
+        height: 500,
+        background: "white",
+        borderRadius: 8,
+        border: "1px solid black",
+        padding: 15,
+        position: "fixed", // 화면 중앙 정렬을 위해 fixed 사용
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)", // 가로 세로 중앙 정렬
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // 살짝 그림자 추가 (선택 사항)
+      }}
   >
 
       {/* X 닫기 버튼 */}
@@ -281,7 +283,7 @@ const ApprovalLineModal = ( {onClose} ) => {
             </ol>
               {/* 즐겨찾기 추가 버튼 */}
               <button
-              onClick={() => setFavorites([...favorites, "새 결재라인"])}
+              onClick={() => setShowFavoriteModal(true)}
               style={{
                 width: "79%",
                 padding: 5,
@@ -317,6 +319,11 @@ const ApprovalLineModal = ( {onClose} ) => {
           </button>
         </div>
       </div>
+
+      {/* 즐겨찾기 모달 추가 */}
+      {showFavoriteModal && (
+        <ApprovalFavoriteLineModal onClose={() => setShowFavoriteModal(false)} />
+      )}
     </div>
     </div>
   );
