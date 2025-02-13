@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
 <head>
 	 <title>급여대장</title>
 	    <style>
+			* {
+            font-family: 'NanumSquare', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+       		 }
 	        body {
-	            font-family: 'Nunito Sans', sans-serif;
-	            background-color: #f8f9fc;
 	            padding: 20px;
 	        }
 	        .container {
@@ -50,6 +54,8 @@
 				font-size: 14px;
 				cursor: pointer;
 				font-weight: 600;
+				background-color: white;
+				border: none;
 			}
 	        table {
 	            width: 100%;
@@ -138,6 +144,64 @@
 				width: 200px;
 				border: 1px solid #d1d5db;
 			}
+			/* 모달 스타일 */
+			.modal {
+				display: none;
+				width: 350px;
+				height: 250px;
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: white;
+				border-radius: 10px;
+				box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+				padding: 20px;
+				z-index: 1000;
+				border: 1px solid #B9B9B9;
+				}
+
+			/* 모달 닫기 버튼 */
+			.close {
+				position: absolute;
+				top: 0px;
+				right: 10px;
+				cursor: pointer;
+				font-size: 20px;
+			}
+
+			/* 입력 필드 */
+			/* 입력 필드 스타일 */
+			.input-field {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #B9B9B9;
+            border-radius: 8px;
+			}
+			[name="userNo"]{
+				margin-left: 62px;
+			}
+			[name="baseSalary"], 
+			[name="bonus"]{
+				margin-left: 47px;
+			}
+
+			/* 저장 버튼 */
+			.save-btn {
+				display: block;  /* 블록 요소로 변경 */
+				width: 40%;  /* 버튼 너비를 조정 (선택 사항) */
+				margin: 20px auto 0;  /* 위쪽 여백 유지, 좌우 자동 정렬 */
+				padding: 10px 20px;
+				background: #4880FF;
+				color: white;
+				font-size: 16px;
+				font-weight: bold;
+				border: none;
+				border-radius: 8px;
+				cursor: pointer;
+				text-align: center;  /* 텍스트 중앙 정렬 */
+				}
 	    </style>
 	</head>
 	<body>
@@ -182,24 +246,42 @@
 	<div class="input-container">
 		<span class="total-count">총 7명</span>
 		<div class="search-box">
-			<input type="text" placeholder="사원명 / 사번 입력">
-			<button class="search">검색</button>
+			<input type="text" id="searchInput" placeholder="사원명 / 사번 입력">
+<button class="search" onclick="searchEmployee()">검색</button>
 		</div>
 	</div>
 
+	<script>
+		function searchEmployee() {
+			let searchInput = document.getElementById("searchInput").value.toLowerCase();
+			let tableRows = document.querySelectorAll(".container2 tbody tr");
+
+			tableRows.forEach(row => {
+				let name = row.cells[0].innerText.toLowerCase();  // 이름
+				let employeeId = row.cells[1].innerText.toLowerCase(); // 사번
+
+				if (name.includes(searchInput) || employeeId.includes(searchInput)) {
+					row.style.display = "";  // 검색어가 포함되면 보이기
+				} else {
+					row.style.display = "none";  // 검색어가 없으면 숨기기
+				}
+			});
+		}
+	</script>
 	<div class="container2">
 		<!-- 상단 제목 및 추가 버튼 -->
 		<div class="header">
-			<span class="add-button">+ 추가</span>
+			<!-- 사원 추가 버튼 -->
+			<button class="add-button" onclick="openModal('add')">+ 추가</button>
 		</div>
-	
+
 		<!-- 급여 관리 테이블 -->
 		<table>
 			<thead>
 				<tr>
 					<th>이름</th>
 					<th>사번</th>
-					<th>부서 / 팀명</th>
+					<th>팀명</th>
 					<th>직위</th>
 					<th>기본급</th>
 					<th>초과근무수당</th>
@@ -213,7 +295,7 @@
 				<tr>
 					<td>홍길동</td>
 					<td>2016107036</td>
-					<td>운영지원부 / 인사팀</td>
+					<td>인사팀</td>
 					<td>사원</td>
 					<td>2,450,000</td>
 					<td>96,000</td>
@@ -221,13 +303,228 @@
 					<td>239,290</td>
 					<td>2,306,710</td>
 					<td class="actions">
-						<button class="edit">수정</button>
+						<!-- 급여 수정 버튼 -->
+						<button class="edit" onclick="openModal('edit', this.parentElement.parentElement)">수정</button>
 						<button class="delete">삭제</button>
 					</td>
 				</tr>
 			</tbody>
 		</table>
-	
+		<!-- 급여 추가 및 수정 모달 (공통) -->
+		<div id="employeeModal" class="modal">
+			<div class="modal-content">
+				<h2 id="modalTitle">사원 추가</h2>
+				<span class="close" onclick="closeModal()">&times;</span>
+
+				<label>사번</label>
+				<input type="text" id="userNo" name="userNo" placeholder="사번">
+				<br>
+				<label>기본급</label>
+				<input type="text" id="baseSalary" name="baseSalary" placeholder="기본급">
+				<br>
+				<label>초과근무시간</label>
+				<input type="text" id="overtimeTime" name="overtimeTime" placeholder="초과근무시간">
+				<br>
+				<label>보너스</label>
+				<input type="text" id="bonus" name="bonus" placeholder="보너스">
+				<br>
+				<button class="save-btn" id="modalSaveBtn" onclick="saveOrUpdateEmployee()">저장하기</button>
+			</div>
+		</div>
+		<script>
+			let currentMode = "add"; // 현재 모드 ("add" 또는 "edit")
+			let currentEditRow = null; // 수정할 행 (수정 모드에서 사용)
+
+			// 모달 열기 (추가 or 수정)
+			function openModal(mode, row = null) {
+				currentMode = mode;
+				currentEditRow = row;
+
+				// 모드에 따른 모달 제목 및 버튼 변경
+				document.getElementById("modalTitle").textContent = mode === "add" ? "사원 추가" : "급여 수정";
+				document.getElementById("modalSaveBtn").textContent = mode === "add" ? "저장하기" : "적용하기";
+
+				// 수정 모드일 경우, 기존 데이터 채우기
+				if (mode === "edit" && row) {
+					document.getElementById("userNo").value = row.cells[1].innerText;
+					document.getElementById("baseSalary").value = row.cells[4].innerText;
+					document.getElementById("overtimeTime").value = row.cells[5].innerText;
+					document.getElementById("bonus").value = row.cells[6].innerText;
+
+					// 사번은 수정 불가능하게 설정
+					document.getElementById("userNo").readOnly = true;
+				} else {
+					// 추가 모드일 경우, 입력 필드 초기화
+					document.getElementById("userNo").value = "";
+					document.getElementById("baseSalary").value = "";
+					document.getElementById("overtimeTime").value = "";
+					document.getElementById("bonus").value = "";
+					document.getElementById("userNo").readOnly = false;
+				}
+
+				document.getElementById("employeeModal").style.display = "block";
+			}
+
+			// 모달 닫기
+			function closeModal() {
+				document.getElementById("employeeModal").style.display = "none";
+			}
+
+			// 사원 추가 또는 수정 적용
+			function saveOrUpdateEmployee() {
+				let userNo = document.getElementById("userNo").value;
+				let baseSalary = document.getElementById("baseSalary").value;
+				let overtimeTime = document.getElementById("overtimeTime").value;
+				let bonus = document.getElementById("bonus").value;
+
+				if (!userNo || !baseSalary) {
+					alert("사번과 기본급을 입력하세요!");
+					return;
+				}
+
+				if (currentMode === "add") {
+					// 추가 모드
+					let tableBody = document.querySelector(".container2 tbody");
+					let newRow = document.createElement("tr");
+
+					newRow.innerHTML = `
+						<td>이름</td> 
+						<td>${userNo}</td>
+						<td>팀명</td>
+						<td>직위</td>
+						<td>${baseSalary}</td>
+						<td>${overtimeTime}</td>
+						<td>${bonus}</td>
+						<td>공제액</td>
+						<td>실지급액</td>
+						<td class="actions">
+							<button class="edit" onclick="openModal('edit', this.parentElement.parentElement)">수정</button>
+							<button class="delete" onclick="deleteRow(this)">삭제</button>
+						</td>
+					`;
+
+					tableBody.appendChild(newRow);
+				} else if (currentMode === "edit" && currentEditRow) {
+					// 수정 모드
+					currentEditRow.cells[4].innerText = baseSalary;
+					currentEditRow.cells[5].innerText = overtimeTime;
+					currentEditRow.cells[6].innerText = bonus;
+				}
+
+				closeModal();
+			}
+
+			// 삭제 기능
+			function deleteRow(button) {
+				button.closest("tr").remove();
+			}
+		</script>
+		<!-- 급여대장 엑셀파일을 생성하는-->
+		 <script>
+			function exportToExcel() {
+				// 1. 급여 정보 가져오기
+				let employeeName = document.getElementById("employeeName").value || "이름 없음";
+				let employeeId = document.getElementById("employeeId").value || "사번 없음";
+				let department = document.getElementById("department").value || "부서 없음";
+				let position = document.getElementById("position").value || "직위 없음";
+				let baseSalary = document.getElementById("baseSalary").value || "0";
+				let overtimeHours = document.getElementById("overtimeHours").value || "0";
+				let bonus = document.getElementById("bonus").value || "0";
+				
+				// 2. 초과 근무 수당 계산 (예: 시간당 12,000원 × 2배 적용)
+				let overtimePay = parseInt(overtimeHours) * 12000 * 2 || 0;
+
+				// 3. 공제액 계산 (예: 국민연금, 건강보험, 고용보험 등 자동 계산 가능)
+				let pension = Math.floor(parseInt(baseSalary) * 0.045);  // 국민연금 4.5%
+				let healthInsurance = Math.floor(parseInt(baseSalary) * 0.0375); // 건강보험 3.75%
+				let employmentInsurance = Math.floor(parseInt(baseSalary) * 0.009); // 고용보험 0.9%
+				let longTermCare = Math.floor(healthInsurance * 0.115); // 장기요양보험 11.5%
+				let totalDeduction = pension + healthInsurance + employmentInsurance + longTermCare; 
+
+				// 4. 실지급액 계산
+				let totalPay = parseInt(baseSalary) + overtimePay + parseInt(bonus);
+				let netPay = totalPay - totalDeduction;
+
+				// 5. 엑셀 데이터 생성
+				let excelData = [
+					["급 여 대 장", "2025 4대보험 요율 적용"],
+					["성명", employeeName, "사번", employeeId],
+					["부서", department, "직급", position],
+					[],
+					["입금 항목", "지급 금액", "공제 항목", "공제 금액"],
+					["기본급", baseSalary, "국민연금", pension],
+					["초과근무수당", overtimePay, "건강보험료", healthInsurance],
+					["보너스", bonus, "장기요양보험료", longTermCare],
+					["", "", "고용보험료", employmentInsurance],
+					[],
+					["초과근무시간", overtimeHours, "공제액 계", totalDeduction],
+					["지급액 계", totalPay, "실수령액", netPay]
+				];
+
+				// 6. 워크시트 및 엑셀 파일 생성
+				let ws = XLSX.utils.aoa_to_sheet(excelData);
+				let wb = XLSX.utils.book_new();
+				XLSX.utils.book_append_sheet(wb, ws, "급여대장");
+			}
+		 </script>
+
+		<!--엑셀파일 자동저장-->
+		 <script>
+			function saveToServer() {
+				const selectedRow = document.querySelector(".container2 tbody tr");
+				
+				if (!selectedRow) {
+					alert("저장할 데이터가 없습니다.");
+					return;
+				}
+
+				const employeeData = {
+					employeeName: selectedRow.cells[0].innerText,
+					employeeId: selectedRow.cells[1].innerText,
+					department: selectedRow.cells[2].innerText,
+					position: selectedRow.cells[3].innerText,
+					baseSalary: selectedRow.cells[4].innerText.replace(/[^0-9]/g, ''),
+					overtimeHours: selectedRow.cells[5].innerText.replace(/[^0-9]/g, ''),
+					bonus: selectedRow.cells[6].innerText.replace(/[^0-9]/g, '')
+				};
+
+				console.log('전송할 데이터:', employeeData);
+				
+				// 백엔드 서버의 전체 URL을 사용
+				const backendUrl = 'http://localhost:8003/workly/api/saveExcel';
+				console.log('요청 URL:', backendUrl);
+
+				fetch(backendUrl, {
+					method: "POST",
+					headers: { 
+						"Content-Type": "application/json",
+						"Accept": "application/json"
+					},
+					body: JSON.stringify(employeeData)
+				})
+				.then(response => {
+					console.log('서버 응답 상태:', response.status);
+					console.log('서버 응답 헤더:', response.headers);
+					if (!response.ok) {
+						throw new Error('서버 응답 오류: ' + response.status);
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log('응답 데이터:', data);
+					if (data.success) {
+						alert("급여대장이 성공적으로 저장되었습니다!");
+					} else {
+						alert("저장 실패: " + data.message);
+					}
+				})
+				.catch(error => {
+					console.error("오류 발생:", error);
+					alert("저장 중 오류가 발생했습니다: " + error.message);
+				});
+			}
+		 </script>
+		 <button onclick="saveToServer()">급여대장 저장</button>
 		<!-- 페이지네이션 -->
 		<div class="pagination">
 			<span>«</span>

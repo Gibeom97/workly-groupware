@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
 <head>
     <title>조직도</title>
     <style>
         * {
+            font-family: 'NanumSquare', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -123,7 +127,7 @@
         #modal {
             display: none;
             width: 350px;
-            height: 450px;
+            height: 600px;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -165,7 +169,35 @@
         [name="email"]{
             margin-left: 16px;
         }
+        #profileImage{
+            border: none;
+        }
+        /* 프로필 이미지 및 파일 선택 버튼 스타일 */
+        .profile-upload-container {
+            display: flex;
+            flex-direction: column;  /* 세로 방향 정렬 */
+            align-items: center;  /* 가운데 정렬 */
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 10px; /* 여백 추가 */
+        }
 
+        /* 프로필 이미지 스타일 */
+        #profilePreview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover; /* 이미지 비율 유지 */
+            display: block;
+            margin: 0 auto; /* 가운데 정렬 */
+        }
+
+        /* 파일 선택 버튼 스타일 */
+        #profileImage {
+            display: block;
+            margin-top: 10px; /* 간격 추가 */
+            text-align: center;
+        }
         /* 저장 버튼 스타일 */
         .save-btn {
             display: block;  /* 블록 요소로 변경 */
@@ -198,123 +230,242 @@
 </head>
 <body>
 
-    <!-- 왼쪽 부서/팀 목록 -->
-    <div class="sidebar">
-        <div class="search-box">
-            <input type="text" placeholder="부서 / 팀">
-            <button>🔍</button>
-        </div>
-        <ul class="department-list">
-            <li><b>Workly</b></li>
-            <br>
-            <ul>
-                <span class="team-name" onclick="toggleTeam('hr-team')">인사팀</span>
-                <ul id="hr-team" style="display: none;">
-                    <li>최팀원 팀장</li>
-                    <li>최팀원 팀장</li>
-                </ul>
-            </ul>
-        </ul>
-        
-        <button class="add-employee" id="openModalBtn">+ 사원 추가</button>
+   <!-- 왼쪽 부서/팀 목록 -->
+  <div class="sidebar">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="부서 / 팀 / 사원 검색">
+        <button onclick="searchOrganization()">🔍</button>
     </div>
-    
-    <script>
-        function toggleTeam(id) {
-            var team = document.getElementById(id);
-            if (team.style.display === "none") {
-                team.style.display = "block";
-            } else {
-                team.style.display = "none";
-            }
-        }
-    </script>
-     <!-- 모달 창 -->
-     <div id="modal">
-        <div class="modal-content">
-            <h2>사원 추가</h2>
-            <br>
-            <!-- 닫기 버튼 -->
-            <div id="closeModalBtn" class="close-btn">
-                <svg width="30" height="30" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M36 12L12 36M12 12L36 36" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
+    <ul class="department-list"></ul>  <!-- 조직도 동적 생성 -->
+    <button class="add-employee" id="openModalBtn">+ 사원 추가</button>
+</div>
 
-            <!-- 이름 입력 -->
-            <label for="userName">이 름</label>
-            <input type="text" name="userName" class="input-field">
-            <br>
-            <!-- 팀명 입력 -->
-            <label for="teamName">팀 명</label>
-            <input type="text" name="teamName" class="input-field">
-            <br>
-            <!-- 직책 입력 -->
-            <label for="positionName">직 책</label>
-            <input type="text" name="positionName" class="input-field">
-            <br>
-            <!-- 연락처 입력 -->
-            <label for="phone">연락처</label>
-            <input type="text" name="phone" class="input-field">
-            <br>
-            <!-- 이메일 입력 -->
-            <label for="email">이메일</label>
-            <input type="text" name="email" class="input-field">
-            <br>
-            <!-- 내선번호 입력 -->
-            <label for="extension">내선번호</label>
-            <input type="text" name="extension" class="input-field">
-            <br>
-            <!-- 저장 버튼 -->
-            <button id="saveTeamBtn" class="save-btn">저장하기</button>
-        </div>
+<!-- 모달 창 -->
+<div id="modal">
+    <div class="modal-content">
+        <h2>사원 추가</h2>
+        <br>
+        <div id="closeModalBtn" class="close-btn">✖</div>
+
+        <label for="profileImage">
+        <img id="profilePreview" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="프로필 미리보기" width="100"  style=" margin-top:10px; border-radius:50%;">
+        <input type="file" id="profileImage" class="input-field" accept="image/*"><br>
+        </label>
+
+        <label for="userName">이 름</label>
+        <input type="text" name="userName" class="input-field"><br>
+
+        <label for="teamName">팀 명</label>
+        <input type="text" name="teamName" class="input-field"><br>
+
+        <label for="positionName">직 책</label>
+        <input type="text" name="positionName" class="input-field"><br>
+
+        <label for="phone">연락처</label>
+        <input type="text" name="phone" class="input-field"><br>
+
+        <label for="email">이메일</label>
+        <input type="text" name="email" class="input-field"><br>
+
+        <label for="extension">내선번호</label>
+        <input type="text" name="extension" class="input-field"><br>
+
+        <button id="saveTeamBtn" class="save-btn">저장하기</button>
     </div>
+</div>
 
-    <!-- 배경 오버레이 (모달 바깥 클릭 시 닫힘) -->
-    <div id="modalOverlay"></div>
-    <!-- 팀추가 모달창-->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
+<div id="modalOverlay"></div>
+
+<!-- 오른쪽 직원 프로필 -->
+<div class="profile-container">
+    <div class="profile-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="프로필" width="100" style="margin-top:10px; border-radius:50%;">
+    </div>
+    <div class="profile-card">
+        <h3 class="profile-team">소속</h3>
+        <h2 class="profile-name">이름</h2>
+        <br>
+        <p class="profile-phone"><span>연락처</span> | -</p>
+        <p class="profile-email"><span>이메일</span> | -</p>
+        <p class="profile-extension"><span>내선번호</span> | -</p>
+        <button class="chat-button">채팅하기</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
     const openModalBtn = document.getElementById("openModalBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
     const modal = document.getElementById("modal");
     const modalOverlay = document.getElementById("modalOverlay");
+    const saveTeamBtn = document.getElementById("saveTeamBtn");
+    const profileImageInput = document.getElementById("profileImage");
+    const profilePreview = document.getElementById("profilePreview");
+    
+    let organizationData = [];
+
+    // ** 이미지 업로드 및 미리보기 기능 **
+    let uploadedImage = null;  // 업로드한 이미지 저장 변수
+
+    profileImageInput.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                profilePreview.src = e.target.result;
+                uploadedImage = e.target.result;  // Base64로 저장
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // // 조직도 데이터 (초기 값)
+    // let organizationData = [
+    //     { 
+    //         team: "인사팀", 
+    //         members: [{ name: "최팀원 팀장", phone: "010-1234-5678", email: "yschoi@example.com", extension: "101", team: "인사팀" }] 
+    //     },
+    //     { 
+    //         team: "개발팀", 
+    //         members: [{ name: "이영희 과장", phone: "010-5678-1234", email: "yhlee@example.com", extension: "102", team: "개발팀" }] 
+    //     }
+    // ];
+
+    // 조직도를 동적으로 생성하는 함수
+    function renderOrganization() {
+        const deptList = document.querySelector(".department-list");
+        deptList.innerHTML = "<li><b>Workly</b></li><br>";
+
+        organizationData.forEach(team => {
+            let teamContainer = document.createElement("ul");
+
+            let teamName = document.createElement("li");
+            teamName.className = "team-name";
+            teamName.textContent = team.team;
+            teamName.style.cursor = "pointer";
+            teamName.onclick = function () {
+                let memberList = teamContainer.querySelector("ul");
+                memberList.style.display = memberList.style.display === "none" ? "block" : "none";
+            };
+
+            let memberList = document.createElement("ul");
+            memberList.style.display = "none";
+
+            team.members.forEach(member => {
+            let memberItem = document.createElement("li");
+            memberItem.textContent = member.name;
+            memberItem.style.cursor = "pointer";
+
+            // ** 사원 클릭 이벤트 설정 **
+            memberItem.addEventListener("click", function () {
+                    updateProfile(member);
+                });
+
+            memberItem.addEventListener("click", function () {
+                console.log("사원 클릭됨:", member); // 디버깅 로그 추가
+                updateProfile(member);
+            });
+
+            memberList.appendChild(memberItem);
+        });
+
+            teamContainer.appendChild(teamName);
+            teamContainer.appendChild(memberList);
+            deptList.appendChild(teamContainer);
+        });
+    }
+
+    // 프로필 업데이트 함수 (사원 클릭 시 실행)
+    function updateProfile(member) {
+    console.log("업데이트할 프로필 정보:", member); // 디버깅 로그
+
+    // 프로필 카드 요소 찾기
+    const profileCard = document.querySelector(".profile-card");
+    if (!profileCard) {
+        console.error("프로필 카드 요소를 찾을 수 없음");
+        return;
+    }
+
+    // 개별 프로필 필드 찾기
+    const profileName = document.querySelector(".profile-card h2");
+        const profileTeam = document.querySelector(".profile-card h3");
+        const profilePhone = document.querySelector(".profile-card p.profile-phone");
+        const profileEmail = document.querySelector(".profile-card p.profile-email");
+        const profileExtension = document.querySelector(".profile-card p.profile-extension");
+        const profileImg = document.querySelector(".profile-header img");
+
+     if (!profileName || !profileTeam || !profilePhone || !profileEmail || !profileExtension) {
+        console.error("프로필 카드 내부 요소를 찾을 수 없음");
+         return;
+    }
+
+    // 프로필 정보 업데이트
+    profileName.textContent = member.name;
+    profileTeam.textContent = member.team;
+    profilePhone.innerHTML = `<span>연락처</span> | ${member.phone || "-"}`;
+    profileEmail.innerHTML = `<span>이메일</span> | ${member.email || "-"}`;
+    profileExtension.innerHTML = `<span>내선번호</span> | ${member.extension || "-"}`;
+    profileImg.src = member.image ? member.image : "https://cdn-icons-png.flaticon.com/512/847/847969.png"; // 기본 이미지 설정
+}
 
     // 모달 열기
-    openModalBtn.addEventListener("click", function() {
+    openModalBtn.addEventListener("click", function () {
         modal.style.display = "block";
         modalOverlay.style.display = "block";
     });
 
     // 모달 닫기
-    closeModalBtn.addEventListener("click", function() {
+    closeModalBtn.addEventListener("click", closeModal);
+    modalOverlay.addEventListener("click", closeModal);
+
+    function closeModal() {
         modal.style.display = "none";
         modalOverlay.style.display = "none";
+        document.querySelectorAll(".input-field").forEach(input => input.value = "");
+        profilePreview.src = "https://cdn-icons-png.flaticon.com/512/847/847969.png"; // 기본 이미지로 초기화
+        uploadedImage = null;  // 이미지 변수 초기화
+    }
+
+    // 사원 추가 기능
+    saveTeamBtn.addEventListener("click", function () {
+        let userName = document.querySelector("[name='userName']").value;
+        let teamName = document.querySelector("[name='teamName']").value;
+        let positionName = document.querySelector("[name='positionName']").value;
+        let phone = document.querySelector("[name='phone']").value;
+        let email = document.querySelector("[name='email']").value;
+        let extension = document.querySelector("[name='extension']").value;
+        let image = profilePreview.src;
+
+        if (!userName || !teamName) {
+            alert("이름과 팀명을 입력하세요!");
+            return;
+        }
+
+        let newMember = {
+            name: `${userName} ${positionName}`,
+            phone: phone || "-",
+            email: email || "-",
+            extension: extension || "-",
+            team: teamName,
+            image: uploadedImage || "https://cdn-icons-png.flaticon.com/512/847/847969.png" // 기본 이미지 설정
+        };
+
+        let teamIndex = organizationData.findIndex(team => team.team === teamName);
+        if (teamIndex === -1) {
+            organizationData.push({ team: teamName, members: [newMember] });
+        } else {
+            organizationData[teamIndex].members.push(newMember);
+        }
+
+        renderOrganization();
+        closeModal();
     });
 
-    // 오버레이 클릭 시 모달 닫기
-    modalOverlay.addEventListener("click", function() {
-        modal.style.display = "none";
-        modalOverlay.style.display = "none";
-    });
+    // 페이지 로드 시 초기 렌더링
+    renderOrganization();
 });
-    </script>
+</script>
 
-    <!-- 오른쪽 직원 프로필 -->
-    <div class="profile-container">
-        <div class="profile-header">
-            <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="프로필" width="100">
-        </div>
-        <div class="profile-card">
-            <h3>인사팀 / 팀장</h3>
-            <h2>최 윤 성</h2>
-            <br>
-            <p><span>연락처</span> | 010-0000-0000</p>
-            <p><span>이메일</span> | aaaa@gmail.com</p>
-            <p><span>내선번호</span> | 168</p>
-            <button class="chat-button">채팅하기</button>
-        </div>
-    </div>
 
 </body>
 </html>
