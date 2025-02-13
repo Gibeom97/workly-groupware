@@ -17,7 +17,7 @@ export const ApprovalMain = () => {
         <div id="container">        
           <ApprovalHeader />
             <ApprovalSearchBar />
-            <ApprovalPost />          
+            <ApprovalPost />       
           <ApprovalFooter />          
         </div>
         </div>
