@@ -1,0 +1,141 @@
+/* ✅ 캘린더 컨테이너 (부모 요소) */
+.calendarContainer {
+  width: 100%;
+  height: 100%; /* 부모 요소가 화면 전체를 차지하도록 설정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0;
+  overflow: auto; /* 콘텐츠가 넘치면 스크롤 표시 */
+}
+
+/* ✅ FullCalendar가 `.calendarContainer` 안에 맞게 꽉 차도록 설정 */
+.fc {
+  width: 100% !important;
+  height: 100% !important; /* 부모 크기를 꽉 차게 설정 */
+  max-width: 100%;
+  max-height: 100%;
+  flex-grow: 1; /* 부모 크기에 맞춰 확장 */
+  overflow: auto; /* 넘칠 경우 스크롤이 생기도록 설정 */
+}
+
+/* ✅ FullCalendar 헤더 (툴바) 스타일 */
+.fc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  width: 100%;
+}
+
+/* ✅ FullCalendar 제목 (년/월) 스타일 */
+.fc-toolbar-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* ✅ FullCalendar 요일 스타일 */
+.fc-daygrid-day-number {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* ✅ FullCalendar의 본문 스타일 */
+.fc-daygrid {
+  width: 100%;
+  height: 100%;
+}
+
+/* ✅ 이벤트(일정) 스타일 */
+.fc-event {
+  padding: 6px 10px;
+  border-radius: 8px !important;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  border: none !important;
+  transition: all 0.2s ease-in-out;
+}
+
+/* ✅ 일정(이벤트) 글씨 색상 흰색 */
+.customEvent {
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+}
+
+/* ✅ 마우스 오버 시 효과 */
+.fc-event:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ 빈 날짜 스타일 조정 */
+.fc-daygrid-day.fc-day-other {
+  background: #f4f4f4;
+}
+
+/* ✅ 색상 선택 UI 외부 클릭 시 닫히는 오버레이 */
+.colorPickerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* ✅ 색상 선택 UI */
+.colorPicker {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  z-index: 1001;
+}
+
+/* ✅ 색상 선택 버튼 */
+.colorOptions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.colorCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+.colorCircle:hover {
+  transform: scale(1.1);
+}
+
+/* ✅ FullCalendar 일정 스타일 기본값 */
+.fc-daygrid-event {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px;
+}

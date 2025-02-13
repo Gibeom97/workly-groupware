@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import ApprovalFavoriteLineModal from "./approvalFavoriteLineModal";
 
-const ApprovalLineModal = ({ onClose }) => {
+const ApprovalLineModal = ( {onClose} ) => {
   const [approvalLine, setApprovalLine] = useState([
     { id: 1, name: "박삼이 이사", type: "승인" },
     { id: 2, name: "김기밤 대리", type: "승인" },
@@ -9,23 +10,38 @@ const ApprovalLineModal = ({ onClose }) => {
 
   const [favorites, setFavorites] = useState(["지출 결재라인"]);
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
+  const [showFavoriteModal, setShowFavoriteModal] = useState(false);
 
   return (
     <div
-  style={{
-    width: 750,
-    height: 500,
-    background: "white",
-    borderRadius: 8,
-    border: "1px solid black",
-    padding: 15,
-    position: "fixed", // 화면 중앙 정렬을 위해 fixed 사용
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)", // 가로 세로 중앙 정렬
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // 살짝 그림자 추가 (선택 사항)
-  }}
->
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.5)", // ✅ 반투명한 배경 추가
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+
+    <div
+      style={{
+        width: 750,
+        height: 500,
+        background: "white",
+        borderRadius: 8,
+        border: "1px solid black",
+        padding: 15,
+        position: "fixed", // 화면 중앙 정렬을 위해 fixed 사용
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)", // 가로 세로 중앙 정렬
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // 살짝 그림자 추가 (선택 사항)
+      }}
+  >
 
       {/* X 닫기 버튼 */}
       <button
@@ -46,7 +62,7 @@ const ApprovalLineModal = ({ onClose }) => {
         </svg>
       </button>
 
-      <h2 style={{ fontSize: 16, fontWeight: 700, color: "#202224" }}>결재라인</h2>
+      <h2 style={{ fontSize: 16, fontWeight: 700, color: "#202224", marginBottom: "10px" }}>결재라인</h2>
 
       <div style={{ display: "flex", gap: 15 }}>
         {/* 왼쪽: 결재자 목록 */}
@@ -96,7 +112,7 @@ const ApprovalLineModal = ({ onClose }) => {
           <div
             style={{
               width: "100%",
-              maxHeight: 340, // 최대 높이 지정
+              maxHeight: 330, // 최대 높이 지정
               overflowY: "auto", // 스크롤 활성화
               border: "1px solid #ddd",
             }}
@@ -131,7 +147,7 @@ const ApprovalLineModal = ({ onClose }) => {
      {/* 오른쪽: 결재라인 & 즐겨찾기 */}
      <div style={{ width: 350, display: "flex", flexDirection: "column", gap: 8 }}>
          {/* 즐겨찾기 박스 */}
-         <h2 style={{ fontSize: 12, fontWeight: 700, marginTop: "-27px", marginBottom: "2px"}}>즐겨찾기</h2>
+         <h2 style={{ fontSize: 12, fontWeight: 700, /*marginTop: "-10px",*/ marginBottom: "2px"}}>즐겨찾기</h2>
         <div
         style={{
             width: "100%",
@@ -191,11 +207,11 @@ const ApprovalLineModal = ({ onClose }) => {
 </div>
 
            {/* 결재자 설정 */}
-           <h3 style={{ fontSize: 12, fontWeight: 700, marginTop: "17px", marginBottom: "-5px" }}>결재자 설정</h3>
+           <h3 style={{ fontSize: 12, fontWeight: 700, marginTop: "17px", marginBottom: "2px" }}>결재자 설정</h3>
            <div
             style={{
                 width: "100%",
-                height: 220,
+                height: 208,
                 border: "1px solid #404040",
                 borderRadius: 3,
                 padding: 6,
@@ -267,7 +283,7 @@ const ApprovalLineModal = ({ onClose }) => {
             </ol>
               {/* 즐겨찾기 추가 버튼 */}
               <button
-              onClick={() => setFavorites([...favorites, "새 결재라인"])}
+              onClick={() => setShowFavoriteModal(true)}
               style={{
                 width: "79%",
                 padding: 5,
@@ -278,7 +294,7 @@ const ApprovalLineModal = ({ onClose }) => {
                 fontWeight: 500,
                 cursor: "pointer",
                 marginLeft: "40px",
-                marginTop: "40px",
+                marginTop: "60px",
               }}
             >
               즐겨찾기 추가
@@ -303,6 +319,12 @@ const ApprovalLineModal = ({ onClose }) => {
           </button>
         </div>
       </div>
+
+      {/* 즐겨찾기 모달 추가 */}
+      {showFavoriteModal && (
+        <ApprovalFavoriteLineModal onClose={() => setShowFavoriteModal(false)} />
+      )}
+    </div>
     </div>
   );
 };

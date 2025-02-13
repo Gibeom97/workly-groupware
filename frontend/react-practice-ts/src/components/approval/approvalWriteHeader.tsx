@@ -1,13 +1,21 @@
+import { useState } from "react";
+import ApprovalLineModal from "./approvalLineModal";
+import ApprovalCCModal from "./approvalCCModal";
+
 export const ApprovalWriteHeader = () => {
-    return (
-      <div style={pageContainerStyle}>
-        <div style={formContainerStyle}>
-          <div style={sectionTitleStyle}>기안서 작성</div>
+  // ✅ 각각의 모달 상태를 독립적으로 관리
+  const [approvalLineModalOpen, setApprovalLineModalOpen] = useState(false);
+  const [approvalCCModalOpen, setApprovalCCModalOpen] = useState(false);
 
-          {/* 구분선 */}
-          <div style={dividerStyle1} />
+  return (
+    <div style={pageContainerStyle}>
+      <div style={formContainerStyle}>
+        <div style={sectionTitleStyle}>기안서 작성</div>
 
-          {/* 종류 & 기안양식 */}
+        {/* 구분선 */}
+        <div style={dividerStyle1} />
+
+        {/* 종류 & 기안양식 */}
         <div style={rowContainerStyle}>
           <div style={rowStyle}>
             <label style={labelStyle}>종류</label>
@@ -26,60 +34,74 @@ export const ApprovalWriteHeader = () => {
           </div>
         </div>
 
-          {/* 구분선 */}
-          <div style={dividerStyle} />
-
-          {/* 제목 입력 */}
-          <div style={rowStyle}>
-            <label style={labelStyle}>제목</label>
-            <input type="text" placeholder="제목을 입력하세요." style={inputStyle} />
-          </div>
-
         {/* 구분선 */}
         <div style={dividerStyle} />
 
-          {/* 결재라인 */}
-          <div style={rowStyle}>
-            <label style={labelStyle}>결재라인</label>
-            <button style={actionButtonStyle}>+ 선택</button>
-            <input type="text" style={inputStyle} />
-          </div>
-
-        {/* 구분선 */}
-        <div style={dividerStyle} />          
-
-          {/* 첨부 */}
-          <div style={rowStyle}>
-            <label style={labelStyle}>첨부</label>
-            <button style={actionButtonStyle}>+ 첨부</button>
-            <input type="text" style={inputStyle} />
-          </div>
-
-        {/* 구분선 */}
-        <div style={dividerStyle} />          
-
-          {/* 참조 */}
-          <div style={rowStyle}>
-            <label style={labelStyle}>참조</label>
-            <button style={actionButtonStyle}>+ 선택</button>
-            <input type="text" style={inputStyle} />
-          </div>
-
-        {/* 구분선 */}
-        <div style={dividerStyle} />
-
+        {/* 제목 입력 */}
+        <div style={rowStyle}>
+          <label style={labelStyle}>제목</label>
+          <input type="text" placeholder="제목을 입력하세요." style={inputStyle} />
         </div>
+
+        {/* 구분선 */}
+        <div style={dividerStyle} />
+
+        {/* 결재라인 */}
+        <div style={rowStyle}>
+          <label style={labelStyle}>결재라인</label>
+          <button style={actionButtonStyle} onClick={() => setApprovalLineModalOpen(true)}>
+            + 선택
+          </button>
+          <input type="text" style={inputStyle} />
+        </div>
+
+        {/* ✅ 결재라인 모달 (조건부 렌더링) */}
+        {approvalLineModalOpen && (
+          <ApprovalLineModal onClose={() => setApprovalLineModalOpen(false)} />
+        )}
+
+        {/* 구분선 */}
+        <div style={dividerStyle} />
+
+        {/* 첨부 */}
+        <div style={rowStyle}>
+          <label style={labelStyle}>첨부</label>
+          <button style={actionButtonStyle} >
+            + 첨부
+          </button>
+          <input type="text" style={inputStyle} />
+        </div>
+
+        {/* 구분선 */}
+        <div style={dividerStyle} />
+
+        {/* 참조 */}
+        <div style={rowStyle}>
+          <label style={labelStyle}>참조</label>
+          <button style={actionButtonStyle} onClick={() => setApprovalCCModalOpen(true)}>
+            + 선택
+          </button>
+          <input type="text" style={inputStyle} />
+        </div>
+        
+        {/* ✅ 참조 모달 (조건부 렌더링) */}
+        {approvalCCModalOpen && (
+          <ApprovalCCModal onClose={() => setApprovalCCModalOpen(false)} />
+        )}
+
+        {/* 구분선 */}
+        <div style={dividerStyle} />
       </div>
-    );
+    </div>
+  );
 };
+
 
 // ✅ **페이지 전체 컨테이너 스타일 (가운데 정렬)**
 const pageContainerStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  width: "100vw", // 전체 너비를 화면 크기로 설정
-  minHeight: "100vh", // 화면 전체 높이 차지
   padding: "20px",
 };
 
@@ -176,4 +198,5 @@ const actionButtonStyle = {
     color: "black",
     cursor: "pointer",
   };
+  
   
