@@ -82,32 +82,29 @@ export const ApprovalSearchBar = () => {
   );
 };
 
+
 // ✅ 컨테이너 스타일 (가운데 정렬 및 좌우 배치)
 const containerStyle = {
   display: "flex",
-  justifyContent: "space-between", // ✅ 왼쪽(셀렉트 박스)과 오른쪽(검색창) 정렬
+  justifyContent: "center", // ✅ 왼쪽(셀렉트 박스)과 오른쪽(검색창) 정렬
   alignItems: "center",
-  width: "90%", // 전체 폭 설정
-  maxWidth: "800px", // ✅ 검색창과 셀렉트 박스를 균형 있게 배치
-  margin: "0 auto", // 가운데 정렬
-  padding: "10px 0", // 위아래 패딩 추가
+  width: "100%", // 전체 폭 설정
+  padding: "50px 0px 10px", // 위아래 패딩 추가
 };
 
 // ✅ 왼쪽 셀렉트 박스 컨테이너
 const selectContainerStyle = {
   display: "flex",
   gap: "10px", // ✅ 셀렉트 박스 간 간격 조정
-  marginLeft: "42%",
 };
 
 // ✅ 검색 컨테이너 (오른쪽 배치)
 const searchContainerStyle = {
-  position: "relative",
   width: "220px",
   display: "flex",
   alignItems: "center",
-  marginLeft: "65%",
-  marginRight: "-65%",
+  marginLeft: "60%",
+  
 };
 
 // ✅ 검색 입력 필드 스타일
@@ -129,8 +126,7 @@ const searchInputStyle = {
 // ✅ 검색 버튼 스타일
 const searchButtonStyle = {
   position: "absolute",
-  top: "50%",
-  transform: "translateY(-50%)",
+  transform: "translateX(10px)",
   background: "transparent",
   border: "none",
   cursor: "pointer",

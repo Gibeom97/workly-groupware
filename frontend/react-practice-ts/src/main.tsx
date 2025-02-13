@@ -9,7 +9,7 @@ import { StrictMode } from 'react'
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
   <BrowserRouter>
-    <StrictMode>
+  <StrictMode>
     <App />
     </StrictMode>
   </BrowserRouter>

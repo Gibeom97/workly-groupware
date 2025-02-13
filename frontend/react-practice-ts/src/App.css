@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareR.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 모든 요소에 폰트 적용 */
+* {
+  font-family: 'NanumSquare', sans-serif;
+  font-weight: bold;
+}

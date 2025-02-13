@@ -53,7 +53,7 @@ function Header() {
         </div>
       </div>
       <div>
-        <h2 className={styles.category}>캘린더</h2>
+        <h2 className={styles.category}>전자결재</h2>
       </div>
     </header>
   );
