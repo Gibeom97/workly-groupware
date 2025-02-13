@@ -1,3 +1,4 @@
+import ApprovalWriteBody from "../components/approval/approvalWritebody"
 import { ApprovalWriteFooter } from "../components/approval/approvalWriteFooter"
 import { ApprovalWriteHeader } from "../components/approval/approvalWriteHeader"
 import Header from "../components/common/Header"
@@ -12,7 +13,9 @@ export const ApprovalWritePage = () => {
             <div className={styles.componentContainer}>
             <Header/>
             <ApprovalWriteHeader/>
+            <ApprovalWriteBody/>
             <ApprovalWriteFooter/>
+
         </div>
         </div>
 
