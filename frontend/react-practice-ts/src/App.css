@@ -7,12 +7,13 @@
   font-style: normal;
 }
 
+/* 모든 요소에 폰트 적용 */
 * {
+  font-family: 'NanumSquare', sans-serif;
+  font-weight: bold;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'NanumSquare', sans-serif;
-  font-weight: bold;
 }
 
 .mainpageContainer {
