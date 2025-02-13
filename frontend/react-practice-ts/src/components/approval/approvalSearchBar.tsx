@@ -97,7 +97,6 @@ const containerStyle = {
 const selectContainerStyle = {
   display: "flex",
   gap: "10px", // ✅ 셀렉트 박스 간 간격 조정
-  marginLeft: "42%",
 };
 
 // ✅ 검색 컨테이너 (오른쪽 배치)
@@ -106,8 +105,6 @@ const searchContainerStyle = {
   width: "220px",
   display: "flex",
   alignItems: "center",
-  marginLeft: "65%",
-  marginRight: "-65%",
 };
 
 // ✅ 검색 입력 필드 스타일

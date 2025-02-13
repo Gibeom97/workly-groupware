@@ -24,17 +24,12 @@ export const ApprovalHeader = () => {
 
 // ✅ `header`를 중앙에서 살짝 위로 정렬하고 버튼 간격 조정
 const headerStyle = {
-  position: "absolute", // 화면에서 특정 위치에 고정
-  top: "10%", // ✅ 화면 상단에서 10% 위치 (조절 가능)
-  left: "50%", // 중앙 정렬
-  transform: "translateX(-50%)", // 가로축 기준 중앙 정렬 보장
   display: "flex",
   gap: 25, // ✅ 버튼 간격을 더 넓힘
   alignItems: "center",
   padding: 10,
   background: "white",
   borderRadius: 10,
-  zIndex: 1000, // 다른 요소 위에 표시
 };
 
 // 버튼 목록

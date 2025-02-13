@@ -61,8 +61,6 @@ const containerStyle = {
     width: "100%", // ✅ 기존 90% → 95%로 넓힘
     borderCollapse: "collapse",
     textAlign: "center",
-    marginLeft: "41%",
-    marginRight: "-41%",
     justifyContent: "center",
 };
 
