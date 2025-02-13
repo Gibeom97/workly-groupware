@@ -11,9 +11,16 @@ import icon9 from '../../assets/images/icon/9.png';
 import icon10 from '../../assets/images/icon/10.png';
 import icon11 from '../../assets/images/icon/11.png';
 import icon12 from '../../assets/images/icon/12.png';
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
+=======
+import { useNavigate } from "react-router-dom";
+>>>>>>> 7fd367c9b4582f8ce1b361d654f2fa27c9aa1b43
 
 const Sidebar = () => {
+
+  const navigate = useNavigate(); // ✅ 페이지 이동을 위한 Ho
+
   return (
     <div className={styles.sidebar}>
       <div className={styles.title}>Wonk</div>
@@ -41,14 +48,18 @@ const Sidebar = () => {
             </span>
             <span>캘린더</span>
           </li>
+<<<<<<< HEAD
           </Link>
           <Link to={"/approval"} className={styles.link}>
           <li>
+=======
+          <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
+>>>>>>> 7fd367c9b4582f8ce1b361d654f2fa27c9aa1b43
             <span>
               <img src={icon4} alt="전자결재" />
             </span>
             <span>전자결재</span>
-              <span className={styles.badge}>6</span>
+            <span className={styles.badge}>6</span>
           </li>
           </Link>
           <li>

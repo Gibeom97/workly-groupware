@@ -58,10 +58,11 @@ const containerStyle = {
   
   // ✅ 테이블 스타일 (오른쪽으로 이동 & 폭 넓힘)
   const tableStyle = {
-    width: "100%", // ✅ 기존 90% → 95%로 넓힘
+    width: "90%", // ✅ 기존 90% → 95%로 넓힘
     borderCollapse: "collapse",
     textAlign: "center",
     justifyContent: "center",
+    height: "30vh", // (예시) 전체 화면 기준으로 중앙 정렬
 };
 
 const thStyle = {

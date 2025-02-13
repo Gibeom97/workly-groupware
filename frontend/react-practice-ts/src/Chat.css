@@ -1,4 +1,3 @@
-/* Chat 모달.css */
 .chat-modal-overlay {
     position: fixed;
     top: 0;
@@ -14,28 +13,27 @@
 
 .chat-modal-content {
     background: white;
-    padding: 2px;
-    border-radius: 10px;
     width: 390px;
     position: relative;
 }
 
 .chat-close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 5px; /* Workly와 같은 높이로 조정 */
+    right: 13px; 
     border: none;
     background: none;
     color: black;
     font-size: 18px;
     cursor: pointer;
+    z-index: 1001; /* 다른 요소들보다 앞에 위치하도록 z-index 설정 */
 }
 
 .chat-header {
     display: flex;
     align-items: center;
     justify-content: space-between; /* 🔹 Workly와 X 버튼을 양 끝으로 정렬 */
-    padding: 10px 15px;
+    padding: 10px 15px; /* 상단 패딩 조정 */
     font-size: 18px;
     font-weight: bold;
     color: #4880FF;

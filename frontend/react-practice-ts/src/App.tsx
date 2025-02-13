@@ -21,6 +21,10 @@ function App() {
         <Route path="/form" element={<FormMain/>}>
           <Route path="detail/:formNo" element={<FormUpdate/>} />
         </Route>
+        <Route path="/calendar" element={<Calendar />} />
+        {/*전재결재Route*/}
+        <Route path="/approvalMain" element={<ApprovalMain />}/>
+        <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
       </Routes>
   );
 }
