@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const ApprovalFooter = () => {
+
+  const navigate = useNavigate();
+
   const totalPages = 68; // 전체 페이지 수
   const pagesPerGroup = 10; // 한 번에 보여줄 페이지 개수
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +25,33 @@ export const ApprovalFooter = () => {
 
   return (
     <footer>
-      <div style={{ width: "100%", justifyContent: "center", alignItems: "center", gap: 8, display: "flex",  marginLeft: "40%",marginRight: "-40%", paddingTop: "40px", }}>
+
+
+<button
+  style={{
+    width: 75,
+    height: 30,
+    background: "#4880FF",
+    borderRadius: 14,
+    border: "0.30px solid #B9B9B9",
+    color: "white", // ✅ 글자색 추가
+    fontSize: 12, // ✅ 글자 크기 추가
+    fontWeight: 600, // ✅ 글자 두께 추가
+    cursor: "pointer", // ✅ 클릭 가능한 버튼 스타일
+    display: "flex", // ✅ 중앙 정렬을 위한 flex 설정
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: "auto",
+    marginRight: "100px",
+  }}
+  onClick={() => navigate('/ApprovalWritePage')} //style={{ cursor: "pointer" }} // ✅ 클릭 이벤트 추가
+>
+  작성하기
+</button>
+
+
+
+      <div style={{ width: "100%", justifyContent: "center", alignItems: "center", gap: 8, display: "flex", paddingTop: "40px", }}>
         
         {/* Previous 버튼 */}
         <button onClick={handlePrevious} style={prevNextButtonStyle} disabled={currentPage === 1}>
@@ -78,7 +108,7 @@ export const ApprovalFooter = () => {
 
 // 스타일 정의
 const prevNextButtonStyle = {
-  padding: "8px 12px",
+  padding: "8px",
   borderRadius: 8,
   justifyContent: "center",
   alignItems: "center",
@@ -114,7 +144,7 @@ const pageButtonStyle = {
 
 const activePageStyle = {
   ...pageButtonStyle,
-  background: "#2C2C2C",
+  background: "#1E1E1E",
   color: "#F5F5F5",
 };
 

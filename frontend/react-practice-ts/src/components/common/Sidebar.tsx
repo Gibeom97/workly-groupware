@@ -11,8 +11,12 @@ import icon9 from '../../assets/images/icon/9.png';
 import icon10 from '../../assets/images/icon/10.png';
 import icon11 from '../../assets/images/icon/11.png';
 import icon12 from '../../assets/images/icon/12.png';
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+
+  const navigate = useNavigate(); // ✅ 페이지 이동을 위한 Ho
+
   return (
     <div className={styles.sidebar}>
       <h1 className={styles.title}>Workly</h1>
@@ -37,12 +41,12 @@ const Sidebar = () => {
             </span>
             <span>캘린더</span>
           </li>
-          <li>
+          <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
             <span>
               <img src={icon4} alt="전자결재" />
             </span>
             <span>전자결재</span>
-              <span className={styles.badge}>6</span>
+            <span className={styles.badge}>6</span>
           </li>
           <li>
             <span>

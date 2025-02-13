@@ -1,5 +1,12 @@
+import { useState } from "react";
+import ApprovalLineModal from "./approvalLineModal";
+
 export const ApprovalWriteHeader = () => {
+
+    const [modalOpen, setModalOpen] = useState(false);
+
     return (
+
       <div style={pageContainerStyle}>
         <div style={formContainerStyle}>
           <div style={sectionTitleStyle}>기안서 작성</div>
@@ -38,12 +45,19 @@ export const ApprovalWriteHeader = () => {
         {/* 구분선 */}
         <div style={dividerStyle} />
 
-          {/* 결재라인 */}
-          <div style={rowStyle}>
+        <div>
+        {/* 결재라인 */}
+        <div style={rowStyle}>
             <label style={labelStyle}>결재라인</label>
-            <button style={actionButtonStyle}>+ 선택</button>
+            <button style={actionButtonStyle} onClick={() => setModalOpen(true)}>
+              + 선택
+            </button>
             <input type="text" style={inputStyle} />
           </div>
+
+          {/* 모달 창 */}
+          {modalOpen && <ApprovalLineModal onClose={() => setModalOpen(false)} />}
+        </div>
 
         {/* 구분선 */}
         <div style={dividerStyle} />          
@@ -78,8 +92,6 @@ const pageContainerStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  width: "100vw", // 전체 너비를 화면 크기로 설정
-  minHeight: "100vh", // 화면 전체 높이 차지
   padding: "20px",
 };
 
@@ -176,4 +188,5 @@ const actionButtonStyle = {
     color: "black",
     cursor: "pointer",
   };
+  
   
