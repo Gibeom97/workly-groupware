@@ -53,11 +53,7 @@ function Header() {
         </div>
       </div>
       <div>
-<<<<<<< HEAD
-        <h2 className={styles.category}>전자결재(나중에 변수로 설정해서 페이지 변경 할 때마다 다른 문구 표시)</h2>
-=======
         <h2 className={styles.category}>전자결재</h2>
->>>>>>> 7fd367c9b4582f8ce1b361d654f2fa27c9aa1b43
       </div>
     </header>
   );

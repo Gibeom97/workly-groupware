@@ -14,17 +14,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Login/>} />
         <Route path="/main" element={<MainPage/>} />
-        <Route path="/calendar" element={<Calendar/>} />
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
+        <Route path="/calendar" element={<Calendar/>} />
         <Route path="/personnel" element={<PersonnelMain/>} /> 
         <Route path="/form" element={<FormMain/>}>
           <Route path="detail/:formNo" element={<FormUpdate/>} />
         </Route>
         <Route path="/calendar" element={<Calendar />} />
-        {/*전재결재Route*/}
-        <Route path="/approvalMain" element={<ApprovalMain />}/>
-        <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
       </Routes>
   );
 }
