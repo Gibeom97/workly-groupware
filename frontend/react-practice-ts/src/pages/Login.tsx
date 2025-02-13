@@ -4,25 +4,28 @@ import styles from './Login.module.css'
 import axios from "axios";
 
 const Login = () => {
-    const [userId, setUserId] = useState("");
+    const [userNo, setUserNo] = useState("");
     const [userPwd, setUserPwd] = useState("");
 
     const navigate = useNavigate();
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault();
-        console.log(userId, userPwd)
+        const userNoAsInt = Number(userNo);
+        
+        console.log(userNoAsInt);
 
-        axios.post("http://localhost:8003/workly/login", { userId, userPwd })
+        axios.post("http://localhost:8003/workly/login", { 
+            userNo: userNoAsInt, 
+            userPwd })
             .then(
-                response => {
-                    alert(response.data.msg);
-                    navigate("/main")
-                }
-            ).catch(console.log)
+                response => navigate("/main")
+            ).catch(error => {
+                alert(error.response.data.msg);
+            })
             .finally(() => {
-                setUserId(""),
-                    setUserPwd("")
+                setUserNo(""),
+                setUserPwd("")
             });
     }
 
@@ -40,15 +43,15 @@ const Login = () => {
                 <div className={styles.loginWrapper}>
                     <h1 className={styles.logo}>Workly</h1>
                     <form onSubmit={handleLogin}>
-                        <label htmlFor="userId" className={styles.labelText}>ID</label>
+                        <label htmlFor="userNo" className={styles.labelText}>ID</label>
                         <input
                             type="text"
-                            id="userId"
-                            value={userId}
+                            id="userNo"
+                            value={userNo}
                             className={styles.inputField}
                             placeholder="사원번호"
                             onChange={(e) => {
-                                setUserId(e.target.value)
+                                setUserNo(e.target.value)
                             }}
                         />
                         <label htmlFor="userPw" className={styles.labelText}>비밀번호</label>

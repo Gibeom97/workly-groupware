@@ -3,15 +3,21 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="member">
-
+	<select id="loginMember" resultType="member">
+		SELECT *
+		FROM MEMBER
+		WHERE 
+			USER_NO = #{userNo} AND
+			USER_PWD = #{userPwd} AND
+			STATUS = 'Y'
+	</select>
+	
+	<select id="getMemberList" resultType="member">
+		SELECT *
+		FROM MEMBER
+		ORDER BY DEPT_NO
+	</select>
+	
+	<resultMap id="memberMap" type="member">
+	</resultMap>
 </mapper>
-
-
-
-
-
-
-
-
-
-
