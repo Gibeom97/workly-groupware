@@ -1,12 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { ApprovalMemoModal } from "./approvalMemoModal";
+import ApprovalOutcheckModal from "./approvalOutcheckModal";
 import { useState } from "react";
 
 export const ApprovalWriteFooter = () => {
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [outCheckModalOpen, setOutCheckModalOpen] = useState(false);
     const navigate = useNavigate();
     
+    const handleExit = () => {
+        navigate('/approvalMain/ApprovalWriteDetailPage');
+    };
+
     return (
         <footer
             style={{
@@ -81,10 +87,19 @@ export const ApprovalWriteFooter = () => {
                         alignItems: "center",
                         justifyContent: "center",
                     }}
-                    onClick={() => navigate('/approvalMain/ApprovalWriteDetailPage')}
+                    onClick={() => setOutCheckModalOpen(true)}
                 >
                     결재취소
                 </button>
+
+                {/* 결재취소 확인 모달 */}
+                {outCheckModalOpen && (
+                    <ApprovalOutcheckModal 
+                        onClose={() => setOutCheckModalOpen(false)}
+                        onGoBack={() => setOutCheckModalOpen(false)}
+                        onExit={handleExit}
+                    />
+                )}
             </div>
         </footer>
     );
