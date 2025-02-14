@@ -1,4 +1,5 @@
-import ApprovalWriteBody from "../components/approval/approvalWritebody"
+
+import ApprovalWriteBody from "../components/approval/approvalWriteBody"
 import { ApprovalWriteFooter } from "../components/approval/approvalWriteFooter"
 import { ApprovalWriteHeader } from "../components/approval/approvalWriteHeader"
 import Header from "../components/common/Header"
