@@ -45,6 +45,7 @@ const Sidebar = () => {
             </span>
             <span>캘린더</span>
           </li>
+          </Link>
           <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
             <span>
               <img src={icon4} alt="전자결재" />
@@ -52,7 +53,6 @@ const Sidebar = () => {
             <span>전자결재</span>
             <span className={styles.badge}>6</span>
           </li>
-          </Link>
           <li>
             <span>
               <img src={icon5} alt="채팅" />

@@ -9,6 +9,8 @@ import { ApprovalCompletePage } from "./pages/approvalCompletePage";
 import PersonnelMain from "./pages/PersonnelMain";
 import FormMain from "./pages/FormMain";
 import FormUpdate from "./components/form/FormUpdate";
+import { ApprovalTempPage } from "./pages/approvalTempPage";
+import { ApprovalRejectPage } from "./pages/approvalRejectPage";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
         <Route path="/ApprovalCompletePage" element={<ApprovalCompletePage/>}/>
+        <Route path="/approvalTempPage" element={<ApprovalTempPage />} />
+        <Route path="/approvalRejectPage" element={<ApprovalRejectPage />} />
 
         <Route path="/personnel" element={<PersonnelMain/>} /> 
         <Route path="/form" element={<FormMain/>}>
