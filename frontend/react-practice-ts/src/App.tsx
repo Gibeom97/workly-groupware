@@ -35,6 +35,7 @@ function App() {
         <Route path="/ApprovalFinishPage" element={<ApprovalFinishPage/>}/>
         <Route path="/ApprovalRequestPage" element={<ApprovalRequestPage/>}/>
         <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage/>}/>
+        {/*전자결재Route*/}
 
         <Route path="/personnel" element={<PersonnelMain/>} /> 
         <Route path="/form" element={<FormMain/>}>
