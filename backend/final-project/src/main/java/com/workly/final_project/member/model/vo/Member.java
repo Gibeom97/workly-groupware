@@ -1,4 +1,4 @@
-package com.workly.final_project.login.model.vo;
+package com.workly.final_project.member.model.vo;
 
 import java.sql.Date;
 

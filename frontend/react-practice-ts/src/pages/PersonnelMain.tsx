@@ -12,15 +12,23 @@ import axios from 'axios';
 const PersonnelMain = () => {
     const [activeComponent, setActiveComponent] = useState("viewPersonnel");
     const [personnelList, setPersonnelList] = useState([]);
+    const [pageInfo, setPageInfo] = useState();
+    const [currentPage, setCurrentPage] = useState(1);
     
-    useEffect(() => {
-        axios.get("http://localhost:8003/workly/personnel")
+    const fetchPesonnel = () => {
+        axios.get("http://localhost:8003/workly/personnel", {
+            params: {cPage: currentPage}
+        })
              .then((response) => {
-                 setPersonnelList(response.data);
-                 console.log(response);
-                 console.log(personnelList);
+                setPersonnelList(response.data.members);
+                setPageInfo(response.data.pageInfo);
              })
-    }, []);
+    };
+
+    useEffect(() => {
+        fetchPesonnel();
+    }, [currentPage]);
+
 
     return (
         <div className="mainpageContainer">
@@ -32,8 +40,8 @@ const PersonnelMain = () => {
                     {activeComponent === "viewPersonnel" && (
                         <>
                             <SearchBar />
-                            <PersonnelTable />
-                            <Pagination />
+                            <PersonnelTable personnelList={personnelList}/>
+                            <Pagination pageInfo={pageInfo} setCurrentPage={setCurrentPage}/>
                         </>
                     )}
                     {activeComponent === "createEmployee" && <CreateEmployee/>}
