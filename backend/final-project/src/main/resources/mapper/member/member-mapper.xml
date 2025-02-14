@@ -12,15 +12,58 @@
 			STATUS = 'Y'
 	</select>
 	
-	<select id="selectMemberList" resultType="member">
+	<select id="selectMemberList" resultMap="memberDTOMap">
 		SELECT *
 		FROM (SELECT ROWNUM RNUM, A.*
-		        FROM (SELECT *
-		              FROM MEMBER
-		              ORDER BY DEPT_NO) A)
+		      FROM (SELECT ENO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS
+		            FROM MEMBER
+                    JOIN DEPARTMENT USING(DEPT_NO)
+                    JOIN POSITION USING(POSITION_NO)
+		            ORDER BY DEPT_NO) A)
 		WHERE RNUM BETWEEN #{startRow} AND #{endRow} 
 	</select>
 	
-	<resultMap id="memberMap" type="member">
+	<resultMap id="memberDTOMap" type="MemberDTO">
+		<association property="member" javaType="Member">
+			<id property="eNo" column="ENO" />
+			<result property="userName" column="USER_NAME" />
+			<result property="email" column="EMAIL" />
+			<result property="deptNo" column="DEPT_NO"/>
+			<result property="positionNo" column="POSITION_NO"/>
+			<result property="extension" column="EXTENSION" />
+			<result property="phone" column="PHONE" />
+			<result property="hireDate" column="HIRE_DATE" />
+			<result property="updateDate" column="UPDATE_DATE" />
+			<result property="totalLeaveDays" column="TOTAL_LEAVE_DAYS" />
+			<result property="address" column="ADDRESS" />
+		</association>
+		
+		<association property="department" javaType="Department">
+			<result property="deptName" column="DEPT_NAME"/>
+		</association>
+		
+		<association property="position" javaType="Position">
+			<result property="positionName" column="POSITION_NAME"/>
+		</association>
 	</resultMap>
 </mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
