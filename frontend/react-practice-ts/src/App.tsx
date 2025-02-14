@@ -5,6 +5,7 @@ import Calendar from "./components/calendar/Calendar";
 import './App.css'
 import { ApprovalMain } from "./pages/approvalMain";
 import { ApprovalWritePage } from "./pages/approvalWritePage";
+import { ApprovalCompletePage } from "./pages/approvalCompletePage";
 
 
 function App() {
@@ -13,10 +14,10 @@ function App() {
         <Route path="/" element={<Login/>} />
         <Route path="/main" element={<MainPage/>} />
         <Route path="/calendar" element={<Calendar />} />
-        {/*전재결재Route*/}
+        {/*전자결재Route*/}
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
-
+        <Route path="/ApprovalCompletePage" element={<ApprovalCompletePage/>}/>
       </Routes>
   );
 }
