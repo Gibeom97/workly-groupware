@@ -132,14 +132,29 @@
     .menu-close:hover {
       color: #333;
     }
+
+    .excel-button {
+        background-color: #4880FF;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 10px 0;
+    }
+
+    .excel-button:hover {
+        background-color: #3666CC;
+    }
   </style>
 </head>
 <body>
 
 <!-- 상단 메뉴 -->
 <div class="header">
-    <button onclick="location.href='attendance.html'">근태 기록</button>
-    <button onclick="location.href='leave.html'">휴가 기록</button>
+    <button onclick="location.href='attendance'">근태 기록</button>
+    <button onclick="location.href='leave'">휴가 기록</button>
 </div>
 
 <!-- 검색 영역 -->
@@ -362,6 +377,59 @@ function showMenu(x, y) {
       closeMenu();
     }
   });
+</script>
+
+<!-- 테이블 위에 버튼 추가 -->
+<button onclick="saveToExcel()" class="excel-button">근무기록 저장</button>
+
+<script>
+function saveToExcel() {
+    const rows = document.querySelectorAll("#attendanceTable tr");
+    const attendanceList = [];
+    
+    rows.forEach(row => {
+        const attendance = {
+            employeeName: row.cells[0].innerText,
+            teamName: row.cells[1].innerText,
+            employeeId: row.cells[2].innerText,
+            date: row.cells[3].innerText,
+            absence: row.cells[4].innerText,
+            startTime: row.cells[5].innerText,
+            endTime: row.cells[6].innerText,
+            overtimeHours: row.cells[7].innerText,
+            note: row.cells[8].innerText
+        };
+        attendanceList.push(attendance);
+    });
+
+    console.log('전송할 데이터:', attendanceList);
+    
+    fetch("/workly/api/saveAttendanceExcel", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(attendanceList)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('서버 응답 오류: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert("근무기록이 성공적으로 저장되었습니다!");
+        } else {
+            alert("저장 실패: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("오류 발생:", error);
+        alert("저장 중 오류가 발생했습니다: " + error.message);
+    });
+}
 </script>
 
 </body>
