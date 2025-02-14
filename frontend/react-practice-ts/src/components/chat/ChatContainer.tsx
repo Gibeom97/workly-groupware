@@ -4,7 +4,13 @@ import peopleIcon from "../../assets/Images/chat/people.png";
 import bellIcon from "../../assets/Images/chat/bell.png";
 import settingIcon from "../../assets/Images/chat/setting.png";
 
-const ChatContainer = ({ children }: { children: React.ReactNode }) => {
+const ChatContainer = ({
+      children,
+      onClose,
+    }: {
+      children: React.ReactNode;
+      onClose?: () => void;
+    }) => {
   return (
     <div 
       className="containerWrapper" 
@@ -43,26 +49,10 @@ const ChatContainer = ({ children }: { children: React.ReactNode }) => {
         Workly
       </div>
 
-      {/* 닫기 버튼 (X) */}
-      <div 
-        className="containerHeaderCloseButton" 
-        style={{ left: "370px", top: "4px", position: "absolute", cursor: "pointer" }}
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path 
-            d="M1 1L9 9M9 1L1 9" 
-            stroke="#757575" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-          />
-        </svg>
-      </div>
-
       {/* 사이드바 영역 */}
       <div 
         className="containerSidebar" 
-        style={{ width: "70px", height: "570px", left: "0px", top: "30px", position: "absolute", background: "#E9EBF1" }}
+        style={{ width: "70px", height: "600px", left: "0px", top: "30px", position: "absolute", background: "#E9EBF1" }}
       ></div>
 
       {/* 네비게이션 아이콘 */}
@@ -71,7 +61,25 @@ const ChatContainer = ({ children }: { children: React.ReactNode }) => {
       <img className="people" style={{ width: "31px", height: "31px", left: "20px", top: "150px", position: "absolute" }} src={peopleIcon} alt="icon3" />
       <img className="bell" style={{ width: "31px", height: "31px", left: "20px", top: "500px", position: "absolute" }} src={bellIcon} alt="icon4" />
       <img className="setting" style={{ width: "31px", height: "31px", left: "20px", top: "550px", position: "absolute" }} src={settingIcon} alt="icon5" />
-      
+
+      {/* 닫기 버튼 */}
+      <button 
+        className="chat-close-button" 
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '5px',
+          right: '5px',
+          zIndex: 10,
+          background: 'transparent',
+          border: 'none',
+          fontSize: '18px',
+          cursor: 'pointer',
+        }}
+      >
+        ×
+      </button>
+
       {/* 📌 자식 컴포넌트가 들어가는 영역 */}
       <div 
         className="containerContent" 

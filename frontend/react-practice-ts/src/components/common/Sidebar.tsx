@@ -11,6 +11,7 @@ import icon9 from '../../assets/images/icon/9.png';
 import icon10 from '../../assets/images/icon/10.png';
 import icon11 from '../../assets/images/icon/11.png';
 import icon12 from '../../assets/images/icon/12.png';
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
@@ -19,22 +20,25 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <h1 className={styles.title}>Workly</h1>
+      <div className={styles.title}>Wonk</div>
       <div className={styles.sidebarNav}>
       <nav>
         <ul>
+          <Link to={"/main"} className={styles.link}>
           <li>
             <span>
               <img src={icon1} alt="홈" />
             </span>
             <span>홈</span>
           </li>
+          </Link>
           <li>
             <span>
               <img src={icon2} alt="조직도" />
             </span>
             <span>조직도</span>
           </li>
+          <Link to={"/calendar"} className={styles.link}>
           <li>
             <span>
               <img src={icon3} alt="캘린더" />
@@ -48,6 +52,7 @@ const Sidebar = () => {
             <span>전자결재</span>
             <span className={styles.badge}>6</span>
           </li>
+          </Link>
           <li>
             <span>
               <img src={icon5} alt="채팅" />
@@ -76,18 +81,22 @@ const Sidebar = () => {
             </span>
             <span>급여관리</span>
           </li>
+          <Link to={"/personnel"} className={styles.link}>
           <li>
             <span>
               <img src={icon9} alt="인사관리" />
             </span>
             <span>인사관리</span>
           </li>
+          </Link>
+          <Link to={"/form"} className={styles.link}>
           <li>
             <span>
               <img src={icon10} alt="권한관리" />
             </span>
-            <span>권한관리</span>
+            <span>결재양식관리</span>
           </li>
+          </Link>
         </ul>
       </nav>
       </div>
