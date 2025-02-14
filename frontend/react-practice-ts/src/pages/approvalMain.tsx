@@ -6,7 +6,6 @@ import { ApprovalSearchBar } from '../components/approval/approvalSearchBar';
 import Header from '../components/common/Header';
 import Sidebar from '../components/common/Sidebar';
 
-
 export const ApprovalMain = () => {
 
   return (

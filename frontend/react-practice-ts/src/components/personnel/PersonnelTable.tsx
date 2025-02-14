@@ -2,6 +2,9 @@ import { useState } from 'react';
 import styles from './PersonnelTable.module.css'
 
 const PersonnelTable = ({personnelList}) => {
+    const phoneFormat = (phone) => {
+        return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+    };
 
     return (
         <div>
@@ -24,17 +27,17 @@ const PersonnelTable = ({personnelList}) => {
                 { <tbody>
                     {personnelList.map((e, i) => (
                         <tr key={i} className={styles.rowStyle}>
-                            <td className={styles.tdStyle}>{e.userNo}</td>
-                            <td className={styles.tdStyle}>{e.userName}</td>
-                            <td className={styles.tdStyle}>{e.email}</td>
-                            <td className={styles.tdStyle}>{e.extension}</td>
-                            <td className={styles.tdStyle}>{e.phone}</td>
-                            <td className={styles.tdStyle}>{e.deptNo}</td>
-                            <td className={styles.tdStyle}>{e.positionNo}</td>
-                            <td className={styles.tdStyle}>{e.hireDate}</td>
-                            <td className={styles.tdStyle}>{e.hireDate}</td>
-                            <td className={styles.tdStyle}>{e.totalLeaveDays}</td>
-                            <td className={`${styles.tdStyle} ${styles.address}`}>{e.address}</td>
+                            <td className={styles.tdStyle}>{e.member.eno}</td>
+                            <td className={styles.tdStyle}>{e.member.userName}</td>
+                            <td className={styles.tdStyle}>{e.member.email}</td>
+                            <td className={styles.tdStyle}>{e.member.extension}</td>
+                            <td className={styles.tdStyle}>{phoneFormat(e.member.phone)}</td>
+                            <td className={styles.tdStyle}>{e.department.deptName}</td>
+                            <td className={styles.tdStyle}>{e.position.positionName}</td>
+                            <td className={styles.tdStyle}>{e.member.hireDate}</td>
+                            <td className={styles.tdStyle}>{e.member.updateDate}</td>
+                            <td className={styles.tdStyle}>{e.member.totalLeaveDays}</td>
+                            <td className={`${styles.tdStyle} ${styles.address}`}>{e.member.address}</td>
                         </tr>
                     ))}
                 </tbody> }

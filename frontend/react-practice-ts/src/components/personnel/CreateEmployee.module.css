@@ -1,7 +1,7 @@
 .container {
     display: flex;
     width: 70%;
-    padding: 20px;
+    padding: 20px 0px;
     margin: auto;
     margin-top: 20px;
 }
@@ -15,29 +15,23 @@
 
 .profileImage {
     width: 150px;
-    height: 150px;
+    height: 180px;
 }
 
 .changeProfile {
-    width: 80px;
-    height: 30px;
+    width: 150px;
+    height: 40px;
     font-size: 12px;
     margin-top: 10px;
     align-items: center;
-    border : 1px solid #D5D5D5;
-    border-radius: 8px;
-    background: #F5F6FA;
+    border: none;
     cursor: pointer;
     transition: 0.1s;
+    color: #848484;
 }
 
 .inputProfile {
     display: none;
-}
-
-.changeProfile:hover {
-    background-color: #3b82f6;
-    color: white;
 }
 
 .formContainer {
@@ -68,6 +62,10 @@
     background: #F5F6FA;
 }
 
+.pwInput {
+    font-family: sans-serif;
+}
+
 .submitButton {
     width: 70px;
     height: 40px;
@@ -78,4 +76,16 @@
     border-radius: 5px;
     cursor: pointer;
     margin-top: 30px;
+}
+
+/* 모든 브라우저 input type number 태그 숫자 증감버튼 지우기 */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

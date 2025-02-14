@@ -13,8 +13,6 @@ const Login = () => {
         e.preventDefault();
         const userNoAsInt = Number(userNo);
         
-        console.log(userNoAsInt);
-
         axios.post("http://localhost:8003/workly/login", { 
             userNo: userNoAsInt, 
             userPwd })
@@ -29,7 +27,6 @@ const Login = () => {
             });
     }
 
-    // Login 컴포넌트의 body태그 css추가 삭제
     useEffect(() => {
         document.body.classList.add(styles.myBodyStyle);
         return () => {

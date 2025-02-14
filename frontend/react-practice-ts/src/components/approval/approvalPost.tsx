@@ -38,7 +38,6 @@ export const ApprovalPost = () => {
             <th style={thStyle}>상태</th>
           </tr>
         </thead>
-
         <tbody>
           {posts.map((post) => (
             <tr key={post.id} style={rowStyle}>
