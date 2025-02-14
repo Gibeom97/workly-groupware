@@ -35,10 +35,10 @@ export const ApprovalHeader = () => {
 const buttons = [
   { label: "내 문서함", path: "/approvalMain" },
   { label: "임시저장", path: "/approvalTempPage" },
-  { label: "결재진행", path: "/결재진행" },
-  { label: "결재완료", path: "/결재완료" },
-  { label: "결재요청", path: "/결재요청" },
-  { label: "결재참조", path: "/결재참조" },
+  { label: "결재진행", path: "/ApprovalProgressPage" },
+  { label: "결재완료", path: "/ApprovalFinishPage" },
+  { label: "결재요청", path: "/ApprovalRequestPage" },
+  { label: "결재참조", path: "/ApprovalReferencePage" },
   { label: "결재반려", path: "/approvalRejectPage" },
 ];
 

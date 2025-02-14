@@ -1,8 +1,8 @@
 export const ApprovalCompleteHeader = () => {
     return (
-      <div style={containerStyle}>
-        {/* 타이틀 */}
-        <div style={titleStyle}>기안서 작성</div>
+      <div style={containerStyle}>    
+         
+      <h2 style={titleStyle}>결재 완료 문서</h2>
   
         {/* 구분선 */}
         <div style={dividerStyleBold} />
@@ -97,6 +97,7 @@ export const ApprovalCompleteHeader = () => {
     maxWidth: "900px",
     background: "white",
     borderRadius: "8px",
+    margin: "0 auto", // ✅ 좌우 중앙 정렬
   };
   
   // ✅ **타이틀 스타일**
