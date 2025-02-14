@@ -1,0 +1,37 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    gap: 4px;
+}
+
+.pageButton {
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.moveButton {
+    border: none;
+    color:#a2a2a2;
+    padding: 6px 12px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.pageButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pageButton:hover {
+    border: 1px solid #3b82f6;;
+    color: black;
+}
+
+.activePage {
+    border: 1px solid #3b82f6;;
+    color: black;
+}

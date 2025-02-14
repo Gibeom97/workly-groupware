@@ -24,7 +24,6 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     text-align: center;
-    /* 가운데 정렬 */
 }
 
 /* 로고(제목) */
@@ -46,9 +45,11 @@
 .inputField {
     width: 100%;
     padding: 0.8rem;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-family: sans-serif;
+    font-weight: 400;
 }
 
 /* 아이디 저장 체크박스 */
@@ -80,7 +81,6 @@
 
 .loginBtn:hover {
     background-color: #4752C4;
-    /* 호버 시 색 살짝 어둡게 */
 }
 
 /* 안내 문구 */

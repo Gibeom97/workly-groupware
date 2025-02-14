@@ -1,0 +1,56 @@
+.filterGroup {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    justify-content: flex-end;
+}
+
+.select {
+    border: 1px solid #ccc;
+    width: 100px;
+    height: 28px;
+    background: white;
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 5px;
+    cursor: pointer;
+}
+ 
+.search {
+    height: 28px;
+    display: flex;
+    background: #F5F6FA;
+    border: 1px solid #D5D5D5;
+    border-Radius: 20px;
+    padding: 0 8px;
+}
+
+.input {
+    color: #202224;
+    font-Size: 12px;
+    font-Weight: 400;
+    opacity: 0.8;
+    height: 100%;
+    width: 100%;
+    background: #F5F6FA;
+    border-Radius: 20px;
+    border: none;
+    padding-left: 10px;
+    outline:none;
+    box-shadow:none;
+}
+
+.searchButton {
+    background: white;
+    background: #F5F6FA;
+    border: none;
+    border-Radius: 20px;
+    outline:none;
+    box-shadow:none;
+}
+
+.searchButton img {
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+}

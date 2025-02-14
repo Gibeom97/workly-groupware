@@ -1,31 +1,75 @@
-import profileIcon from "../../assets/Images/chat/profile.png"
+
+import React from "react";
+import profileIcon from "../../assets/Images/chat/profile.png";
 import starFullIcon from "../../assets/Images/chat/starFull.png";
 import star from "../../assets/Images/chat/star 62.png";
 import noticeIcon from "../../assets/Images/chat/loud-speaker 11.png";
 
-const ChatMain = () => {
+interface ChatMainProps {
+  selectedStatus: string;
+  setSelectedStatus: (status: string) => void;
+  onProfileClick: (name: string) => void; // 프로필 클릭 이벤트 핸들러
+  onNoticeClick: () => void; // 공지사항 클릭 이벤트 핸들러
+}
+
+const ChatMain: React.FC<ChatMainProps> = ({ selectedStatus, setSelectedStatus, onProfileClick, onNoticeClick }) => {
   return (
-    <div 
-      className="main" 
-      style={{ 
-        width: "245px", 
-        height: "490px", 
-        background: "#FFFFFF", 
-        borderRadius: "8px", 
-        padding: "20px 0px", 
-        fontFamily: "'Roboto', sans-serif", 
-        display: "flex", 
-        flexDirection: "column"
+    <div
+      className="main"
+      style={{
+        width: "245px",
+        height: "490px",
+        background: "#FFFFFF",
+        borderRadius: "8px",
+        padding: "20px 0px",
+        fontFamily: "'Roboto', sans-serif",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* 🔹 김젤리 프로필 */}
       <div className="mine" style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
-        <div className="mineProfile" style={{ width: "40px", height: "40px", background: "#D9D9D9", borderRadius: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div
+          className="mineProfile"
+          style={{
+            width: "40px",
+            height: "40px",
+            background: "#D9D9D9",
+            borderRadius: "10px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer", // 프로필 사진에 커서 포인터 추가
+          }}
+          onClick={() => onProfileClick('채소염')}// 프로필 사진 클릭 이벤트
+        >
           <img className="mineProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
         </div>
         <div style={{ marginLeft: "10px" }}>
           <div className="mineUserName" style={{ fontSize: "16px", fontWeight: "600" }}>김젤리</div>
-          <div className="mineStatus" style={{ fontSize: "11px", fontWeight: "500", color: "#B3B3B3" }}>활성화</div>
+
+          {/* 🔹 상태 선택 드롭다운 */}
+          <select
+            className="mineStatusDropdown"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            style={{
+              fontSize: "11px",
+              fontWeight: "500",
+              color: "#202224",
+              border: "1px solid #ccc",
+              borderRadius: "5px",
+              padding: "2px 6px",
+              background: "white",
+              cursor: "pointer",
+              width: "100px",
+            }}
+          >
+            <option value="활성화">활성화</option>
+            <option value="비활성화">비활성화</option>
+            <option value="회의중">회의중</option>
+            <option value="자리비움">자리비움</option>
+          </select>
         </div>
       </div>
 
@@ -33,7 +77,7 @@ const ChatMain = () => {
       <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0", marginBottom: "15px" }} />
 
       {/* 🔹 사내 공지 */}
-      <div className="notice" style={{ marginBottom: "15px" }}>
+      <div className="notice" style={{ marginBottom: "15px", cursor: 'pointer' }} onClick={onNoticeClick}>
         <div className="noticeHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>공지사항</div>
         <div style={{ display: "flex", alignItems: "center" }}>
           <img className="noticeIcon" style={{ width: "30px", height: "30px", marginRight: "15px" }} src={noticeIcon} alt="공지 아이콘" />
@@ -60,7 +104,7 @@ const ChatMain = () => {
               <div className="favoriteStatus" style={{ fontSize: "11px", fontWeight: "500", color: "#B3B3B3" }}>비활성화</div>
             </div>
           </div>
-          <img className="favoriteStarIcon" style={{ width: "15px", height: "15px" }} src={starFullIcon} alt="full-star" />
+          <img className="favoriteStarIcon" style={{ width: "15px", height: "15px" }} src={starFullIcon} alt="full-star"  />
         </div>
       </div>
 

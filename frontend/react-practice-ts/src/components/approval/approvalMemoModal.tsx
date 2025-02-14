@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 export const ApprovalMemoModal = ({ onClose }: { onClose: () => void }) => {
+
+  const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -105,7 +110,7 @@ export const ApprovalMemoModal = ({ onClose }: { onClose: () => void }) => {
             cursor: "pointer",
             marginTop: "15px",
           }}
-          onClick={onClose}
+          onClick={() => navigate('/ApprovalCompletePage')}
         >
           저장
         </button>

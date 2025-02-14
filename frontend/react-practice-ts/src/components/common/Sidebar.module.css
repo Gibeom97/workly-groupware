@@ -12,8 +12,8 @@
 
 /* 상단 로고(타이틀) */
 .title {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 25px;
+  font-weight: 900;
   text-align: center;
   color: #3b82f6;
   margin-bottom: 20px;
@@ -47,7 +47,6 @@
 }
 
 /* 알림 표시 배지 */
-
 .badge {
   background: #ef4444;
   color: white;
@@ -83,10 +82,13 @@
 }
 
 .mypageButton:hover {
-  font-weight: bold;
+  color:black;
 }
-
 .logoutButton:hover {
   color: red;
-  font-weight: bold;
+}
+
+.link {
+  text-decoration: none;
+  color: black;
 }

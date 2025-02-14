@@ -47,9 +47,6 @@ const ApprovalLineModal = ( {onClose} ) => {
       <button
         onClick={onClose}
         style={{
-          position: "absolute",
-          top: 10,
-          right: 10,
           background: "transparent",
           border: "none",
           fontSize: 9,
