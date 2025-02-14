@@ -6,13 +6,12 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './store.ts'
 import { StrictMode } from 'react'
-import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
   <BrowserRouter>
   <StrictMode>
-    <App />
+    <Chat />
     </StrictMode>
   </BrowserRouter>
   </Provider>
