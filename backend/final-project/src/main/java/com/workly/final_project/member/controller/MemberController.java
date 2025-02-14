@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.workly.final_project.common.controller.PaginationController;
 import com.workly.final_project.common.model.vo.PageInfo;
-import com.workly.final_project.member.model.dto.MemberDTO;
+import com.workly.final_project.member.model.dto.MemberListDTO;
 import com.workly.final_project.member.model.service.MemberService;
 import com.workly.final_project.member.model.vo.Member;
 
@@ -50,17 +50,25 @@ public class MemberController {
 	
 	@CrossOrigin("http://localhost:5173")
 	@GetMapping("/personnel")
-	public MemberDTO selectMemberList(
+	public MemberListDTO selectMemberList(
 			@RequestParam int cPage
 			) {
-		
 		PageInfo pi = page.pagination(cPage);
-		log.debug("pi : {}", pi);
 		
 		List<Member> list = service.selectMemberList(pi);
-		log.debug("list : {} ", list);
+		log.debug("list : {}", list);
 		
-		return new MemberDTO(pi, list);
+		return new MemberListDTO(pi, list);
 	}
+	
+	@CrossOrigin("http://localhost:5173")
+	@PostMapping("/createMember")
+	public ResponseEntity insertMember(
+			@RequestBody Member m) {
+		
+		log.debug("m : {}", m);
+		return null;
+	}
+	
 }
 

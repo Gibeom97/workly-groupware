@@ -5,16 +5,15 @@ import { ApprovalPost } from '../components/approval/approvalPost';
 import { ApprovalSearchBar } from '../components/approval/approvalSearchBar';
 import Header from '../components/common/Header';
 import Sidebar from '../components/common/Sidebar';
-import styles from "./MainPage.module.css"
 
 export const ApprovalMain = () => {
 
   return (
-    <div className={styles.mainpageContainer}>
+    <div className="mainpageContainer">
       <Sidebar />
-      <div className={styles.componentContainer}>
+      <div className="componentContainer">
         <Header />
-        <div id="container">
+        <div className="componentContainer1">
           <ApprovalHeader />
           <ApprovalSearchBar />
           <ApprovalPost />

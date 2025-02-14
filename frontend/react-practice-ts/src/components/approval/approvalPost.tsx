@@ -17,7 +17,7 @@ export const ApprovalPost = () => {
       <table style={tableStyle}>
         <thead>
           <tr>
-            <th style={thStyle}></th> {/* 파란 원 표시할 공간 */}
+            <th style={thStyle}></th> 
             <th style={thStyle}>구분</th>
             <th style={thStyle}>기안번호</th>
             <th style={thStyle}>기안자</th>
@@ -26,7 +26,6 @@ export const ApprovalPost = () => {
             <th style={thStyle}>상태</th>
           </tr>
         </thead>
-
         <tbody>
           {posts.map((post) => (
             <tr key={post.id} style={rowStyle}>

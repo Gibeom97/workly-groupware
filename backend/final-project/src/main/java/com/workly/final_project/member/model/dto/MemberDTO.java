@@ -1,16 +1,18 @@
 package com.workly.final_project.member.model.dto;
 
-import java.util.List;
-
-import com.workly.final_project.common.model.vo.PageInfo;
+import com.workly.final_project.member.model.vo.Department;
 import com.workly.final_project.member.model.vo.Member;
+import com.workly.final_project.member.model.vo.Position;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class MemberDTO {
-	private PageInfo pageInfo;
-	private List<Member> members;
+	private Member member;
+	private Department department;
+	private Position position;
 }

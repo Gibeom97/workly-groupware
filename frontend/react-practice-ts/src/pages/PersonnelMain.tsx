@@ -27,6 +27,7 @@ const PersonnelMain = () => {
 
     useEffect(() => {
         fetchPesonnel();
+        console.log(personnelList)
     }, [currentPage]);
 
 

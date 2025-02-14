@@ -29,4 +29,3 @@ public class Member {
 	private Date hireDate;
 	private Date updateDate;
 }
-
