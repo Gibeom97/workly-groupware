@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import styles from './PersonnelTable.module.css'
 
-const PersonnelTable = () => {
+const PersonnelTable = ({personnelList}) => {
 
     return (
         <div>
@@ -20,23 +21,23 @@ const PersonnelTable = () => {
                         <th className={styles.thStyle}>주소</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {Array.from({ length: 10 }).map((_, index) => (
-                        <tr key={index} className={styles.rowStyle}>
-                            <td className={styles.tdStyle}>20050{index}</td>
-                            <td className={styles.tdStyle}>홍길동</td>
-                            <td className={styles.tdStyle}>example{index}@naver.com</td>
-                            <td className={styles.tdStyle}>511{index}</td>
-                            <td className={styles.tdStyle}>010-1234-5555</td>
-                            <td className={styles.tdStyle}>총무팀</td>
-                            <td className={styles.tdStyle}>팀장</td>
-                            <td className={styles.tdStyle}>2005-05-13</td>
-                            <td className={styles.tdStyle}>{index % 2 === 0 ? "-" : "2024-12-31"}</td>
-                            <td className={styles.tdStyle}>3</td>
-                            <td className={styles.tdStyle}>서울특별시 송파구 가락로 5길 7</td>
+                { <tbody>
+                    {personnelList.map((e, i) => (
+                        <tr key={i} className={styles.rowStyle}>
+                            <td className={styles.tdStyle}>{e.userNo}</td>
+                            <td className={styles.tdStyle}>{e.userName}</td>
+                            <td className={styles.tdStyle}>{e.email}</td>
+                            <td className={styles.tdStyle}>{e.extension}</td>
+                            <td className={styles.tdStyle}>{e.phone}</td>
+                            <td className={styles.tdStyle}>{e.deptNo}</td>
+                            <td className={styles.tdStyle}>{e.positionNo}</td>
+                            <td className={styles.tdStyle}>{e.hireDate}</td>
+                            <td className={styles.tdStyle}>{e.hireDate}</td>
+                            <td className={styles.tdStyle}>{e.totalLeaveDays}</td>
+                            <td className={`${styles.tdStyle} ${styles.address}`}>{e.address}</td>
                         </tr>
                     ))}
-                </tbody>
+                </tbody> }
             </table>
         </div>
     )

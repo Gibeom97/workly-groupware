@@ -1,4 +1,4 @@
-package com.workly.final_project.login.controller;
+package com.workly.final_project.member.controller;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,12 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.workly.final_project.login.model.service.MemberService;
-import com.workly.final_project.login.model.vo.Member;
+import com.workly.final_project.common.controller.PaginationController;
+import com.workly.final_project.common.model.vo.PageInfo;
+import com.workly.final_project.member.model.dto.MemberDTO;
+import com.workly.final_project.member.model.service.MemberService;
+import com.workly.final_project.member.model.vo.Member;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	
 	private final MemberService service;
+	private final PaginationController page;
 	
 	@CrossOrigin("http://localhost:5173")
 	@PostMapping("/login")
@@ -44,12 +50,17 @@ public class MemberController {
 	
 	@CrossOrigin("http://localhost:5173")
 	@GetMapping("/personnel")
-	public List<Member> getMemberList() {
-		List<Member> list = service.getMemberList();
+	public MemberDTO selectMemberList(
+			@RequestParam int cPage
+			) {
 		
+		PageInfo pi = page.pagination(cPage);
+		log.debug("pi : {}", pi);
+		
+		List<Member> list = service.selectMemberList(pi);
 		log.debug("list : {} ", list);
 		
-		return list;
+		return new MemberDTO(pi, list);
 	}
 }
 

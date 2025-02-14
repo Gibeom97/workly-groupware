@@ -12,10 +12,13 @@
 			STATUS = 'Y'
 	</select>
 	
-	<select id="getMemberList" resultType="member">
+	<select id="selectMemberList" resultType="member">
 		SELECT *
-		FROM MEMBER
-		ORDER BY DEPT_NO
+		FROM (SELECT ROWNUM RNUM, A.*
+		        FROM (SELECT *
+		              FROM MEMBER
+		              ORDER BY DEPT_NO) A)
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow} 
 	</select>
 	
 	<resultMap id="memberMap" type="member">

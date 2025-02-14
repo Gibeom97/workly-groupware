@@ -26,6 +26,11 @@
     cursor: not-allowed;
 }
 
+.pageButton:hover {
+    border: 1px solid #3b82f6;;
+    color: black;
+}
+
 .activePage {
     border: 1px solid #3b82f6;;
     color: black;
