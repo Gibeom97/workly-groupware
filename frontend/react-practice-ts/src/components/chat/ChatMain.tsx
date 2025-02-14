@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import profileIcon from "../../assets/Images/chat/profile.png";
 import starFullIcon from "../../assets/Images/chat/starFull.png";
 import star from "../../assets/Images/chat/star 62.png";
@@ -8,11 +7,36 @@ import noticeIcon from "../../assets/Images/chat/loud-speaker 11.png";
 interface ChatMainProps {
   selectedStatus: string;
   setSelectedStatus: (status: string) => void;
-  onProfileClick: (name: string) => void; // 프로필 클릭 이벤트 핸들러
-  onNoticeClick: () => void; // 공지사항 클릭 이벤트 핸들러
+  onProfileClick: (name: string) => void;
+  onNoticeClick: () => void;
 }
 
-const ChatMain: React.FC<ChatMainProps> = ({ selectedStatus, setSelectedStatus, onProfileClick, onNoticeClick }) => {
+const ChatMain: React.FC<ChatMainProps> = ({
+  selectedStatus,
+  setSelectedStatus,
+  onProfileClick,
+  onNoticeClick,
+}) => {
+  // 즐겨찾기 상태 관리
+  const [favorites, setFavorites] = useState<string[]>(["김예삐"]);
+
+  const toggleFavorite = (name: string) => {
+    setFavorites((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
+  };
+
+  
+
+  const members = ["김예삐", "박솜이", "최웡카", "김기밤", "채소염"];
+  const memberStatus: Record<string, string> = {
+  김예삐: "비활성화",
+  박솜이: "비활성화",
+  최웡카: "비활성화",
+  김기밤: "활성화",
+  채소염: "비활성화",
+};
+
   return (
     <div
       className="main"
@@ -39,16 +63,14 @@ const ChatMain: React.FC<ChatMainProps> = ({ selectedStatus, setSelectedStatus, 
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            cursor: "pointer", // 프로필 사진에 커서 포인터 추가
+            cursor: "pointer",
           }}
-          onClick={() => onProfileClick('채소염')}// 프로필 사진 클릭 이벤트
+          onClick={() => onProfileClick("김젤리")}
         >
           <img className="mineProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
         </div>
         <div style={{ marginLeft: "10px" }}>
           <div className="mineUserName" style={{ fontSize: "16px", fontWeight: "600" }}>김젤리</div>
-
-          {/* 🔹 상태 선택 드롭다운 */}
           <select
             className="mineStatusDropdown"
             value={selectedStatus}
@@ -74,7 +96,9 @@ const ChatMain: React.FC<ChatMainProps> = ({ selectedStatus, setSelectedStatus, 
       </div>
 
       {/* 🔹 구분선 */}
-      <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0", marginBottom: "15px" }} />
+      <div style={{ marginBottom: "15px" }}>
+        <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0" }} />
+      </div>
 
       {/* 🔹 사내 공지 */}
       <div className="notice" style={{ marginBottom: "15px", cursor: 'pointer' }} onClick={onNoticeClick}>
@@ -89,45 +113,76 @@ const ChatMain: React.FC<ChatMainProps> = ({ selectedStatus, setSelectedStatus, 
       </div>
 
       {/* 🔹 구분선 */}
-      <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0", marginBottom: "15px" }} />
-
-      {/* 🔹 즐겨찾기 */}
-      <div className="favorite" style={{ marginBottom: "15px" }}>
-        <div className="favoriteHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>즐겨찾기</div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div className="favoriteProfile" style={{ width: "40px", height: "40px", background: "#D9D9D9", borderRadius: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <img className="favoriteProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
-            </div>
-            <div style={{ marginLeft: "10px" }}>
-              <div className="favoriteUserName" style={{ fontSize: "16px", fontWeight: "600" }}>김예삐</div>
-              <div className="favoriteStatus" style={{ fontSize: "11px", fontWeight: "500", color: "#B3B3B3" }}>비활성화</div>
-            </div>
-          </div>
-          <img className="favoriteStarIcon" style={{ width: "15px", height: "15px" }} src={starFullIcon} alt="full-star"  />
-        </div>
+      <div style={{ marginBottom: "15px" }}>
+        <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0" }} />
       </div>
 
-      {/* 🔹 구분선 */}
-      <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0", marginBottom: "15px" }} />
+      {/* 🔹 즐겨찾기 */}
+      <div style={{ marginBottom: "5px" }}>
+        <div className="favoriteHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>즐겨찾기</div>
+        {members.filter(name => favorites.includes(name)).length === 0 ? (
+          <div style={{ height: "20px" }}>{/* 빈 공간 확보 */}</div>
+        ) : (
+          members.filter(name => favorites.includes(name)).map((name) => (
+            <div key={name} className="memberCard" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", cursor: 'pointer' }} onClick={() => onProfileClick(name)}>
+                <div className="memberProfile" style={{ width: "40px", height: "40px", background: "#D9D9D9", borderRadius: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <img className="memberProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
+                </div>
+                <div style={{ marginLeft: "10px" }}>
+                  <div>{name}</div>
+                  <div style={{ fontSize: "11px", color: "#B3B3B3" }}>{memberStatus[name]}</div>
+                </div>
+              </div>
+              <img src={starFullIcon} alt="star-full" style={{ cursor: 'pointer', width: '15px' }} onClick={() => toggleFavorite(name)} />
+            </div>
+          ))
+        )}
+        {/* 🔹 구분선 - 즐겨찾기와 팀원 사이 고정 */}
+        <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0", marginTop: "5px" }} />
+      </div>
+
 
       {/* 🔹 팀원 */}
       <div className="memberHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>팀원</div>
-
-      {[ "박솜이", "최웡카", "김기밤", "채소염" ].map((name, index) => (
-        <div key={index} className="memberCard" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div className="memberProfile" style={{ width: "40px", height: "40px", background: "#D9D9D9", borderRadius: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <img className="memberProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
-            </div>
-            <div style={{ marginLeft: "10px" }}>
-              <div className="memberUserName" style={{ fontSize: "16px", fontWeight: "600" }}>{name}</div>
-              <div className="memberStatus" style={{ fontSize: "11px", fontWeight: "500", color: "#B3B3B3" }}>{name === "김기밤" ? "활성화" : "비활성화"}</div>
-            </div>
+      {members.map((name) => (
+      <div key={name} className="memberCard" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", cursor: 'pointer' }} onClick={() => onProfileClick(name)}>
+          {/* 🔹 프로필 사진 영역 복구 */}
+          <div
+            className="memberProfile"
+            style={{
+              width: "40px",
+              height: "40px",
+              background: "#D9D9D9",
+              borderRadius: "10px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <img
+              className="memberProfileIcon"
+              style={{ width: "22px", height: "22px", objectFit: "cover" }}
+              src={profileIcon}
+              alt="profile"
+            />
           </div>
-          <img className="memberStarIcon" style={{ width: "15px", height: "15px" }} src={star} alt="star" />
+
+          <div style={{ marginLeft: "10px" }}>
+            <div>{name}</div>
+            <div style={{ fontSize: "11px", color: "#B3B3B3" }}>{memberStatus[name]}</div>
+          </div>
         </div>
-      ))}
+        <img
+          src={favorites.includes(name) ? starFullIcon : star}
+          alt="star"
+          style={{ cursor: 'pointer', width: '15px' }}
+          onClick={() => toggleFavorite(name)}
+        />
+      </div>
+    ))}
+
     </div>
   );
 };

@@ -1,8 +1,4 @@
-// import profileIcon from "../../assets/Images/chat/profile.png";
-// import chatIcon from "../../assets/Images/chat/chat.png";
-// import peopleIcon from "../../assets/Images/chat/people.png";
-// import bellIcon from "../../assets/Images/chat/bell.png";
-// import settingIcon from "../../assets/Images/chat/setting.png";
+
 
 const InfoContainer = ({ children }: { children: React.ReactNode }) => {
   return (

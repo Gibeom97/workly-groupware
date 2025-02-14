@@ -63,7 +63,7 @@ const MemberInfo = ({ member, onClose }: MemberInfoProps) => {
         />
       </div>
 
-      <div style={{ marginTop: 35, paddingLeft: 0, paddingRight: 16 }}>
+      <div style={{ marginTop: 35, paddingLeft: 0, paddingRight: 16}}>
         {[
           { label: "이름", value: member.name },
           { label: "부서", value: member.dept},
@@ -75,7 +75,7 @@ const MemberInfo = ({ member, onClose }: MemberInfoProps) => {
           <div key={index} style={{ display: "flex", marginBottom: 15 }}>
             <div
               style={{
-                width: 70,
+                width: 90,
                 color: "#979797",
                 fontSize: 16,
                 fontWeight: "600",
@@ -113,7 +113,9 @@ const MemberInfo = ({ member, onClose }: MemberInfoProps) => {
             fontFamily: 'Inter',
             fontWeight: '600',
             marginTop: '4px'
-        }}>1:1 채팅</span>
+        }}
+        //onClick={} // 여기 수정하기()
+        >1:1 채팅</span>
         </div>
 
         {/* 알림 설정 */}
@@ -124,7 +126,9 @@ const MemberInfo = ({ member, onClose }: MemberInfoProps) => {
             fontFamily: 'Inter',
             fontWeight: '600',
             marginTop: '4px'
-        }}>알림 설정</span>
+        }}
+        
+        >알림 설정</span>
         </div>
 
         {/* 즐겨찾기 */}
