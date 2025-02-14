@@ -1,9 +1,21 @@
 import { useState } from "react";
 import { ApprovalMark } from "./approvalMark";
 
+// 📌 `Post` 타입 정의
+interface Post {
+  id: number;
+  type: string;
+  approvalId: string;
+  approver: string;
+  title: string;
+  createdAt: string;
+  isUnread: boolean;
+  status?: string; // ✅ 선택적 속성
+}
+
 export const ApprovalPost = () => {
   // 게시글 목록 (isUnread: true인 경우 안 읽은 게시글)
-  const [posts, setPosts] = useState([
+  const [posts, setPosts] = useState<Post[]>([
     { id: 1, type: "일반", approvalId: "기안-20240205-1628", approver: "최웡카 과장", title: "[기안] 2025 사내 이벤트 추진의 건", createdAt: "2025-02-07 16:22", isUnread: true },
     { id: 2, type: "일반", approvalId: "기안-20240203-1625", approver: "최웡카 과장", title: "[공문] 경기도청 3월 환급 요청의 건", createdAt: "2025-02-06 09:21", isUnread: false },
     { id: 3, type: "일반", approvalId: "기안-20240202-1601", approver: "최웡카 과장", title: "[기안] 인천광역시청 3월 직원복지(꽃꽂이이벤트) 업무요청의 건", createdAt: "2025-02-05 14:15", isUnread: true },
@@ -57,7 +69,7 @@ const containerStyle = {
   };
   
   // ✅ 테이블 스타일 (오른쪽으로 이동 & 폭 넓힘)
-  const tableStyle = {
+  const tableStyle:any = {
     width: "90%", // ✅ 기존 90% → 95%로 넓힘
     borderCollapse: "collapse",
     textAlign: "center",
@@ -76,7 +88,7 @@ const rowStyle = {
   borderBottom: "1px solid #E0E0E0",
 };
 
-const tdStyle = {
+const tdStyle:any = {
   padding: "10px",
   fontSize: "12px",
   color: "#202224",
@@ -88,7 +100,7 @@ const tdTitleStyle = {
 };
 
 // 상태 스타일
-const getStatusStyle = (status) => {
+const getStatusStyle:any = (status:any) => {
   let baseStyle = {
     padding: "5px 10px",
     borderRadius: "4px",
@@ -112,7 +124,7 @@ const getStatusStyle = (status) => {
 };
 
 // 아이콘을 위한 셀 스타일 (왼쪽 정렬)
-const tdIconStyle = {
+const tdIconStyle:any = {
   width: "20px", // 아이콘 크기 조정
   textAlign: "center",
 };
