@@ -9,7 +9,6 @@ public class SalaryController {
 	
 	@GetMapping("/salary")
 	public String salary(Model model) {
-		model.addAttribute("nema","chae");
 		return "salary";
 	}
 }
