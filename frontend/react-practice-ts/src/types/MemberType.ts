@@ -13,6 +13,6 @@ export interface Member {
 	extension : string;
 	email : string;
 	address : string;
-	hireDate : string;
+	hireDate : string; 
 	updateDate : string;
 }
