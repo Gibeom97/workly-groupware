@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
+<head>
+    <title>휴가 기록</title>
+    <style>
+        * {
+            font-family: 'NanumSquare', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        /* 상단 메뉴 스타일 */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header button {
+            width: 120px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 14px;
+            border: 1px solid #B9B9B9;
+            cursor: pointer;
+            background: white;
+            color: #202224;
+            transition: background-color 0.3s;
+        }
+
+        .header button:hover {
+            background: #4880FF;
+            color: white;
+        }
+
+        /* 검색 영역 스타일 */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            background: #4880FF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-btn:hover {
+            background-color: #356ac9;
+        }
+
+        /* 테이블 스타일 */
+        table {
+	            width: 100%;
+	            border-collapse: collapse;
+	            margin-top: 20px;
+	        }
+	        th, td {
+	            border: 1px solid #B9B9B9;
+	            padding: 12px;
+	            text-align: center;
+	            font-size: 15px;
+	        }
+	        th {
+	            background: rgba(72, 128, 255, 0.06);
+	            font-weight: 600;
+	        }
+
+    tr:hover {
+      background-color: #f5f7fa;
+    }
+
+        /* 삭제 버튼 스타일 */
+        .delete-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+            color: white;
+            background-color: #ff6b6b;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: #d9534f;
+        }
+
+        /* 선택된 행 스타일 */
+        .selected {
+            background-color: #e0e6f9 !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 상단 메뉴 -->
+<div class="header">
+    <button onclick="location.href='attendance.html'">근태 기록</button>
+    <button onclick="location.href='leave.html'">휴가 기록</button>
+</div>
+
+<!-- 검색 영역 -->
+<div class="search-container">
+    <label>일자 조회</label>
+    <input type="date" value="2025-02-17">
+    <select>
+        <option>팀 선택</option>
+        <option>인사팀</option>
+        <option>영업팀</option>
+    </select>
+    <input type="text" id="searchInput" placeholder="이름 / 사번">
+    <button class="search-btn" onclick="searchEmployee()">검색</button>
+</div>
+
+
+    <!-- 휴가 기록 테이블 -->
+    <table>
+        <thead>
+        <tr>
+            <th>성명</th>
+            <th>팀명</th>
+            <th>사번</th>
+            <th>일자</th>
+            <th>문서번호</th>
+            <th>연차 유형</th>
+            <th>삭제</th>
+        </tr>
+        </thead>
+        <tbody id="leaveTable">
+        <tr>
+            <td>홍길동</td>
+            <td data-team="인사팀">인사팀</td>
+            <td>2016107036</td>
+            <td data-date="2025-02-14">2025.02.14</td>
+            <td>DOC202402</td>
+            <td>연차</td>
+            <td><button class="delete-btn" onclick="deleteRecord(this)">삭제</button></td>
+        </tr>
+        <tr>
+            <td>김철수</td>
+            <td data-team="인사팀">인사팀</td>
+            <td>2016107037</td>
+            <td data-date="2025-02-14">2025.02.14</td>
+            <td>DOC202403</td>
+            <td>연차</td>
+            <td><button class="delete-btn" onclick="deleteRecord(this)">삭제</button></td>
+        </tr>
+        <tr>
+            <td>박서윤</td>
+            <td data-team="인사팀">인사팀</td>
+            <td>2016107038</td>
+            <td data-date="2025-02-13">2025.02.13</td>
+            <td>DOC202404</td>
+            <td>오후반차</td>
+            <td><button class="delete-btn" onclick="deleteRecord(this)">삭제</button></td>
+        </tr>
+        </tbody>  
+    </table>
+
+<script>
+  function searchEmployee() {
+  let searchInput = document.getElementById("searchInput").value.toLowerCase().trim();
+  let dateInput = document.querySelector("input[type='date']").value;
+  let departmentInput = document.querySelector("select").value.toLowerCase().trim();
+
+  let tableRows = document.querySelectorAll("#leaveTable tr");
+
+  tableRows.forEach(row => {
+    let name = row.cells[0].innerText.toLowerCase();       
+    let department = row.cells[1].dataset.team?.toLowerCase() || ""; 
+    let employeeId = row.cells[2].innerText.toLowerCase(); 
+    let date = row.cells[3].dataset.date || "";          
+    let docNumber = row.cells[4].innerText.toLowerCase();  
+
+    // ✅ 하나라도 조건이 일치하면 표시
+    const match = 
+      (searchInput && (name.includes(searchInput) || employeeId.includes(searchInput) || docNumber.includes(searchInput))) ||
+      (dateInput && date.includes(dateInput)) ||
+      (departmentInput && department.includes(departmentInput));
+
+    row.style.display = match ? "" : "none";
+  });
+}
+
+  //삭제 기능
+  function deleteRecord(button) {
+    if (confirm('정말 이 휴가 기록을 삭제하시겠습니까?')) {
+      const row = button.closest("tr");
+      row.remove();
+      alert('기록이 삭제되었습니다.');
+    }
+  }
+</script>
+
+</body>
+</html>

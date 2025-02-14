@@ -10,9 +10,9 @@ export const ApprovalMain = () => {
 
   return (
     <div className="mainpageContainer">
-      <Sidebar />
-      <div className="componentContainer">
-        <Header />
+    <Sidebar />
+    <div className="componentContainer">
+        <Header/>
         <div className="componentContainer1">
           <ApprovalHeader />
           <ApprovalSearchBar />
