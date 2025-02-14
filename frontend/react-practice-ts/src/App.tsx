@@ -9,12 +9,12 @@ import { ApprovalCompletePage } from "./pages/approvalPage/approvalCompletePage"
 import PersonnelMain from "./pages/PersonnelMain";
 import FormMain from "./pages/FormMain";
 import FormUpdate from "./components/form/FormUpdate";
-import { ApprovalTempPage } from "./pages/approvalTempPage";
-import { ApprovalRejectPage } from "./pages/approvalRejectPage";
 import { ApprovalProgressPage } from "./pages/approvalPage/approvalProgressPage";
 import { ApprovalFinishPage } from "./pages/approvalPage/approvalFinishPage";
 import { ApprovalRequestPage } from "./pages/approvalPage/approvalRequestPage";
 import { ApprovalReferencePage } from "./pages/approvalPage/approvalReferencePage";
+import { ApprovalTempPage } from "./pages/approvalPage/approvalTempPage";
+import { ApprovalRejectPage } from "./pages/approvalPage/approvalRejectPage";
 
 function App() {
   return (
