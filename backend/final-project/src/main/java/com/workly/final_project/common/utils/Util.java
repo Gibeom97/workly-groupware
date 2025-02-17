@@ -47,7 +47,6 @@ public class Util {
         Map<String, String> fileInfo = new HashMap<>();
         fileInfo.put("originalName", originalName);
         fileInfo.put("changeName", changeName);
-        fileInfo.put("filePath", serverPath);
         
         return fileInfo;
     }
