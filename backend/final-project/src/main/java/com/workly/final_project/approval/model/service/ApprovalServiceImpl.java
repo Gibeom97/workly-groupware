@@ -9,8 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.workly.final_project.approval.model.dao.ApprovalDao;
 import com.workly.final_project.approval.model.vo.Approval;
 
-
 import lombok.RequiredArgsConstructor;
+
+
 
 @RequiredArgsConstructor
 @Service
@@ -39,3 +40,4 @@ public class ApprovalServiceImpl implements ApprovalService {
         return approvals;
     }
 }
+

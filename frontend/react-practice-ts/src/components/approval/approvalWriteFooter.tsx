@@ -27,6 +27,10 @@ export const ApprovalWriteFooter = ({ approvalData}) => {
         }
     }, [approvalData.approvalNo]); 
 
+    useEffect(() => {
+        console.log("현재 approvalData.userNo 값:", approvalData.userNo);
+    }, [approvalData]);
+
     const navigate = useNavigate();
     
     const handleExit = () => {
@@ -62,7 +66,10 @@ export const ApprovalWriteFooter = ({ approvalData}) => {
                 ...prevState,
                 approvalNo: approvalNo
             }));
-    
+
+            console.log("approvalNo값:", approvalNo);
+            
+            
             // **🔥 `setApprovalMemoData` 업데이트 후 비동기 처리가 끝나기를 기다림**
             await new Promise(resolve => setTimeout(resolve, 500));
 
