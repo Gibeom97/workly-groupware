@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <!-- com.workly.final_project.approval.model.vo.Approval 을 Approval 로 줄임 -->
+        <typeAlias type="com.workly.final_project.approval.model.vo.Approval" alias="approval"/>
+    </typeAliases>
+    
+    <!-- Mapper 파일들을 등록해주세요 -->
+    <mappers>
+        <mapper resource="mappers/approval-mapper.xml"/>
+    </mappers>
+</configuration>

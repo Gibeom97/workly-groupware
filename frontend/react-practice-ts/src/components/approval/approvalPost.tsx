@@ -1,28 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ApprovalMark } from "./approvalMark";
+import axios from 'axios';
+import { ApprovalFooter } from "./approvalFooter";
 
-// 📌 `Post` 타입 정의
 interface Post {
-  id: number;
-  type: string;
-  approvalId: string;
-  approver: string;
-  title: string;
-  createdAt: string;
-  isUnread: boolean;
-  status?: string; // ✅ 선택적 속성
+  approvalNo: number;
+  userNo: number;
+  approvalType: string;
+  approvalStatus: string;
+  approvalTitle: string;
+  approvalContent: string;
+  startDate: string;
+  endDate: string;
+  approvalUser: string;
 }
 
 export const ApprovalPost = () => {
-  // 게시글 목록 (isUnread: true인 경우 안 읽은 게시글)
-  const [posts, setPosts] = useState<Post[]>([
-    { id: 1, type: "일반", approvalId: "기안-20240205-1628", approver: "최웡카 과장", title: "[기안] 2025 사내 이벤트 추진의 건", createdAt: "2025-02-07 16:22", isUnread: true },
-    { id: 2, type: "일반", approvalId: "기안-20240203-1625", approver: "최웡카 과장", title: "[공문] 경기도청 3월 환급 요청의 건", createdAt: "2025-02-06 09:21", isUnread: false },
-    { id: 3, type: "일반", approvalId: "기안-20240202-1601", approver: "최웡카 과장", title: "[기안] 인천광역시청 3월 직원복지(꽃꽂이이벤트) 업무요청의 건", createdAt: "2025-02-05 14:15", isUnread: true },
-    { id: 4, type: "휴가", approvalId: "휴가-20240128-1599", approver: "최웡카 과장", title: "휴가원", createdAt: "2025-02-05 10:03", isUnread: false },
-    { id: 5, type: "지출결의서", approvalId: "기안-20240125-1997", approver: "김줼리 사원", title: "[지출] 성동구청 이벤트 진행을 위한 지출 요청의 건", createdAt: "2025-02-04 09:10", isUnread: true },
-    { id: 6, type: "휴가", approvalId: "휴가-20240101-1595", approver: "최웡카 과장", title: "휴가원", createdAt: "2025-02-02 17:30", isUnread: false },
-  ]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8003/workly/api/approval/list');
+        console.log("서버 응답 데이터:", response.data);
+        setPosts(response.data);
+      } catch (error) {
+        console.error('결재 목록을 불러오는데 실패했습니다:', error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // 현재 페이지에 해당하는 데이터 가져오기
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = posts.slice(startIndex, endIndex);
 
   return (
     <div style={containerStyle}>
@@ -39,41 +54,47 @@ export const ApprovalPost = () => {
           </tr>
         </thead>
         <tbody>
-          {posts.map((post) => (
-            <tr key={post.id} style={rowStyle}>
+          {currentPosts.map((post) => (
+            <tr key={post.approvalNo} style={rowStyle}>
               <td style={tdIconStyle}>
-                <ApprovalMark isUnread={post.isUnread} />
+                <ApprovalMark isUnread={post.approvalStatus === '미확인'} />
               </td>
-              <td style={tdStyle}>{post.type}</td>
-              <td style={tdStyle}>{post.approvalId}</td>
-              <td style={tdStyle}>{post.approver}</td>
-              <td style={tdTitleStyle}>{post.title}</td>
-              <td style={tdStyle}>{post.createdAt}</td>
+              <td style={tdStyle}>{post.approvalType}</td>
+              <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
+              <td style={tdStyle}>{post.approvalUser}</td>
+              <td style={tdTitleStyle}>{post.approvalTitle}</td>
+              <td style={tdStyle}>{new Date(post.startDate).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}</td>
               <td style={tdStyle}>
-                <span style={getStatusStyle(post.status)}>{post.status}</span>
+                <span style={getStatusStyle(post.approvalStatus)}>{post.approvalStatus}</span>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <ApprovalFooter totalPosts={posts.length} postsPerPage={postsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} />
     </div>
   );
 };
 
+
 const containerStyle = {
     width: "100%",
     display: "flex",
-    justifyContent: "center",
+    flexDirection: "column",
+    alignItems: "center",
     padding: "20px",
-  };
-  
-  // ✅ 테이블 스타일 (오른쪽으로 이동 & 폭 넓힘)
-  const tableStyle:any = {
-    width: "90%", // ✅ 기존 90% → 95%로 넓힘
+};
+
+const tableStyle:any = {
+    width: "90%",
     borderCollapse: "collapse",
     textAlign: "center",
-    justifyContent: "center",
-    height: "30vh", // (예시) 전체 화면 기준으로 중앙 정렬
 };
 
 const thStyle = {
@@ -98,7 +119,6 @@ const tdTitleStyle = {
   textAlign: "left",
 };
 
-// 상태 스타일
 const getStatusStyle:any = (status:any) => {
   let baseStyle = {
     padding: "5px 10px",
@@ -122,8 +142,7 @@ const getStatusStyle:any = (status:any) => {
   }
 };
 
-// 아이콘을 위한 셀 스타일 (왼쪽 정렬)
 const tdIconStyle:any = {
-  width: "20px", // 아이콘 크기 조정
+  width: "20px",
   textAlign: "center",
 };

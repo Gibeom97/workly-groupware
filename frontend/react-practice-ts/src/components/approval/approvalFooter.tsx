@@ -1,13 +1,8 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const ApprovalFooter = () => {
-
+export const ApprovalFooter = ({ totalPages, currentPage, setCurrentPage }) => {
   const navigate = useNavigate();
-
-  const totalPages = 68; // 전체 페이지 수
   const pagesPerGroup = 10; // 한 번에 보여줄 페이지 개수
-  const [currentPage, setCurrentPage] = useState(1);
 
   // 현재 페이지 그룹의 시작 번호
   const startPage = Math.floor((currentPage - 1) / pagesPerGroup) * pagesPerGroup + 1;
@@ -24,46 +19,18 @@ export const ApprovalFooter = () => {
   };
 
   return (
-    <footer>
-
-
-<button
-  style={{
-    width: 75,
-    height: 30,
-    background: "#4880FF",
-    borderRadius: 14,
-    border: "0.30px solid #B9B9B9",
-    color: "white", // ✅ 글자색 추가
-    fontSize: 12, // ✅ 글자 크기 추가
-    fontWeight: 600, // ✅ 글자 두께 추가
-    cursor: "pointer", // ✅ 클릭 가능한 버튼 스타일
-    display: "flex", // ✅ 중앙 정렬을 위한 flex 설정
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: "auto",
-    marginRight: "100px",
-  }}
-  onClick={() => navigate('/ApprovalWritePage')} //style={{ cursor: "pointer" }} // ✅ 클릭 이벤트 추가
->
-  작성하기
-</button>
-
-
-
-      <div style={{ width: "100%", justifyContent: "center", alignItems: "center", gap: 8, display: "flex", paddingTop: "40px", }}>
+    <footer style={{ width: "100%", paddingTop: "40px" }}>
+      {/* 페이지네이션 & 작성하기 버튼을 같은 줄에 정렬 */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         
-        {/* Previous 버튼 */}
-        <button onClick={handlePrevious} style={prevNextButtonStyle} disabled={currentPage === 1}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.6666 8.00004H3.33331M3.33331 8.00004L7.99998 12.6667M3.33331 8.00004L7.99998 3.33337" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={prevNextTextStyle}>Previous</span>
-        </button>
+        {/* 페이지네이션 */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
+          {/* Previous 버튼 */}
+          <button onClick={handlePrevious} style={prevNextButtonStyle} disabled={currentPage === 1}>
+            Previous
+          </button>
 
-        {/* 페이지 번호 버튼 */}
-        <div style={{ justifyContent: 'center', alignItems: 'center', gap: 8, display: 'flex' }}>
-          {/* 첫 페이지 표시 */}
+          {/* 페이지 번호 */}
           {startPage > 1 && (
             <>
               <button onClick={() => setCurrentPage(1)} style={currentPage === 1 ? activePageStyle : pageButtonStyle}>1</button>
@@ -71,7 +38,6 @@ export const ApprovalFooter = () => {
             </>
           )}
 
-          {/* 현재 그룹 내 페이지 */}
           {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
             <button
               key={page}
@@ -82,7 +48,6 @@ export const ApprovalFooter = () => {
             </button>
           ))}
 
-          {/* 마지막 페이지 표시 */}
           {endPage < totalPages && (
             <>
               <span style={dotsStyle}>...</span>
@@ -91,14 +56,33 @@ export const ApprovalFooter = () => {
               </button>
             </>
           )}
+
+          {/* Next 버튼 */}
+          <button onClick={handleNext} style={prevNextButtonStyle} disabled={currentPage === totalPages}>
+            Next
+          </button>
         </div>
 
-        {/* Next 버튼 */}
-        <button onClick={handleNext} style={prevNextButtonStyle} disabled={currentPage === totalPages}>
-          <span style={prevNextTextStyle}>Next</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.33331 8.00004H12.6666M12.6666 8.00004L7.99998 3.33337M12.6666 8.00004L7.99998 12.6667" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        {/* 작성하기 버튼 */}
+        <button
+          style={{
+            width: 75,
+            height: 30,
+            background: "#4880FF",
+            borderRadius: 14,
+            border: "0.30px solid #B9B9B9",
+            color: "white",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: "100px",
+          }}
+          onClick={() => navigate('/ApprovalWritePage')}
+        >
+          작성하기
         </button>
 
       </div>
@@ -110,30 +94,14 @@ export const ApprovalFooter = () => {
 const prevNextButtonStyle = {
   padding: "8px",
   borderRadius: 8,
-  justifyContent: "center",
-  alignItems: "center",
-  gap: 8,
-  display: "flex",
   background: "transparent",
   border: "none",
   cursor: "pointer",
-  paddingTop: "10px",
-};
-
-const prevNextTextStyle = {
-  color: "#1E1E1E",
-  fontSize: 10,
-  fontWeight: 400,
-  lineHeight: "16px",
-  paddingTop: "0px",
 };
 
 const pageButtonStyle = {
   padding: "8px 12px",
   borderRadius: 8,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
   background: "white",
   color: "#1E1E1E",
   fontSize: 10,
@@ -152,5 +120,4 @@ const dotsStyle = {
   color: "#1E1E1E",
   fontSize: 10,
   fontWeight: 700,
-  lineHeight: "22.4px",
 };

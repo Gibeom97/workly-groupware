@@ -11,15 +11,22 @@
 	    VALUES (APPROVAL_SEQ.NEXTVAL, #{userNo}, #{approvalType}, 1, #{approvalTitle}, #{approvalContent}, SYSDATE, #{approvalUser})
 	</insert>
 	
-	<!-- 특정 결재 문서 조회 -->
-    <select id="selectApprovalById" parameterType="int" resultType="com.workly.final_project.approval.model.vo.Approval">
-        SELECT * FROM APPROVAL WHERE APPROVAL_NO = #{approvalNo}
-    </select>
+  <select id="getAllApprovals" resultType="approval">
+	  SELECT 
+        APPROVAL_NO as approvalNo,
+        USER_NO as userNo,
+        APPROVAL_TYPE as approvalType,
+        APPROVAL_STATUS as approvalStatus,
+        APPROVAL_TITLE as approvalTitle,
+        APPROVAL_CONTENT as approvalContent,
+        START_DATE as startDate,
+        END_DATE as endDate,
+        APPROVAL_USER as approvalUser,
+        CREATED_AT as createdAt
+    FROM APPROVAL
+    ORDER BY CREATED_AT DESC
+	</select>
 
-    <!-- 모든 결재 문서 조회 -->
-    <select id="selectAllApprovals" resultType="com.workly.final_project.approval.model.vo.Approval">
-        SELECT * FROM APPROVAL ORDER BY START_DATE DESC
-    </select>
     
 </mapper>
 

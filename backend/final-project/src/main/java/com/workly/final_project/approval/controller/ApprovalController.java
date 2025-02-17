@@ -42,46 +42,13 @@ public class ApprovalController {
 		}
 		return ResponseEntity.badRequest().body(Map.of("message", "결재 문서 저장 실패"));
 	}
-	
-	// 2. 특정 결재 문서 조회 API
-	@GetMapping("/{approvalNo}")
-	public ResponseEntity<Approval> getApproval(@PathVariable int approvalNo){
-		Approval approval = approvalService.getApprovalById(approvalNo);
-		if(approval != null) {
-			return ResponseEntity.ok(approval);
-		}
-		return ResponseEntity.notFound().build();
-	}
-	
-	// 3. 모든 결재 문서 조회 API
-	@GetMapping("/all")
-	public ResponseEntity<List<Approval>> getAllApprovals() {
-		return ResponseEntity.ok(approvalService.getAllApprovals());
-	}
+
+
+ @GetMapping("/list")
+    public List<Approval> getAllApprovals() {
+        List<Approval> approvals = approvalService.getAllApprovals();
+        System.out.println("결재 목록: " + approvals); // 로그 추가
+        return approvals;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
