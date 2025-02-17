@@ -77,7 +77,10 @@ public class MemberController {
 			) {
 		log.debug("m : {}", m);
 		
-    	String serverPath = new File("src/main/resources/static/uploads/profile/").getAbsolutePath();
+		String serverPath = System.getProperty("user.dir") + "/src/main/resources/static/uploads/profile/";
+    	
+		log.debug("serverPath : {}", serverPath);
+		
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		int result = 0;
 		
@@ -90,7 +93,7 @@ public class MemberController {
 				Attachment at = Attachment.builder()
 						  				  .originalName(fileInfo.get("originalName"))
 						  				  .changeName(fileInfo.get("changeName"))
-										  .filePath(fileInfo.get("filePath"))
+										  .filePath("/uploads/profile/")
 			   			 				  .build();
 				
 				result = service.insertMember(m, at);

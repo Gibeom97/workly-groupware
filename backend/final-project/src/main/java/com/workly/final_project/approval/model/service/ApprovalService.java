@@ -11,5 +11,4 @@ public interface ApprovalService {
 	Approval getApprovalById(int approvalNo);
 	
 	List<Approval> getAllApprovals(); // 모든 결재 문서 조회
-
 }

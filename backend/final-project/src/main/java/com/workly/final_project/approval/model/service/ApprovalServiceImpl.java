@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class ApprovalServiceImpl implements ApprovalService{
+public class ApprovalServiceImpl implements ApprovalService {
 	
 	@Autowired
 	private ApprovalDao approvalDao;
@@ -38,8 +38,6 @@ public class ApprovalServiceImpl implements ApprovalService{
         List<Approval> approvals = approvalDao.getAllApprovals(); // ✅ session 제거
         System.out.println("ApprovalServiceImpl - 가져온 데이터: " + approvals); // 로그 추가
         return approvals;
-
-
-    }   
+    }
 }
 

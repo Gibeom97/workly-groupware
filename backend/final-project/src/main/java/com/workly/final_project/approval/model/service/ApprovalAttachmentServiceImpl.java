@@ -11,7 +11,7 @@ import com.workly.final_project.approval.model.dao.ApprovalAttachmentDao;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 
 @Service
-public class ApprovalAttachmentServiceImpl implements ApprovalAttachmentService{
+public class ApprovalAttachmentServiceImpl implements ApprovalAttachmentService {
 	
 	@Autowired
 	private ApprovalAttachmentDao dao;

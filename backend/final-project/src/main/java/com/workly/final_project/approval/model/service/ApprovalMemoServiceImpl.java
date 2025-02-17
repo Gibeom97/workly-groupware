@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.approval.model.dao.ApprovalMemoDao;
-import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
 
 @Service
