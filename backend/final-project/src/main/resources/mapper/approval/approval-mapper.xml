@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Approval">
+	
+	<!-- 결재 문서 저장 -->
+	<insert id="insertApproval" parameterType="com.workly.final_project.approval.model.vo.Approval"
+	    useGeneratedKeys="true" keyProperty="approvalNo" keyColumn="APPROVAL_NO">
+	    INSERT INTO APPROVAL (APPROVAL_NO, USER_NO, APPROVAL_TYPE, APPROVAL_STATUS, APPROVAL_TITLE, APPROVAL_CONTENT, START_DATE, APPROVAL_USER)
+	    VALUES (APPROVAL_SEQ.NEXTVAL, #{userNo}, #{approvalType}, 1, #{approvalTitle}, #{approvalContent}, SYSDATE, #{approvalUser})
+	</insert>
+	
+	<!-- 특정 결재 문서 조회 -->
+    <select id="selectApprovalById" parameterType="int" resultType="com.workly.final_project.approval.model.vo.Approval">
+        SELECT * FROM APPROVAL WHERE APPROVAL_NO = #{approvalNo}
+    </select>
+
+    <!-- 모든 결재 문서 조회 -->
+    <select id="selectAllApprovals" resultType="com.workly.final_project.approval.model.vo.Approval">
+        SELECT * FROM APPROVAL ORDER BY START_DATE DESC
+    </select>
+    
+</mapper>
+
+
+
+
+
+
+
+
+
+
