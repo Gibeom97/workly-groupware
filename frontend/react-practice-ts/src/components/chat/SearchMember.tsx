@@ -1,5 +1,5 @@
+import SearchClick from './SearchClick';
 import { useState } from 'react';
-import SearchClick from './SearchClick'; // 돋보기 검색창 컴포넌트 (네가 만든 컴포넌트라고 가정)
 
 interface Member {
   id: number;
@@ -8,7 +8,24 @@ interface Member {
   team: string;
 }
 
-const SearchMember = () => {
+export interface SearchMemberProps {
+  chatType: string;
+  chatName: string;
+  onComplete: (result: {
+    chatName?: string;
+    chatType?: string;
+    selectedMembers?: Member[];
+    deptName?: string;
+  }) => void;
+  mode?: 'chat' | 'dept'; // mode prop 추가
+}
+
+const SearchMember = ({
+  chatType,
+  chatName,
+  onComplete,
+  mode = 'chat', // 기본값은 'chat'
+}: SearchMemberProps) => {
   const [checkedMembers, setCheckedMembers] = useState<number[]>([]);
 
   const members: Member[] = [
@@ -25,9 +42,30 @@ const SearchMember = () => {
   ];
 
   const toggleCheck = (id: number) => {
-    setCheckedMembers((prev) =>
-      prev.includes(id) ? prev.filter((memberId) => memberId !== id) : [...prev, id]
-    );
+    if (chatType === '1:1') {
+      setCheckedMembers((prev) => (prev.includes(id) ? [] : [id]));
+    } else {
+      setCheckedMembers((prev) =>
+        prev.includes(id) ? prev.filter((memberId) => memberId !== id) : [...prev, id]
+      );
+    }
+  };
+
+  const handleConfirm = () => {
+    if (checkedMembers.length === 0) {
+      alert('대화 상대를 선택해주세요');
+      return;
+    }
+
+    const selectedMembers = members.filter((m) => checkedMembers.includes(m.id));
+
+    if (mode === 'chat') {
+      alert('채팅방 생성 완료되었습니다.');
+      onComplete({ chatName, chatType, selectedMembers });
+    } else if (mode === 'dept') {
+      alert('부서 생성 완료되었습니다!');
+      onComplete({ deptName: '신규 부서명' });
+    }
   };
 
   const groupedMembers = members.reduce<Record<string, Member[]>>((acc, member) => {
@@ -50,9 +88,9 @@ const SearchMember = () => {
         fontFamily: 'Inter, sans-serif',
         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
         paddingTop: '5px',
+        paddingLeft: '5px',
       }}
     >
-      {/* 헤더 */}
       <div
         style={{
           backgroundColor: '#E9EBF1',
@@ -66,13 +104,11 @@ const SearchMember = () => {
         <span style={{ color: '#4880FF', fontWeight: '800', fontSize: '18px' }}>사용자 검색</span>
       </div>
 
-      {/* 검색 입력 */}
       <div style={{ margin: '10px 45px' }}>
         <SearchClick />
       </div>
 
-      {/* 테이블 스타일로 구성 */}
-      <div style={{ overflowY: 'auto', maxHeight: '440px',paddingLeft:'40px' }}>
+      <div style={{ overflowY: 'auto', maxHeight: '440px', paddingLeft: '30px' }}>
         <table
           style={{
             width: '90%',
@@ -81,23 +117,18 @@ const SearchMember = () => {
         >
           <thead>
             <tr style={{ backgroundColor: 'white', borderBottom: '2px solid #4880FF' }}>
-              <th style={{ color: '#4880FF', padding: '8px 0', textAlign: 'center' }}>부서명</th>
-              <th
-                style={{
-                  color: '#4880FF',
-                  padding: '8px 0',
-                  textAlign: 'center',
-                  borderLeft: '1px solid #D8D8D8',
-                }}
-              >
+              <th style={{ width: '45%', color: '#4880FF', padding: '8px 0', textAlign: 'center' }}>
+                부서명
+              </th>
+              <th style={{ width: '55%', color: '#4880FF', padding: '8px 0', textAlign: 'center' }}>
                 성명
               </th>
             </tr>
           </thead>
           <tbody>
-            {Object.entries(groupedMembers).map(([team, teamMembers]) => {
-              return teamMembers.map((member, index) => (
-                <tr key={member.id} style={{ borderBottom: '1px solid #D8D8D8' }}>
+            {Object.entries(groupedMembers).map(([team, teamMembers]) =>
+              teamMembers.map((member, index) => (
+                <tr key={member.id} style={{ position: 'relative', height: '35px' }}>
                   {index === 0 && (
                     <td
                       rowSpan={teamMembers.length}
@@ -106,42 +137,70 @@ const SearchMember = () => {
                         verticalAlign: 'middle',
                         fontWeight: '600',
                         color: 'black',
+                        position: 'relative',
                       }}
                     >
                       {team}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          right: '-17px',
+                          left: 0,
+                          height: '1px',
+                          backgroundColor: '#D8D8D8',
+                        }}
+                      />
                     </td>
                   )}
-                  <td
-                    style={{
-                      padding: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      borderLeft: '1px solid #D8D8D8',
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checkedMembers.includes(member.id)}
-                      onChange={() => toggleCheck(member.id)}
+
+                  <td style={{ position: 'relative', paddingLeft: '25px', height: '35px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={checkedMembers.includes(member.id)}
+                        onChange={() => toggleCheck(member.id)}
+                        style={{
+                          marginRight: '10px',
+                          marginLeft: '10px',
+                          accentColor: '#4880FF',
+                          cursor: 'pointer',
+                        }}
+                      />
+                      {member.name} {member.position}
+                    </div>
+                    <div
                       style={{
-                        marginRight: '8px',
-                        accentColor: '#4880FF',
-                        cursor: 'pointer',
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: '17px',
+                        width: '1px',
+                        backgroundColor: '#D8D8D8',
                       }}
                     />
-                    {member.name} {member.position}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: '17px',
+                        right: 0,
+                        height: '1px',
+                        backgroundColor: '#D8D8D8',
+                      }}
+                    />
                   </td>
                 </tr>
-              ));
-            })}
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* 확인 버튼 */}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
         <button
           style={{
+            marginTop: '10px',
             backgroundColor: '#4880FF',
             color: 'white',
             fontWeight: '600',
@@ -150,7 +209,7 @@ const SearchMember = () => {
             padding: '8px 16px',
             cursor: 'pointer',
           }}
-          onClick={() => console.log('선택된 멤버:', checkedMembers)}
+          onClick={handleConfirm}
         >
           확인
         </button>
