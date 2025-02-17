@@ -1,20 +1,23 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Category.module.css'
 
-const Category = ({activeComponent, setActiveComponent}) => {
+const Category = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
 
     return (
         <div className={styles.buttonGroup}>
             <button 
-            className={`${styles.button} ${activeComponent === "viewPersonnel" ? styles.activeButton : ""}`}
-            onClick={() => setActiveComponent("viewPersonnel") }    
+            className={`${styles.button} ${location.pathname === "viewPersonnel" ? styles.activeButton : ""}`}
+            onClick={() => navigate("/personnel")}    
             >인사정보조회</button>
             <button 
-            className={`${styles.button} ${activeComponent === "createEmployee" ? styles.activeButton : ""}`}
-            onClick={() => setActiveComponent("createEmployee")}
+            className={`${styles.button} ${location.pathname === "createEmployee" ? styles.activeButton : ""}`}
+            onClick={() => navigate("/personnel/createEmployee")}
             >사원생성</button>
             <button 
-            className={`${styles.button} ${activeComponent === "managePermissions" ? styles.activeButton : ""}`}
-            onClick={() => setActiveComponent("managePermissions")}
+            className={`${styles.button} ${location.pathname === "managePermissions" ? styles.activeButton : ""}`}
+            onClick={() => navigate("/personnel/managePermissions")}
             >권한관리</button>
         </div>
     )
