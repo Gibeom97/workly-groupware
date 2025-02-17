@@ -9,12 +9,14 @@ const Pagination = ({pageInfo, setCurrentPage}) => {
   return (
     <div>
       <div className={styles.pagination}>
+        { currentPage > 1 && (
         <button 
-          className={styles.moveButton} 
-          disabled={currentPage === 1} 
-          onClick={() => setCurrentPage(currentPage - 1)}>
+        className={styles.moveButton} 
+        disabled={currentPage === 1} 
+        onClick={() => setCurrentPage(currentPage - 1)}>
           &lt;
         </button>
+        )}
         {Array.from({ length: maxPage }).map((_, index) => (
           <button
             key={index}
@@ -25,12 +27,14 @@ const Pagination = ({pageInfo, setCurrentPage}) => {
             {index + 1}
           </button>
         ))}
+        { currentPage < maxPage && (
         <button 
           className={styles.moveButton} 
           disabled={currentPage === maxPage} 
           onClick={() => setCurrentPage(currentPage + 1)}>
           &gt;
         </button>
+        )}
       </div>
     </div>
   );

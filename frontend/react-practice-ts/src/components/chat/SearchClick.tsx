@@ -65,3 +65,4 @@ const SearchClick = () => {
 };
 
 export default SearchClick;
+

@@ -5,11 +5,30 @@ import mypage from '../../assets/images/icon/mypage.png';
 import profileImg from '../../assets/images/icon/passion.jpg';
 import { useState } from 'react';
 import styles from './Header.module.css'; // 변경: 일반 CSS 대신 module.css 사용
+import { useLocation } from 'react-router-dom';
+
 function Header() {
   const [dropDownOpen, setDropDownOpen] = useState(false);
+  const location = useLocation();
+  const {pathname} = location;
+
+  let title = "";
+  if(pathname.includes("approval")) {
+    title = "전자결재";
+  } else if (pathname.includes("personnel")) {
+    title = "인사관리";
+  } else if (pathname.includes("calendar")) {
+    title = "캘린더";
+  } else if (pathname.includes("form")) {
+    title = "결재양식관리";
+  } else {
+    title = "";
+  }
+
   const toggleDown = () => {
     setDropDownOpen((prev) => !prev);
   }
+
   return (
     <header >
       <div className={styles.header}>
@@ -53,7 +72,7 @@ function Header() {
         </div>
       </div>
       <div>
-        <h2 className={styles.category}>전자결재</h2>
+        <h2 className={styles.category}>{title}</h2>
       </div>
     </header>
   );

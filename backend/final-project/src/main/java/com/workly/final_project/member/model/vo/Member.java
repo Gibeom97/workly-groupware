@@ -26,6 +26,7 @@ public class Member {
 	private String extension;
 	private String email;
 	private String address;
+	private String addressDetail;
 	private Date hireDate;
 	private Date updateDate;
 }

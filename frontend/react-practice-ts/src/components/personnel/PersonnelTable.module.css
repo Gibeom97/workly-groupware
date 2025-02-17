@@ -22,9 +22,10 @@
 
 .rowStyle {
     border-bottom: 1px solid #E0E0E0;
+    cursor: pointer;
 }
 
-.row:hover {
+.rowStyle:hover {
     background-color: #f9fafb;
 }
 

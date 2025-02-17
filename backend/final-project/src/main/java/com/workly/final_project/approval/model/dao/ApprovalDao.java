@@ -2,20 +2,18 @@ package com.workly.final_project.approval.model.dao;
 
 import java.util.List;
 
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.workly.final_project.approval.model.vo.Approval;
 
 @Mapper
+import com.workly.final_project.approval.model.vo.Approval;
+
 public interface ApprovalDao {
-    
-    List<Approval> getAllApprovals();
-    
-    Approval selectApprovalById(int approvalNo);
-    
-    int insertApproval(Approval approval);
-    
-    int updateApproval(Approval approval);
-    
-    int deleteApproval(int approvalNo);
+	int insertApproval(Approval approval);
+	Approval selectApprovalById(int approvalNo);
+	List<Approval> selectAllAPprovals();
+  List<Approval> getAllApprovals();
+
 }

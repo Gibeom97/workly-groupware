@@ -4,16 +4,18 @@ import peopleIcon from "../../assets/Images/chat/people.png";
 import bellIcon from "../../assets/Images/chat/bell.png";
 import settingIcon from "../../assets/Images/chat/setting.png";
 
-
-
 const ChatContainer = ({
       children,
       onClose,
       onChatClick,
+      onProfileClick,
+      onOrgClick,
     }: {
       children: React.ReactNode;
       onClose?: () => void;
       onChatClick?: () => void;
+      onProfileClick?: () => void;
+      onOrgClick?: () => void;
     }) => {
   return (
     <div 
@@ -61,14 +63,14 @@ const ChatContainer = ({
 
       {/* 네비게이션 아이콘 */}
       <img className="profile" 
-      //onClick={onProfileClick} // 여기 수정하기
-       style={{ width: "31px", height: "31px", left: "20px", top: "50px", position: "absolute" }} src={profileIcon} alt="icon1" />
+      onClick={onProfileClick} // 여기 수정하기
+       style={{ width: "31px", height: "31px", left: "20px", top: "50px", position: "absolute", cursor:"pointer"}} src={profileIcon} alt="icon1" />
       <img className="chat" onClick={onChatClick}
       style={{ width: "35px", height: "35px", left: "18px", top: "100px", position: "absolute" , cursor:"pointer"}} src={chatIcon} alt="icon2" />
-      <img className="people" 
-      style={{ width: "31px", height: "31px", left: "20px", top: "150px", position: "absolute" }} src={peopleIcon} alt="icon3" />
-      <img className="bell" style={{ width: "31px", height: "31px", left: "20px", top: "500px", position: "absolute" }} src={bellIcon} alt="icon4" />
-      <img className="setting" style={{ width: "31px", height: "31px", left: "20px", top: "550px", position: "absolute" }} src={settingIcon} alt="icon5" />
+      <img className="people" onClick={onOrgClick}
+      style={{ width: "31px", height: "31px", left: "20px", top: "150px", position: "absolute" , cursor:"pointer"}} src={peopleIcon} alt="icon3" />
+      <img className="bell" style={{ width: "31px", height: "31px", left: "20px", top: "500px", position: "absolute" , cursor:"pointer"}} src={bellIcon} alt="icon4" />
+      <img className="setting" style={{ width: "31px", height: "31px", left: "20px", top: "550px", position: "absolute" , cursor:"pointer"}} src={settingIcon} alt="icon5" />
 
       {/* 닫기 버튼 */}
       <button 

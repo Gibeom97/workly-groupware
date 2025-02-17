@@ -1,11 +1,47 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ApprovalLineModal from "./approvalLineModal";
 import ApprovalCCModal from "./approvalCCModal";
+import axios from "axios";
 
-export const ApprovalWriteHeader = () => {
+export const ApprovalWriteHeader = ({approvalData, setApprovalData}) => {
+
+  // 파일 업로드용 state
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null); // 파일 선택 트리거용 Ref
+
+  // 파일 선택 처리
+  const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setSelectedFiles((prevFiles) => [...prevFiles, ...filesArray]);
+
+      //approvalData에 파일 추가
+      setApprovalData((prevData:any) => ({
+        ...prevData,
+        attachments: [...prevData.attachments || [], ...filesArray], // 파일 목록 저장
+      }));
+    }
+  };
+
+
+  // 입력값 변경 시 상태 업데이트하는 함수
+  const handleChange = (e:any) => {
+    const {name, value} = e.target;
+    setApprovalData((prevData:any) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+    // 파일 선택 버튼 클릭 시 input[type="file"] 트리거
+    const handleFileUploadClick = () => {
+      fileInputRef.current?.click();
+    };
+
   // ✅ 각각의 모달 상태를 독립적으로 관리
   const [approvalLineModalOpen, setApprovalLineModalOpen] = useState(false);
   const [approvalCCModalOpen, setApprovalCCModalOpen] = useState(false);
+  const [documentType, setDocumentType] = useState(""); // ✅ 첫 번째 셀렉트 박스 값 저장
 
   return (
     <div style={pageContainerStyle}>
@@ -19,19 +55,45 @@ export const ApprovalWriteHeader = () => {
         <div style={rowContainerStyle}>
           <div style={rowStyle}>
             <label style={labelStyle}>종류</label>
-            <select style={selectBoxStyle}>
-              <option>일반</option>
-              <option>휴가원</option>
+            <select
+              name="approvalType"
+              style={selectBoxStyle}
+              value={documentType}
+              onChange={(e) => { 
+                const selectedType = e.target.value;
+                setDocumentType(selectedType);
+                setApprovalData((prevData:any) => ({
+                  ...prevData,
+                  approvalType: selectedType, // 일반 또는 휴가원으로 데이터 추출출
+                }))
+              }}
+            >
+              <option value="">선택</option>
+              <option value="일반">일반</option>
+              <option value="휴가원">휴가원</option>
             </select>
           </div>
 
-          <div style={rowStyle2}>
-            <label style={labelStyle}>기안양식</label>
-            <select style={selectBoxStyle}>
-              <option>자유양식</option>
-              <option>정형화 양식</option>
-            </select>
-          </div>
+          {/* ✅ 첫 번째 선택값에 따라 조건부 렌더링 */}
+          {documentType === "일반" && (
+            <div style={rowStyle2}>
+              <label style={labelStyle}>기안양식</label>
+              <select style={selectBoxStyle}>
+                <option>자유양식</option>
+                <option>정형화 양식</option>
+              </select>
+            </div>
+          )}
+          {documentType === "휴가원" && (
+            <div style={rowStyle2}>
+              <label style={labelStyle}>기안양식</label>
+              <select style={selectBoxStyle}>
+                <option>연차</option>
+                <option>오전반차</option>
+                <option>오후반차</option>
+              </select>
+            </div>
+          )}
         </div>
 
         {/* 구분선 */}
@@ -40,7 +102,7 @@ export const ApprovalWriteHeader = () => {
         {/* 제목 입력 */}
         <div style={rowStyle}>
           <label style={labelStyle}>제목</label>
-          <input type="text" placeholder="제목을 입력하세요." style={inputStyle} />
+          <input type="text" name="approvalTitle" placeholder="제목을 입력하세요." style={inputStyle}  value={approvalData.approvalTitle} onChange={handleChange} />
         </div>
 
         {/* 구분선 */}
@@ -66,11 +128,34 @@ export const ApprovalWriteHeader = () => {
         {/* 첨부 */}
         <div style={rowStyle}>
           <label style={labelStyle}>첨부</label>
-          <button style={actionButtonStyle} >
+          <button style={actionButtonStyle} onClick={handleFileUploadClick} >
             + 첨부
           </button>
-          <input type="text" style={inputStyle} />
+          {/* 숨겨진 파일 입력 필드 */}
+          <input type="file" multiple ref={fileInputRef} style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} onChange={handleFileChange} />
+        
+          {/* 선택된 파일 이름 표시 (클릭 시 다운로드 가능) */}
+          <div style={fileListContainerStyle}>
+            {selectedFiles.length > 0 ? (
+              selectedFiles.map((file, index) => {
+                const fileURL = URL.createObjectURL(file); // 파일 URL 생성
+
+                return (
+                  <div key={index} style={fileItemStyle}>
+                    <a href={fileURL} download={file.name} style={fileLinkStyle}>
+                      📎 {file.name}
+                    </a>
+                    <button onClick={() => handleRemoveFile(index)} style={removeButtonStyle}>x</button>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={fileItemStyle}>선택된 파일 없음</div>
+            )}
+          </div>
         </div>
+
+        
 
         {/* 구분선 */}
         <div style={dividerStyle} />
@@ -93,9 +178,49 @@ export const ApprovalWriteHeader = () => {
         <div style={dividerStyle} />
       </div>
     </div>
+    
   );
 };
 
+// 삭제 버튼 스타일
+const removeButtonStyle = {
+  background: "none",
+  border: "none",
+  fontSize: "14px",
+  cursor: "pointer",
+  marginLeft: "6px",
+};
+
+// 파일 다운로드 링크 스타일
+const fileLinkStyle = {
+  textDecoration: "none",
+  color: "#007bff",
+  cursor: "pointer",
+  fontSize: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+
+// 파일 목록을 감싸는 컨테이너 (스크롤 가능)
+const fileListContainerStyle = {
+  maxWidth: "300px", // 파일명이 너무 길 경우 대비
+  maxHeight: "60px", // ✅ 최대 높이 설정하여 스크롤 가능하도록 변경
+  overflowY: "auto", // ✅ 스크롤이 필요하면 자동으로 활성화
+  //border: "1px solid black",
+  borderRadius: "5px",
+  padding: "5px",
+  fontSize: "11px", 
+  color: "#757575",
+};
+
+// 개별 파일 스타일
+const fileItemStyle = {
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  padding: "3px 0",
+};
 
 // ✅ **페이지 전체 컨테이너 스타일 (가운데 정렬)**
 const pageContainerStyle = {

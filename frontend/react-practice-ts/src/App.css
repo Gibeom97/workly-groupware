@@ -36,5 +36,5 @@
 .componentContainer1 {
   display: column;
   /* 남은 공간을 전부 차지 */
-  padding: 20px;
+  padding: 30px 50px;
 }

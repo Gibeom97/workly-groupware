@@ -12,20 +12,25 @@
 			STATUS = 'Y'
 	</select>
 	
-	<select id="selectMemberList" resultMap="memberDTOMap">
+	<select id="selectMemberCount" resultType="int">
+		SELECT COUNT(*)
+		FROM MEMBER
+	</select>
+	
+	<select id="selectMemberList" resultMap="memberDTOListMap">
 		SELECT *
 		FROM (SELECT ROWNUM RNUM, A.*
-		      FROM (SELECT ENO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS
+		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS, ADDRESS_DETAIL
 		            FROM MEMBER
                     JOIN DEPARTMENT USING(DEPT_NO)
                     JOIN POSITION USING(POSITION_NO)
-		            ORDER BY DEPT_NO) A)
+		            ORDER BY HIRE_DATE DESC, USER_NO DESC) A)
 		WHERE RNUM BETWEEN #{startRow} AND #{endRow} 
 	</select>
 	
-	<resultMap id="memberDTOMap" type="MemberDTO">
+	<resultMap id="memberDTOListMap" type="MemberDTO">
 		<association property="member" javaType="Member">
-			<id property="eNo" column="ENO" />
+			<id property="userNo" column="USER_NO" />
 			<result property="userName" column="USER_NAME" />
 			<result property="email" column="EMAIL" />
 			<result property="deptNo" column="DEPT_NO"/>
@@ -36,6 +41,7 @@
 			<result property="updateDate" column="UPDATE_DATE" />
 			<result property="totalLeaveDays" column="TOTAL_LEAVE_DAYS" />
 			<result property="address" column="ADDRESS" />
+			<result property="addressDetail" column="ADDRESS_DETAIL" />
 		</association>
 		
 		<association property="department" javaType="Department">
@@ -46,18 +52,81 @@
 			<result property="positionName" column="POSITION_NAME"/>
 		</association>
 	</resultMap>
+	
+	<insert id="insertMember" useGeneratedKeys="true">
+	
+	<selectKey keyProperty="userNo" resultType="int" order="BEFORE">
+		SELECT (TO_CHAR(SYSDATE, 'YYYY') || LPAD(USER_NO_SEQ.NEXTVAL, 2, '0')) FROM DUAL
+	</selectKey>
+		INSERT INTO MEMBER
+		VALUES (
+			#{userNo},  
+			DEFAULT, 
+			#{positionNo}, 
+			#{deptNo}, 
+			0, 
+			0, 
+			DEFAULT, 
+			'', 
+			#{userPwd}, #{userName}, #{phone}, #{extension}, #{email}, #{address}, #{hireDate}, 
+			'',
+			#{addressDetail}
+			)
+	</insert>
+	
+	<insert id="insertAttachment" parameterType="Attachment">
+		INSERT INTO PROFILE_ATTACHMENT
+		VALUES(
+			FILE_NO_SEQ.NEXTVAL,
+			#{refUserNo},
+			#{originalName},
+			#{changeName},
+			#{filePath},
+			SYSDATE,
+			DEFAULT
+			)
+	</insert>
+	
+	<select id="selectMember" resultMap="memberDTOMap">
+		SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, STATUS, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS, ADDRESS_DETAIL, CHANGE_NAME, FILE_PATH 
+		FROM MEMBER
+		JOIN DEPARTMENT USING(DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO
+		WHERE USER_NO = #{userNo}
+	</select>
+
+	<resultMap id="memberDTOMap" type="MemberDTO">
+		<association property="member" javaType="Member">
+			<id property="userNo" column="USER_NO" />
+			<result property="userName" column="USER_NAME" />
+			<result property="email" column="EMAIL" />
+			<result property="deptNo" column="DEPT_NO"/>
+			<result property="positionNo" column="POSITION_NO"/>
+			<result property="extension" column="EXTENSION" />
+			<result property="phone" column="PHONE" />
+			<result property="status" column="STATUS" />
+			<result property="hireDate" column="HIRE_DATE" />
+			<result property="updateDate" column="UPDATE_DATE" />
+			<result property="totalLeaveDays" column="TOTAL_LEAVE_DAYS" />
+			<result property="address" column="ADDRESS" />
+			<result property="addressDetail" column="ADDRESS_DETAIL" />
+		</association>
+		
+		<association property="department" javaType="Department">
+			<result property="deptName" column="DEPT_NAME"/>
+		</association>
+		
+		<association property="position" javaType="Position">
+			<result property="positionName" column="POSITION_NAME"/>
+		</association>
+		
+		<association property="attachment" javaType="Attachment">
+			<result property="filePath" column="FILE_PATH"/>
+			<result property="changeName" column="CHANGE_NAME"/>
+		</association>
+	</resultMap>
 </mapper>
-
-
-
-
-
-
-
-
-
-
-
 
 
 

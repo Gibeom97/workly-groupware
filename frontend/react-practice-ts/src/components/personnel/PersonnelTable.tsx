@@ -1,13 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Pagination from '../common/Pagination';
+import SearchBar from '../common/SearchBar';
 import styles from './PersonnelTable.module.css'
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const PersonnelTable = ({personnelList}) => {
+const PersonnelTable = () => {
+    const [personnelList, setPersonnelList] = useState([]);
+    const [pageInfo, setPageInfo] = useState();
+    const [currentPage, setCurrentPage] = useState(1);
+    const navigate = useNavigate();
+    
+    const fetchPesonnel = () => {
+        axios.get("http://localhost:8003/workly/personnel", {
+            params: {cPage: currentPage}
+        })
+             .then((response) => {
+                setPersonnelList(response.data.members);
+                setPageInfo(response.data.pageInfo);
+             })
+    };
+
+    useEffect(() => {
+        fetchPesonnel();
+    }, [currentPage]);
+
     const phoneFormat = (phone) => {
         return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
     };
 
     return (
         <div>
+            <SearchBar />
             <table className={styles.table}>
                 <thead>
                     <tr className={styles.headerRow}>
@@ -26,8 +50,9 @@ const PersonnelTable = ({personnelList}) => {
                 </thead>
                 { <tbody>
                     {personnelList.map((e, i) => (
-                        <tr key={i} className={styles.rowStyle}>
-                            <td className={styles.tdStyle}>{e.member.eno}</td>
+                        <tr key={i} className={styles.rowStyle} 
+                            onClick={() => navigate(`/personnel/${e.member.userNo}`)}>
+                            <td className={styles.tdStyle}>{e.member.userNo}</td>
                             <td className={styles.tdStyle}>{e.member.userName}</td>
                             <td className={styles.tdStyle}>{e.member.email}</td>
                             <td className={styles.tdStyle}>{e.member.extension}</td>
@@ -42,6 +67,7 @@ const PersonnelTable = ({personnelList}) => {
                     ))}
                 </tbody> }
             </table>
+            <Pagination pageInfo={pageInfo} setCurrentPage={setCurrentPage}/>
         </div>
     )
 }
