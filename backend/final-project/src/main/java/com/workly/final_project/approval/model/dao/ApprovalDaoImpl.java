@@ -21,7 +21,7 @@ public class ApprovalDaoImpl implements ApprovalDao{
 	@Override
 	public int insertApproval(Approval approval) {
 		int result = sqlSession.insert("Approval.insertApproval", approval);
-		System.out.println("✅ Approval 저장 완료, approvalNo: " + approval.getApprovalNo());
+		System.out.println("✅ Approval 저장 완료, ApprovalNo: " + approval.getApprovalNo());
 		return result;
 	}
 
@@ -30,9 +30,11 @@ public class ApprovalDaoImpl implements ApprovalDao{
 		return sqlSession.selectOne("Approval.selectApprovalById", approvalNo);
 	}
 
+
 	@Override
-	public List<Approval> selectAllAPprovals() {
-		return sqlSession.selectList("Approval.selectAllApprovals");
+	public List<Approval> getAllApprovals() {
+		return sqlSession.selectList("Approval.getAllApprovals");
 	}
+
 
 }

@@ -8,12 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 import com.workly.final_project.approval.model.vo.Approval;
 
 @Mapper
-import com.workly.final_project.approval.model.vo.Approval;
-
 public interface ApprovalDao {
 	int insertApproval(Approval approval);
 	Approval selectApprovalById(int approvalNo);
-	List<Approval> selectAllAPprovals();
-  List<Approval> getAllApprovals();
+	List<Approval> getAllApprovals();
 
 }
