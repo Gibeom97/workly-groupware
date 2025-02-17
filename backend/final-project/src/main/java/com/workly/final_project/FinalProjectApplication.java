@@ -1,9 +1,11 @@
 package com.workly.final_project;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
+@MapperScan("com.workly.final_project.mapper")
 @SpringBootApplication
 @ComponentScan (basePackages = { 
 		"com.workly.final_project",

@@ -1,13 +1,28 @@
+import { useState } from 'react';
 import chatIcon from "../../assets/Images/chat/chatBiggest.png";
 import group from "../../assets/Images/chat/groupChat.png";
 import searchIcon from "../../assets/Images/chat/search.png"; // 🔍 검색 아이콘 이미지 임포트 (파일경로는 네 프로젝트에 맞게 수정해)
 
-// const handleCloseCreateChat = () => {
-//     setIsCreatingChat(false); // ChatNewList로 돌아가기
-//   };
+const ChatCreate = ({
+  invitePeople,
+  onClose,
+}: {
+  invitePeople: (chatType: string, chatName: string) => void;
+  onClose: () => void;
+}) => {
+  const [chatType, setChatType] = useState<'1:1' | '그룹' | ''>('');
+  const [chatName, setChatName] = useState('');
+  
 
-const ChatCreate = (
-    {invitePeople, onClose} : {invitePeople : () => void, onClose: ()=> void}) => {
+  const handleInviteClick = () => {
+    if (!chatType) {
+      alert('채팅 종류를 선택해주세요!');
+      return;
+    }
+    console.log("ChatCreate - handleInviteClick 실행됨!", chatType, chatName); // ✅ 확인용 로그 추가
+    invitePeople(chatType, chatName);
+  };
+
   return (
     <div
       className="ChatCreate"
@@ -17,6 +32,7 @@ const ChatCreate = (
         position: "relative",
       }}
     >
+      {/* 배경 */}
       <div
         className="ChatCreate-Background"
         style={{
@@ -29,6 +45,7 @@ const ChatCreate = (
           borderRadius: 5,
         }}
       />
+      {/* 헤더 배경 */}
       <div
         className="ChatCreate-HeaderBackground"
         style={{
@@ -71,24 +88,24 @@ const ChatCreate = (
           New Chat
         </div>
         {/* 닫기 버튼 */}
-      <button
-        onClick={onClose}
-        style={{
-          position: "absolute",
-          top: -45,
-          right: 5,
-          background: "transparent",
-          border: "none",
-          fontSize: 18,
-          cursor: "pointer",
-        }}
-      >
-        ✕
-      </button>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            left: 325,
+            background: "transparent",
+            border: "none",
+            fontSize: 18,
+            cursor: "pointer",
+          }}
+        >
+          ✕
+        </button>
       </div>
 
       {/* 1:1 채팅 */}
       <div
+        onClick={() => setChatType('1:1')}
         style={{
           position: "absolute",
           top: "60px",
@@ -96,6 +113,7 @@ const ChatCreate = (
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          cursor: "pointer",
         }}
       >
         <img
@@ -119,6 +137,7 @@ const ChatCreate = (
 
       {/* 그룹 채팅 */}
       <div
+        onClick={() => setChatType('그룹')}
         style={{
           position: "absolute",
           top: "60px",
@@ -126,6 +145,7 @@ const ChatCreate = (
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          cursor: "pointer",
         }}
       >
         <img
@@ -210,6 +230,8 @@ const ChatCreate = (
       <input
         type="text"
         placeholder="방 이름을 입력하세요"
+        value={chatName}
+        onChange={(e) => setChatName(e.target.value)}
         style={{
           position: "absolute",
           left: 73,
@@ -222,49 +244,50 @@ const ChatCreate = (
         }}
       />
 
-     {/* 대화상대 초대 레이블 */}
-        <div
+      {/* 대화상대 초대 레이블 */}
+      <div
+        onClick={handleInviteClick}
         style={{
-            position: "absolute",
-            left: 73,
-            top: 298,
-            fontSize: "14px",
-            fontFamily: "Inter",
-            fontWeight: "600",
-            color: "#979797",
+          position: "absolute",
+          left: 73,
+          top: 298,
+          fontSize: "14px",
+          fontFamily: "Inter",
+          fontWeight: "600",
+          color: "#979797",
+          cursor: "pointer",
         }}
-        >
+      >
         대화상대 초대
-        </div>
+      </div>
 
-        {/* 대화상대 초대 클릭 영역 (입력란 대신 div) */}
-        <div
+      {/* 대화상대 초대 클릭 영역 */}
+      <div
         style={{
-            cursor: "pointer",
-            position: "absolute",
-            left: 73,
-            top: 320,
-            width: "254px",
-            height: "25px",
-            backgroundColor: "#E9EBF1",
-            display: "flex",
-            alignItems: "center",
-            paddingLeft: "8px",
-            borderRadius: "3px",
-            color: "#B3B3B3",
-            fontSize: "11px",
-            fontFamily: "Roboto",
+          cursor: "pointer",
+          position: "absolute",
+          left: 73,
+          top: 320,
+          width: "254px",
+          height: "25px",
+          backgroundColor: "#E9EBF1",
+          display: "flex",
+          alignItems: "center",
+          paddingLeft: "8px",
+          borderRadius: "3px",
+          color: "#B3B3B3",
+          fontSize: "11px",
+          fontFamily: "Roboto",
         }}
-        onClick={invitePeople}
-        >
+        onClick={handleInviteClick}
+      >
         이름을 입력하세요
         <img
-            src={searchIcon}
-            alt="검색"
-            style={{ width: "18px", height: "18px", marginLeft: "auto", marginRight: "8px" }}
+          src={searchIcon}
+          alt="검색"
+          style={{ width: "18px", height: "18px", marginLeft: "auto", marginRight: "8px" }}
         />
-        </div>
-
+      </div>
     </div>
   );
 };

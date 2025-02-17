@@ -1,107 +1,139 @@
-const ChatList = () => {
-    return (
+import chatPlus from "../../assets/Images/chat/chatplus.png";
+import profile from "../../assets/Images/chat/profile.png";
+//import speaker from "../../assets/Images/chat/loud-speaker 11.png";
+//import searchIcon from "../../assets/Images/chat/search.png";
+//import groupProfile from "../../assets/Images/chat/groupList.png"
+
+interface ChatRoom {
+  chatName: string;
+  chatType: string;
+  unreadCount?: number;
+  isActive?: boolean; // 사용자 활성 상태 여부
+}
+
+const ChatList = ({
+  chatRooms = [],
+  setIsCreatingChat,
+  openNoticeChat,
+  openChatRoom,
+}: {
+  chatRooms?: ChatRoom[];
+  setIsCreatingChat: (value: boolean) => void;
+  setIsFirstChatOpen: (value: boolean) => void;
+  openNoticeChat?: () => void;
+  openChatRoom?: (room: ChatRoom) => void;
+}) => {
+  return (
+    <div
+      style={{
+        width: 280,
+        height: 420,
+        position: "relative",
+        background: "white",
+        borderRadius: 8,
+      }}
+    >
+      {/* 상단 검색, 추가 버튼 */}
       <div
-        className="ChatList"
         style={{
-          width: 280,
-          height: 420,
-          position: 'relative',
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "8px 12px",
+          alignItems: "center",
         }}
       >
+        <span style={{ fontSize: 20, fontWeight: "bold", color: "#4880FF" }}>
+          Chatting
+        </span>
+        <div style={{ display: "flex", gap: 8 }}>
+          {/* <img src={searchIcon} alt="search" style={{ width: 20, height: 20 }} /> */}
+          <img
+            src={chatPlus}
+            alt="add"
+            style={{ width:25, height: 25, cursor: "pointer" }}
+            onClick={() => {
+              setIsCreatingChat(true);
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 공지방 */}
+      
+      <div
+        style={{ padding: "8px 12px", color: "#4880FF", fontWeight: "bold", cursor:"pointer"}}
+        onClick={openNoticeChat}
+      >
+        사내 공지 톡방
+      </div>
+     
+
+      {/* 채팅방 목록 */}
+      {chatRooms.map((room, index) => (
         <div
-          className="ChatList-IconGroup"
+          key={index}
           style={{
-            width: 40,
-            height: 40,
-            left: 0,
-            top: 380,
-            position: 'absolute',
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 12px",
+            position: "relative",
           }}
+          onClick={() => openChatRoom && openChatRoom(room)}
         >
-          {/* 아이콘들 */}
-          {[0, 10, 20].map((left, index) => (
+          {/* 프로필 이미지 */}
+          <div
+          className="mineProfile"
+          style={{
+            width: "40px",
+            height: "40px",
+            background: "#D9D9D9",
+            borderRadius: "10px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
+          //onClick={}
+        >
+          <img className="ProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profile} alt="profile" />
+        </div>
+        
+           {/* 채팅방 이름 */}
+          <div style={{ flexGrow: 1 }}>
+            <div style={{ fontWeight: 600, marginLeft:15 , cursor:"pointer"}}>{room.chatName}</div>
+            {/* 비활성화 활성화 */}
             <div
-              key={index}
-              className="ChatList-SmallIconGroup"
               style={{
-                width: 20,
-                height: 21.92,
-                left: left,
-                top: index % 2 === 0 ? 18.08 : 0,
-                position: 'absolute',
+                cursor:"pointer",
+                fontSize: 12,
+                color: room.isActive ? "#4880FF" : "#999999",
+                marginLeft:15
               }}
             >
-              <div
-                className="ChatList-SmallIconBackground"
-                style={{
-                  width: 20,
-                  height: 21.92,
-                  left: 0,
-                  top: 0,
-                  position: 'absolute',
-                  background: '#D9D9D9',
-                  borderRadius: 10,
-                }}
-              />
-              <img
-                className="ChatList-SmallIconImage"
-                style={{
-                  width: 11,
-                  height: 12.05,
-                  left: 15.5,
-                  top: 3.84,
-                  position: 'absolute',
-                  transform: 'rotate(180deg)',
-                  transformOrigin: 'top left',
-                }}
-                src="https://placehold.co/11x12"
-                alt="icon"
-              />
+              {room.isActive ? "활성화" : "비활성화"}
             </div>
-          ))}
+          </div>
+
+          {/* 안 읽은 메시지 수 */}
+          {room.unreadCount && room.unreadCount > 0 && (
+            <div
+              style={{
+                backgroundColor: "#FF4D4F",
+                color: "white",
+                fontSize: 12,
+                padding: "2px 6px",
+                borderRadius: 12,
+                position: "absolute",
+                right: 12,
+              }}
+            >
+              {room.unreadCount}
+            </div>
+          )}
         </div>
-        {/* 사용자 이름 */}
-        {['김기밤', '김예삐', '박솜이'].map((name, index) => (
-          <div
-            key={index}
-            className="ChatList-UserName"
-            style={{
-              left: 58,
-              top: 107 + index * 56,
-              position: 'absolute',
-              color: 'black',
-              fontSize: 16,
-              fontFamily: 'Inter',
-              fontWeight: '600',
-              lineHeight: '22.4px',
-              wordWrap: 'break-word',
-            }}
-          >
-            {name}
-          </div>
-        ))}
-        {/* 채팅방 이름 */}
-        {['사내 공지 톡방', '인사팀 채팅방', '법무팀 채팅방', '재무팀 채팅방'].map((room, index) => (
-          <div
-            key={index}
-            className="ChatList-ChatRoomName"
-            style={{
-              left: 58,
-              top: [59, 225, 391, 278][index],
-              position: 'absolute',
-              color: index === 0 ? '#4880FF' : 'black',
-              fontSize: 16,
-              fontFamily: 'Nunito Sans',
-              fontWeight: '700',
-              wordWrap: 'break-word',
-            }}
-          >
-            {room}
-          </div>
-        ))}
-      </div>
-    );
-  };
-  
-  export default ChatList;
-  
+      ))}
+    </div>
+  );
+};
+
+export default ChatList;
