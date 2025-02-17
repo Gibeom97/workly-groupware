@@ -61,13 +61,11 @@
 		INSERT INTO MEMBER
 		VALUES (
 			#{userNo},  
-			DEFAULT, 
+			2, 
 			#{positionNo}, 
 			#{deptNo}, 
-			0, 
-			0, 
+			15, 
 			DEFAULT, 
-			'', 
 			#{userPwd}, #{userName}, #{phone}, #{extension}, #{email}, #{address}, #{hireDate}, 
 			'',
 			#{addressDetail}
@@ -77,7 +75,7 @@
 	<insert id="insertAttachment" parameterType="Attachment">
 		INSERT INTO PROFILE_ATTACHMENT
 		VALUES(
-			FILE_NO_SEQ.NEXTVAL,
+			PROFILE_AT_SEQ.NEXTVAL,
 			#{refUserNo},
 			#{originalName},
 			#{changeName},

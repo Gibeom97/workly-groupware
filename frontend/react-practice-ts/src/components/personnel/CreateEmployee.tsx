@@ -78,7 +78,7 @@ const CreateEmployee = () => {
                 alert(response.data.msg);
             })
              .catch(error => {
-                navigate("/createEmployee");
+                navigate("/personnel");
                 alert(error.response.data.msg);
              });
     };
@@ -132,7 +132,7 @@ const CreateEmployee = () => {
                 <div className={styles.row}><label className={styles.label}>내선번호</label><input type="number" name="extension" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" /></div>
                 <div className={styles.row}><label className={styles.label}>입사일</label><input type="date" name="hireDate" className={styles.input} onChange={handleChange} required/></div>
                 <div className={styles.buttonGroup}>
-                    <button type="submit" className={styles.submitButton}>수정</button>
+                    <button type="submit" className={styles.submitButton}>생성</button>
                     <button type="button" className={styles.cancleButton} onClick={() => navigate("/personnel")}>취소</button>
                 </div>
             </div>
