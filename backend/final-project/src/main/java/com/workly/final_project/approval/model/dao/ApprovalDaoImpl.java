@@ -35,4 +35,10 @@ public class ApprovalDaoImpl implements ApprovalDao{
 		return sqlSession.selectList("Approval.selectAllApprovals");
 	}
 
+	@Override
+	public List<Approval> getAllApprovals() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
