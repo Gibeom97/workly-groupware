@@ -5,8 +5,10 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
+import com.workly.final_project.common.model.vo.Attachment;
 import com.workly.final_project.common.model.vo.PageInfo;
 import com.workly.final_project.common.model.vo.PageRow;
+import com.workly.final_project.member.model.dto.MemberDTO;
 import com.workly.final_project.member.model.vo.Member;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,11 @@ public class MemberDaoImpl implements MemberDao {
 	}
 
 	@Override
+	public int selectMemberCount() {
+		return session.selectOne("member.selectMemberCount");
+	}
+
+	@Override
 	public List<Member> selectMemberList(PageInfo pi) {
 		int startRow = (pi.getCurrentPage() - 1) * pi.getContentsLimit() + 1;
 		int endRow = startRow + pi.getContentsLimit() - 1;
@@ -31,5 +38,20 @@ public class MemberDaoImpl implements MemberDao {
 		pr.setEndRow(endRow);
 		
 		return session.selectList("member.selectMemberList", pr);
+	}
+
+	@Override
+	public int insertMember(Member m) {
+		return session.insert("member.insertMember", m);
+	}
+
+	@Override
+	public int insertAttchment(Attachment at) {
+		return session.insert("member.insertAttachment", at);
+	}
+
+	@Override
+	public MemberDTO selectMember(int userNo) {
+		return session.selectOne("member.selectMember", userNo);
 	}
 }
