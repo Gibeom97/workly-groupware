@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.workly.final_project.approval.model.dao.ApprovalDao">
+
+
+	<select id="getAllApprovals" resultType="approval">
+	  SELECT 
+        APPROVAL_NO as approvalNo,
+        USER_NO as userNo,
+        APPROVAL_TYPE as approvalType,
+        APPROVAL_STATUS as approvalStatus,
+        APPROVAL_TITLE as approvalTitle,
+        APPROVAL_CONTENT as approvalContent,
+        START_DATE as startDate,
+        END_DATE as endDate,
+        APPROVAL_USER as approvalUser,
+        CREATED_AT as createdAt
+    FROM APPROVAL
+    ORDER BY CREATED_AT DESC
+	</select>
+
+
+</mapper>
