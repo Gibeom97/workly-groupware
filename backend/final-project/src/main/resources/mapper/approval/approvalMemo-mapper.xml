@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ApprovalMemo">
+
+    <!-- 결재 의견 저장 -->
+<insert id="insertApprovalMemo" parameterType="com.workly.final_project.approval.model.vo.ApprovalMemo">
+    INSERT INTO APPROVAL_MEMO (MEMO_NO, USER_NO, APPROVAL_NO, MEMO_CONTENT, MEMO_DATE)
+    SELECT APPROVAL_MEMO_SEQ.NEXTVAL, #{userNo}, #{approvalNo}, #{memoContent}, SYSDATE
+    FROM DUAL
+    WHERE EXISTS (SELECT 1 FROM APPROVAL WHERE APPROVAL_NO = #{approvalNo})
+</insert>
+
+
+    <!-- 특정 결재 문서에 대한 결재 의견 조회 -->
+    <select id="selectMemosByApprovalId" parameterType="int" resultType="com.workly.final_project.approval.model.vo.ApprovalMemo">
+        SELECT * FROM APPROVAL_MEMO WHERE APPROVAL_NO = #{approvalNo} ORDER BY MEMO_DATE ASC
+    </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+

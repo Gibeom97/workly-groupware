@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const ApprovalMemoModal = ({ onClose }: { onClose: () => void }) => {
+export const ApprovalMemoModal = ({ onClose, onSave }) => {
+  const [memoContent, setMemocontent] = useState("");
 
   const navigate = useNavigate();
 
@@ -82,6 +84,8 @@ export const ApprovalMemoModal = ({ onClose }: { onClose: () => void }) => {
 
         {/* 입력 필드 */}
         <textarea
+          value={memoContent}
+          onChange={(e) => setMemocontent(e.target.value)}
           placeholder="결재의견을 입력하세요"
           style={{
             width: "100%",
@@ -110,7 +114,9 @@ export const ApprovalMemoModal = ({ onClose }: { onClose: () => void }) => {
             cursor: "pointer",
             marginTop: "15px",
           }}
-          onClick={() => navigate('/ApprovalCompletePage')}
+          onClick={() =>{
+            onSave(memoContent);// 저장 버튼 클릭 시 부모 컴포넌트로 의견 전달
+            navigate('/ApprovalCompletePage')}}
         >
           저장
         </button>

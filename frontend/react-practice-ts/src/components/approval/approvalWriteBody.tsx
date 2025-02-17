@@ -1,10 +1,10 @@
-import React, { useState } from "react";
 
-const ApprovalWriteBody = () => {
-  const [content, setContent] = useState("");
-
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(event.target.value);
+const ApprovalWriteBody = ({approvalData, setApprovalData}) => {
+  const handleChange = (e:any) => {
+    setApprovalData((prevData:any) => ({
+      ...prevData,
+      approvalContent: e.target.value, // approvalContent로 상태 업데이터
+    }));
   };
 
   return (
@@ -18,7 +18,8 @@ const ApprovalWriteBody = () => {
     >
         {/* 텍스트 입력 영역 */}
         <textarea
-        value={content}
+        name="approvalContent"
+        value={approvalData.approvalContent} // 부모 상태에서 값 가져오기
         onChange={handleChange}
         placeholder={"내용을 입력하세요"}
         style={{
