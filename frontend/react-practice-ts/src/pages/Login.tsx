@@ -2,29 +2,36 @@ import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from './Login.module.css'
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../features/userSlice";
 
 const Login = () => {
     const [userNo, setUserNo] = useState("");
     const [userPwd, setUserPwd] = useState("");
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault();
         const userNoAsInt = Number(userNo);
-        
-        axios.post("http://localhost:8003/workly/login", { 
-            userNo: userNoAsInt, 
-            userPwd })
-            .then(
-                response => navigate("/main")
-            ).catch(error => {
+
+        axios.post("http://localhost:8003/workly/login", {
+            userNo: userNoAsInt,
+            userPwd
+        })
+            .then((response) => {
+                if (response.data) {
+                    dispatch(loginUser(response.data));
+                    navigate("/main");
+                } else {
+                    alert('사원 정보가 없습니다.');
+                    setUserPwd('');
+                }
+            }).catch(error => {
                 alert(error.response.data.msg);
+                setUserPwd('')
             })
-            .finally(() => {
-                setUserNo(""),
-                setUserPwd("")
-            });
     }
 
     useEffect(() => {
@@ -32,7 +39,7 @@ const Login = () => {
         return () => {
             document.body.classList.remove(styles.myBodyStyle);
         };
-      }, []);
+    }, []);
 
     return (
         <>

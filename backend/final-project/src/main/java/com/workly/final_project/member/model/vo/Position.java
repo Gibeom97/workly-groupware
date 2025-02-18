@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Position {
+	private int positionNo;
 	private String positionName;
 }

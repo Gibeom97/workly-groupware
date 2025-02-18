@@ -22,10 +22,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.workly.final_project.common.model.vo.Attachment;
 import com.workly.final_project.common.model.vo.PageInfo;
 import com.workly.final_project.common.utils.Util;
+import com.workly.final_project.member.model.dto.DeptPositionListDTO;
 import com.workly.final_project.member.model.dto.MemberDTO;
 import com.workly.final_project.member.model.dto.MemberListDTO;
 import com.workly.final_project.member.model.service.MemberService;
+import com.workly.final_project.member.model.vo.CategoryFilter;
+import com.workly.final_project.member.model.vo.Department;
 import com.workly.final_project.member.model.vo.Member;
+import com.workly.final_project.member.model.vo.Position;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +45,7 @@ public class MemberController {
 	@PostMapping("/login")
 	public ResponseEntity<?> login( // 로그인 성공, 실패 시 반환타입 다르므로 제네릭 와일드카드로 설정 
 			@RequestBody Member m) {
-		log.debug("m : {}", m);
-		Member loginMember= service.loginMember(m);
+		MemberDTO loginMember= service.loginMember(m);
 		log.debug("loginMember: {}", loginMember);
 		
 		if(loginMember != null) {
@@ -56,14 +59,25 @@ public class MemberController {
 	
 	@CrossOrigin("http://localhost:5173")
 	@GetMapping("/personnel")
-	public MemberListDTO selectMemberList(
-			@RequestParam int cPage
+	public MemberListDTO selectSearchMemberList(
+			@RequestParam int cPage,
+			@RequestParam String dept,
+			@RequestParam String position,
+			@RequestParam String status,
+			@RequestParam String name
 			) {
-		int listCount = service.selectMemberCount();
+		dept = dept.equals("0") ? null : dept;
+		position = position.equals("0") ? null : position; 
+		status = status.equals("0") ? null : status;
+		
+		CategoryFilter filter = new CategoryFilter(dept, position, status, name);
+		log.debug("filter: {}", filter);
+		
+		int listCount = service.selectMemberCount(filter);
+		log.debug("listCount : {}", listCount);
 		
 		PageInfo pi = Util.pagination(cPage, listCount);
-		
-		List<Member> list = service.selectMemberList(pi);
+		List<Member> list = service.selectMemberList(pi, filter);
 		log.debug("list : {}", list);
 		
 		return new MemberListDTO(pi, list);
@@ -78,8 +92,6 @@ public class MemberController {
 		log.debug("m : {}", m);
 		
 		String serverPath = System.getProperty("user.dir") + "/src/main/resources/static/uploads/profile/";
-    	
-		log.debug("serverPath : {}", serverPath);
 		
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		int result = 0;
@@ -126,6 +138,15 @@ public class MemberController {
 	}
 	
 	@CrossOrigin("http://localhost:5173")
+	@GetMapping("/dept-posi")
+	public DeptPositionListDTO selectDeptPosiList() {
+		List<Department> deptList = service.selectDeptList();
+		List<Position> posiList = service.selectPosiList();	
+		
+		return new DeptPositionListDTO(deptList, posiList);
+	}
+	
+	@CrossOrigin("http://localhost:5173")
 	@PutMapping("/memberUpdate")
 	public ResponseEntity<Map<String, Object>> updateMember(
 			@RequestPart("member") Member m,
@@ -135,11 +156,49 @@ public class MemberController {
 		log.debug("fileImg: {}", fileImg);
 		
     	String serverPath = new File("src/main/resources/static/uploads/profile/").getAbsolutePath();
+    	log.debug("serverPath : {}", serverPath);
     	
-    	//파일 미선택은 없음 -> 파일변경 시 이전 파일 상태값 변경
-    	//fileImg없으면 member만 update 시행
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		int result = 0;
 		
-		return null;
+		if(fileImg != null) {
+			Map<String, String> fileInfo;
+				
+			try {
+				fileInfo = Util.fileRename(fileImg, serverPath);
+				
+				Attachment at = Attachment.builder()
+						  				  .originalName(fileInfo.get("originalName"))
+						  				  .changeName(fileInfo.get("changeName"))
+										  .filePath("/uploads/profile/")
+										  .refUserNo(m.getUserNo())
+			   			 				  .build();
+				
+				result = service.checkAttachment(m);
+				
+				if(result > 0) {
+					result = service.updateMember(m, at); // 기존 첨부파일 N 처리 메서드 포함
+				} else {
+					result = service.updateMember(at, m); // 기존 첨부파일 N 처리 메서드 미포함
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			result = service.updateMember(m);
+		}
+		
+		if(result > 0) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("msg", m.getUserNo() + " 사원정보가 변경되었습니다.");
+			responseEntity = ResponseEntity.ok().body(map);
+		} else {
+			Map<String, Object> error = new HashMap<>();
+			error.put("msg", "사원정보 변경을 실패하였습니다.");
+			responseEntity =  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+		}
+	
+		return responseEntity;
 	}
 	
 }

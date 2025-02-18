@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Department {
+	private int deptNo;
 	private String deptName;
+	private String topDeptCode;
 }

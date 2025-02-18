@@ -8,22 +8,40 @@ import { useNavigate } from 'react-router-dom';
 const PersonnelTable = () => {
     const [personnelList, setPersonnelList] = useState([]);
     const [pageInfo, setPageInfo] = useState();
+    const [searchMember, setSearchMember] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [category, setCategory] = useState({
+        cDept: "0",
+        cPosi: "0",
+        cStatus: "0",
+    })
+
     const navigate = useNavigate();
     
     const fetchPesonnel = () => {
         axios.get("http://localhost:8003/workly/personnel", {
-            params: {cPage: currentPage}
+            params: {
+                cPage: currentPage,
+                dept: category.cDept,
+                position: category.cPosi,
+                status: category.cStatus,
+                name: searchMember
+            }
         })
              .then((response) => {
                 setPersonnelList(response.data.members);
                 setPageInfo(response.data.pageInfo);
              })
+             .catch(() => alert('사원 정보 조회에 실패하였습니다.'))
     };
+
+    const handleSearch = () => {
+        fetchPesonnel();
+    }
 
     useEffect(() => {
         fetchPesonnel();
-    }, [currentPage]);
+    }, [currentPage, category]);
 
     const phoneFormat = (phone) => {
         return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
@@ -31,7 +49,7 @@ const PersonnelTable = () => {
 
     return (
         <div>
-            <SearchBar />
+            <SearchBar category={category} setCategory={setCategory} handleSearch={handleSearch} setSearchMember={setSearchMember} searchMember={searchMember} />
             <table className={styles.table}>
                 <thead>
                     <tr className={styles.headerRow}>
@@ -59,8 +77,8 @@ const PersonnelTable = () => {
                             <td className={styles.tdStyle}>{phoneFormat(e.member.phone)}</td>
                             <td className={styles.tdStyle}>{e.department.deptName}</td>
                             <td className={styles.tdStyle}>{e.position.positionName}</td>
-                            <td className={styles.tdStyle}>{e.member.hireDate}</td>
-                            <td className={styles.tdStyle}>{e.member.updateDate}</td>
+                            <td className={styles.tdStyle}>{new Date(e.member.hireDate).toISOString().split("T")[0]}</td>
+                            <td className={styles.tdStyle}>{e.member.updateDate === null ? "" : new Date(e.member.updateDate).toISOString().split("T")[0]}</td>
                             <td className={styles.tdStyle}>{e.member.totalLeaveDays}</td>
                             <td className={`${styles.tdStyle} ${styles.address}`}>{e.member.address}</td>
                         </tr>

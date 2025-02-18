@@ -4,6 +4,7 @@ import defaultImg from "../../assets/images/icon/default-profile.png"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AddressForm from "./AddressForm";
+import DeptPositionSelect from "./DeptPositionSelect";
 
 const CreateEmployee = () => {
     const [member, setMember] = useState({
@@ -48,7 +49,10 @@ const CreateEmployee = () => {
     };
 
     const handleChange = (e) => {
-        setMember({ ...member, [e.target.name]: e.target.value });
+        setMember({
+            ...member, 
+            [e.target.name]: e.target.value 
+            });
     };
 
     const handleInsert = async (e: FormEvent) => {
@@ -99,25 +103,7 @@ const CreateEmployee = () => {
             <div className={styles.formContainer}>
                 <div className={styles.row}>
                     <label className={styles.label}>부서 / 직급</label>
-                    <select name="deptNo" defaultValue="0" className={styles.input} onChange={handleChange} required>
-                        <option value="0" disabled >부서명</option>
-                        <option value="1">인사팀</option>
-                        <option value="2">경영지원팀</option>
-                        <option value="3">마케팅팀</option>
-                        <option value="4">보안팀</option>
-                        <option value="5">법무법인팀</option>
-                        <option value="6">디자인팀</option>
-                        <option value="7">개발운영팀</option>
-                        <option value="8">서비스운영팀</option>
-                    </select>
-                    <select name="positionNo" defaultValue="0"  className={styles.input} onChange={handleChange} required>
-                        <option value="0" disabled>직급명</option>
-                        <option value="1">팀장</option>
-                        <option value="2">과장</option>
-                        <option value="3">차장</option>
-                        <option value="4">대리</option>
-                        <option value="5">사원</option>
-                    </select>
+                    <DeptPositionSelect positionNo={0} deptNo={0} handleChange={handleChange}/>
                 </div>
                 <div className={styles.row}><label className={styles.label}>이름</label><input type="text" name="userName" className={styles.input} onChange={handleChange} required/></div>
                 <div className={styles.row}><label className={styles.label}>비밀번호</label><input type="password" name="userPwd" className={`${styles.input} ${styles.pwInput}`} onChange={handleChange} required /></div>

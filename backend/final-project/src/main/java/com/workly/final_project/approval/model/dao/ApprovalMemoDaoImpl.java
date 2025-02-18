@@ -11,9 +11,9 @@ import com.workly.final_project.approval.model.vo.ApprovalMemo;
 @Repository
 public class ApprovalMemoDaoImpl implements ApprovalMemoDao{
 	
+	@Autowired
 	private final SqlSession sqlSession;
 	
-	@Autowired
 	public ApprovalMemoDaoImpl(SqlSession sqlSession) {
 		this.sqlSession = sqlSession;
 	}

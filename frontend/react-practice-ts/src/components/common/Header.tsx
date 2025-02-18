@@ -2,18 +2,31 @@ import changePwd from '../../assets/images/icon/changePwd.png';
 import down from '../../assets/images/icon/down.png';
 import logout from '../../assets/images/icon/logout.png';
 import mypage from '../../assets/images/icon/mypage.png';
-import profileImg from '../../assets/images/icon/passion.jpg';
-import { useState } from 'react';
-import styles from './Header.module.css'; // 변경: 일반 CSS 대신 module.css 사용
-import { useLocation } from 'react-router-dom';
+import profileImg from '../../assets/images/icon/profile.png';
+import { useEffect, useState } from 'react';
+import styles from './Header.module.css';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../../features/userSlice';
 
 function Header() {
   const [dropDownOpen, setDropDownOpen] = useState(false);
+  const [preview, setPreview] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
-  const {pathname} = location;
+  const { pathname } = location;
+  
+  const url = "http://localhost:8003/workly/uploads/profile/";
+  
+  useEffect(() => {
+    setPreview(user.changeName);
+  }, []);
 
   let title = "";
-  if(pathname.includes("approval")) {
+  if (pathname.includes("approval")) {
+    title = "전자결재";
+  } else if (pathname.includes("Approval")) {
     title = "전자결재";
   } else if (pathname.includes("personnel")) {
     title = "인사관리";
@@ -29,30 +42,32 @@ function Header() {
     setDropDownOpen((prev) => !prev);
   }
 
+  let user = useSelector((state) => {
+    return state.user;
+  });
+
+  const handleLogout = () => {
+    if(confirm("로그아웃하시겠습니까?")) {
+      dispatch(logoutUser());
+      navigate("/");
+    }
+  }
+
   return (
     <header >
       <div className={styles.header}>
-        {/* 우측 프로필 영역 */}
         <div className={styles.profileArea}>
-          <img
-            className={styles.profileImage}
-            src={profileImg}
-            alt="프로필이미지"
-          />
+        {!preview && <img src={profileImg} alt="profile" className={styles.profileImage} />}
+        {preview && <img src={url + preview} alt="preview" className={styles.profileImage} />}
           <div className={styles.profileInfo}>
-            <div className={styles.profileName}>최웡카</div>
-            <div className={styles.profileRole}>과장</div>
+            <div className={styles.profileName}>{user.userName}</div>
+            <div className={styles.profileRole}>{user.positionName}</div>
           </div>
           <button className={styles.dropdownButton}>
             <div>
-              <img
-                src={down}
-                alt="드롭다운"
-                onClick={toggleDown}
-              />
+              <img src={down} alt="드롭다운" onClick={toggleDown}/>
             </div>
           </button>
-          {/* 드롭다운 영역: isOpen이 true일 때만 표시 */}
           {dropDownOpen && (
             <div className={styles.dropdownMenu}>
               <div className={styles.menuItem}>
@@ -63,7 +78,7 @@ function Header() {
                 <img src={changePwd} alt="비밀번호 변경" />
                 <span>비밀번호 변경</span>
               </div>
-              <div className={styles.menuItem}>
+              <div className={styles.menuItem} onClick={handleLogout}>
                 <img src={logout} alt="로그아웃" />
                 <span>로그아웃</span>
               </div>

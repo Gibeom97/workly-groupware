@@ -17,9 +17,7 @@ public class Member {
 	private int positionNo;
 	private int deptNo;
 	private int totalLeaveDays;
-	private int eNo;
 	private String status;
-	private String profileImg;
 	private String userPwd;
 	private String userName;
 	private String phone;

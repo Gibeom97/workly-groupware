@@ -13,10 +13,24 @@ import icon11 from '../../assets/images/icon/11.png';
 import icon12 from '../../assets/images/icon/12.png';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../features/userSlice";
 
 const Sidebar = () => {
 
-  const navigate = useNavigate(); // ✅ 페이지 이동을 위한 Ho
+  const navigate = useNavigate(); 
+  const dispatch = useDispatch();
+
+  const user = useSelector((state) => {
+    return state.user;
+  });
+
+  const handleLogout = () => {
+    if(confirm("로그아웃하시겠습니까?")) {
+      dispatch(logoutUser());
+      navigate("/");
+    }
+  }
 
   return (
     <div className={styles.sidebar}>
@@ -107,7 +121,7 @@ const Sidebar = () => {
           </span>
           <span>마이페이지</span>
         </button>
-        <button className={styles.logoutButton}>
+        <button className={styles.logoutButton} onClick={handleLogout}>
           <span>
             <img className={styles.imgIcon} src={icon12} alt="로그아웃" />
           </span>
