@@ -2,51 +2,46 @@ import SearchClick from './SearchClick';
 import { useState } from 'react';
 
 interface Member {
-  id: number;
+  no: number;
   name: string;
   position: string;
   team: string;
-}
-
-export interface SearchMemberProps {
-  chatType: string;
-  chatName: string;
-  onComplete: (result: {
-    chatName?: string;
-    chatType?: string;
-    selectedMembers?: Member[];
-    deptName?: string;
-  }) => void;
-  mode?: 'chat' | 'dept'; // mode prop 추가
 }
 
 const SearchMember = ({
   chatType,
   chatName,
   onComplete,
-  mode = 'chat', // 기본값은 'chat'
-}: SearchMemberProps) => {
+}: {
+  chatType: string;
+  chatName: string;
+  onComplete: (newChatRoom: {
+    chatName: string;
+    chatType: string;
+    selectedMembers: Member[];
+  }) => void;
+}) => {
   const [checkedMembers, setCheckedMembers] = useState<number[]>([]);
 
   const members: Member[] = [
-    { id: 1, name: '박솜이', position: '이사', team: '경영지원팀' },
-    { id: 2, name: '안관주', position: '이사', team: '경영지원팀' },
-    { id: 3, name: '임사윤', position: '부장', team: '경영지원팀' },
-    { id: 4, name: '김자수', position: '대리', team: '경영지원팀' },
-    { id: 5, name: '김예삐', position: '주임', team: '인사팀' },
-    { id: 6, name: '채소염', position: '주임', team: '인사팀' },
-    { id: 7, name: '최웡카', position: '부장', team: '인사팀' },
-    { id: 8, name: '김기밤', position: '대리', team: '인사팀' },
-    { id: 9, name: '김젤리', position: '사원', team: '인사팀' },
-    { id: 10, name: '이용휘', position: '주임', team: '인사팀' },
+    { no: 1, name: '박솜이', position: '이사', team: '경영지원팀' },
+    { no: 2, name: '안관주', position: '이사', team: '경영지원팀' },
+    { no: 3, name: '임사윤', position: '부장', team: '경영지원팀' },
+    { no: 4, name: '김자수', position: '대리', team: '경영지원팀' },
+    { no: 5, name: '김예삐', position: '주임', team: '인사팀' },
+    { no: 6, name: '채소염', position: '주임', team: '인사팀' },
+    { no: 7, name: '최웡카', position: '부장', team: '인사팀' },
+    { no: 8, name: '김기밤', position: '대리', team: '인사팀' },
+    { no: 9, name: '김젤리', position: '사원', team: '인사팀' },
+    { no: 10, name: '이용휘', position: '주임', team: '인사팀' },
   ];
 
-  const toggleCheck = (id: number) => {
+  const toggleCheck = (no: number) => {
     if (chatType === '1:1') {
-      setCheckedMembers((prev) => (prev.includes(id) ? [] : [id]));
+      setCheckedMembers((prev) => (prev.includes(no) ? [] : [no]));
     } else {
       setCheckedMembers((prev) =>
-        prev.includes(id) ? prev.filter((memberId) => memberId !== id) : [...prev, id]
+        prev.includes(no) ? prev.filter((memberNo) => memberNo !== no) : [...prev, no]
       );
     }
   };
@@ -57,15 +52,12 @@ const SearchMember = ({
       return;
     }
 
-    const selectedMembers = members.filter((m) => checkedMembers.includes(m.id));
+    alert('채팅방 생성 완료되었습니다.');
 
-    if (mode === 'chat') {
-      alert('채팅방 생성 완료되었습니다.');
-      onComplete({ chatName, chatType, selectedMembers });
-    } else if (mode === 'dept') {
-      alert('부서 생성 완료되었습니다!');
-      onComplete({ deptName: '신규 부서명' });
-    }
+    const selectedMembers = members.filter((m) => checkedMembers.includes(m.no));
+
+    // 부모 컴포넌트로 새 방 정보 전달
+    onComplete({ chatName, chatType, selectedMembers });
   };
 
   const groupedMembers = members.reduce<Record<string, Member[]>>((acc, member) => {
@@ -128,7 +120,7 @@ const SearchMember = ({
           <tbody>
             {Object.entries(groupedMembers).map(([team, teamMembers]) =>
               teamMembers.map((member, index) => (
-                <tr key={member.id} style={{ position: 'relative', height: '35px' }}>
+                <tr key={member.no} style={{ position: 'relative', height: '35px' }}>
                   {index === 0 && (
                     <td
                       rowSpan={teamMembers.length}
@@ -145,7 +137,7 @@ const SearchMember = ({
                         style={{
                           position: 'absolute',
                           bottom: 0,
-                          right: '-17px',
+                          right: '-17px', // 50%가 아니라 세로 구분선에 딱 맞게
                           left: 0,
                           height: '1px',
                           backgroundColor: '#D8D8D8',
@@ -158,8 +150,8 @@ const SearchMember = ({
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <input
                         type="checkbox"
-                        checked={checkedMembers.includes(member.id)}
-                        onChange={() => toggleCheck(member.id)}
+                        checked={checkedMembers.includes(member.no)}
+                        onChange={() => toggleCheck(member.no)}
                         style={{
                           marginRight: '10px',
                           marginLeft: '10px',
@@ -169,6 +161,7 @@ const SearchMember = ({
                       />
                       {member.name} {member.position}
                     </div>
+                    {/* 세로 구분선 */}
                     <div
                       style={{
                         position: 'absolute',
@@ -179,11 +172,12 @@ const SearchMember = ({
                         backgroundColor: '#D8D8D8',
                       }}
                     />
+                    {/* 이름쪽 가로 구분선 시작 위치 조정 */}
                     <div
                       style={{
                         position: 'absolute',
                         bottom: 0,
-                        left: '17px',
+                        left: '17px', // 세로 구분선에 딱 맞게 조정
                         right: 0,
                         height: '1px',
                         backgroundColor: '#D8D8D8',
@@ -197,6 +191,7 @@ const SearchMember = ({
         </table>
       </div>
 
+      {/* 확인 버튼 복구 */}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
         <button
           style={{
@@ -209,6 +204,7 @@ const SearchMember = ({
             padding: '8px 16px',
             cursor: 'pointer',
           }}
+          //onClick={() => console.log('선택된 멤버:', checkedMembers)}
           onClick={handleConfirm}
         >
           확인

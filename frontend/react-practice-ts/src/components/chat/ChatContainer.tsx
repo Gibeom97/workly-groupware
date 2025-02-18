@@ -10,12 +10,14 @@ const ChatContainer = ({
       onChatClick,
       onProfileClick,
       onOrgClick,
+      OnAlarmClick,
     }: {
       children: React.ReactNode;
       onClose?: () => void;
       onChatClick?: () => void;
       onProfileClick?: () => void;
       onOrgClick?: () => void;
+      OnAlarmClick?: () => void;
     }) => {
   return (
     <div 
@@ -69,7 +71,8 @@ const ChatContainer = ({
       style={{ width: "35px", height: "35px", left: "18px", top: "100px", position: "absolute" , cursor:"pointer"}} src={chatIcon} alt="icon2" />
       <img className="people" onClick={onOrgClick}
       style={{ width: "31px", height: "31px", left: "20px", top: "150px", position: "absolute" , cursor:"pointer"}} src={peopleIcon} alt="icon3" />
-      <img className="bell" style={{ width: "31px", height: "31px", left: "20px", top: "500px", position: "absolute" , cursor:"pointer"}} src={bellIcon} alt="icon4" />
+      <img className="bell" onClick={OnAlarmClick}
+      style={{ width: "31px", height: "31px", left: "20px", top: "500px", position: "absolute" , cursor:"pointer"}} src={bellIcon} alt="icon4" />
       <img className="setting" style={{ width: "31px", height: "31px", left: "20px", top: "550px", position: "absolute" , cursor:"pointer"}} src={settingIcon} alt="icon5" />
 
       {/* 닫기 버튼 */}

@@ -1,21 +1,57 @@
 import { useState } from 'react';
-import searchIcon from "../../assets/Images/chat/search.png"; 
+import searchIcon from "../../assets/Images/chat/search.png";
+import OrgMemberPlus from './OrgMemberPlus';
+import { Member, Department } from '../../type/chatType';
 
-const CreateOrg = ({
-  onClose,
-  invitePeople
-}: {
-  invitePeople: (deptName: string) => void;
-  onClose: () => void;
-}) => {
+interface CreateOrgProps {
+  onComplete: (dept: Department) => void; // 생성된 부서 정보를 부모 컴포넌트(Chat)로 전달
+  onClose: () => void; // 닫기 (취소) 핸들러
+}
+
+const CreateOrg = ({ onComplete, onClose }: CreateOrgProps) => {
   const [deptName, setDeptName] = useState('');
-  
-  const handleInviteClick = () => {
-    console.log("부서 생성 단계 진입");
-    invitePeople(deptName); // SearchMember 단계로 넘기기
-  };  
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
 
-  return (
+  // 사원 선택 완료 핸들러
+  const handleMembersComplete = (members: Member[]) => {
+    setSelectedMembers(members);
+    setIsSearching(false);
+  };
+
+  // 부서 생성 완료 핸들러
+  const handleCreateDept = () => {
+    if (!deptName.trim()) {
+      alert('부서 이름을 입력해주세요.');
+      return;
+    }
+    if (selectedMembers.length === 0) {
+      alert('부서원을 선택해주세요.');
+      return;
+    }
+
+    const newDepartment: Department = {
+      deptName,
+      members: selectedMembers,
+    };
+
+    onComplete(newDepartment);
+
+    // 입력값 초기화
+    setDeptName('');
+    setSelectedMembers([]);
+
+    onClose();
+  };
+
+  return isSearching ? (
+    <OrgMemberPlus
+      deptName={deptName}
+      onComplete={(result) => {
+        handleMembersComplete(result.selectedMembers);
+      }}
+    />
+  ) : (
     <div
       className="DeptCreate"
       style={{
@@ -94,8 +130,6 @@ const CreateOrg = ({
           ✕
         </button>
       </div>
-
-      
 
       {/* 부서 정보 설정 카드 */}
       <div
@@ -176,7 +210,7 @@ const CreateOrg = ({
 
       {/* 사원 추가 레이블 */}
       <div
-        onClick={handleInviteClick}
+        onClick={() => setIsSearching(true)}
         style={{
           position: "absolute",
           left: 73,
@@ -209,15 +243,36 @@ const CreateOrg = ({
           fontSize: "11px",
           fontFamily: "Roboto",
         }}
-        onClick={handleInviteClick}
+        onClick={() => setIsSearching(true)}
       >
-        이름을 입력하세요
+        {selectedMembers.length > 0
+          ? `${selectedMembers.map((m) => m.name).join(', ')}`
+          : '이름을 입력하세요'}
         <img
           src={searchIcon}
           alt="검색"
           style={{ width: "18px", height: "18px", marginLeft: "auto", marginRight: "8px" }}
         />
       </div>
+
+      {/* 부서 생성 완료 버튼 */}
+      <button
+        onClick={handleCreateDept}
+        style={{
+          position: "absolute",
+          bottom: "30px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "#4880FF",
+          color: "white",
+          padding: "8px 16px",
+          borderRadius: "5px",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        부서 생성 완료
+      </button>
     </div>
   );
 };
