@@ -3,29 +3,57 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="member">
-	<select id="loginMember" resultType="member">
-		SELECT *
+	<select id="loginMember" resultMap="memberDTOMap">
+		SELECT USER_NO, STATUS_TYPE, USER_NAME, DEPT_NAME, POSITION_NAME, CHANGE_NAME, FILE_PATH 
 		FROM MEMBER
-		WHERE 
-			USER_NO = #{userNo} AND
-			USER_PWD = #{userPwd} AND
-			STATUS = 'Y'
+		JOIN DEPARTMENT USING(DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO
+		WHERE USER_NO = #{userNo} 
+			AND USER_PWD = #{userPwd} 
 	</select>
 	
-	<select id="selectMemberCount" resultType="int">
-		SELECT COUNT(*)
-		FROM MEMBER
+	<select id="selectCategoryMemberCount" resultType="int" parameterType="CategoryFilter">
+	    SELECT COUNT(*) FROM MEMBER
+	    <where>
+	        <if test="deptNo != null and deptNo != 0">
+	            AND DEPT_NO = #{deptNo}
+	        </if>
+	        <if test="positionNo != null and positionNo != 0">
+	            AND POSITION_NO = #{positionNo}
+	        </if>
+	        <if test="status != null and status != ''">
+	            AND STATUS = #{status}
+	        </if>
+	        <if test="name != null and name != ''">
+	        	AND USER_NAME LIKE CONCAT(#{name}, '%')
+	        </if>
+	    </where>
 	</select>
 	
-	<select id="selectMemberList" resultMap="memberDTOListMap">
+	<select id="selectMemberList" resultMap="memberDTOListMap" parameterType="CategoryPrDTO">
 		SELECT *
 		FROM (SELECT ROWNUM RNUM, A.*
 		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS, ADDRESS_DETAIL
 		            FROM MEMBER
                     JOIN DEPARTMENT USING(DEPT_NO)
                     JOIN POSITION USING(POSITION_NO)
+		<where>
+	        <if test="filter.deptNo != null and filter.deptNo != 0">
+	            AND DEPT_NO = #{filter.deptNo}
+	        </if>
+	        <if test="filter.positionNo != null and filter.positionNo != 0">
+	            AND POSITION_NO = #{filter.positionNo}
+	        </if>
+	        <if test="filter.status != null and filter.status != ''">
+	            AND STATUS = #{filter.status}
+	        </if>
+			<if test="filter.name != null and filter.name != ''">
+	        	AND USER_NAME LIKE CONCAT(#{filter.name}, '%')
+	        </if>
+	    </where>
 		            ORDER BY HIRE_DATE DESC, USER_NO DESC) A)
-		WHERE RNUM BETWEEN #{startRow} AND #{endRow} 
+		WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow} 
 	</select>
 	
 	<resultMap id="memberDTOListMap" type="MemberDTO">
@@ -90,14 +118,16 @@
 		FROM MEMBER
 		JOIN DEPARTMENT USING(DEPT_NO)
 		JOIN POSITION USING(POSITION_NO)
-		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO
-		WHERE USER_NO = #{userNo}
+		LEFT JOIN PROFILE_ATTACHMENT AT ON USER_NO = REF_USER_NO
+		WHERE USER_NO = #{userNo} 
+			AND (AT.ATTACH_STATUS IS NULL OR AT.ATTACH_STATUS = 'Y')
 	</select>
 
 	<resultMap id="memberDTOMap" type="MemberDTO">
 		<association property="member" javaType="Member">
 			<id property="userNo" column="USER_NO" />
 			<result property="userName" column="USER_NAME" />
+			<result property="statusType" column="STATUS_TYPE" />
 			<result property="email" column="EMAIL" />
 			<result property="deptNo" column="DEPT_NO"/>
 			<result property="positionNo" column="POSITION_NO"/>
@@ -124,6 +154,42 @@
 			<result property="changeName" column="CHANGE_NAME"/>
 		</association>
 	</resultMap>
+	
+	<select id="selectDeptList" resultType="department">
+		SELECT * FROM DEPARTMENT
+	</select>	
+	
+	<select id="selectPosiList" resultType="position">
+		SELECT * FROM POSITION
+	</select>
+	
+	<select id="checkAttachment" resultType="int">
+		SELECT COUNT(*) FROM PROFILE_ATTACHMENT WHERE REF_USER_NO = #{userNo}
+	</select>
+	
+	<update id="deleteAttachment">
+		UPDATE PROFILE_ATTACHMENT
+		SET ATTACH_STATUS = 'N'
+		WHERE REF_USER_NO = #{userNo}
+	</update>
+	
+	<update id="updateMember">
+		UPDATE MEMBER
+		SET 
+			POSITION_NO = #{positionNo},
+			DEPT_NO = #{deptNo},
+			TOTAL_LEAVE_DAYS = #{totalLeaveDays},
+			STATUS = #{status},
+			USER_NAME = #{userName},
+			PHONE = #{phone},
+			EXTENSION =#{extension},
+			EMAIL = #{email},
+			ADDRESS = #{address},
+			HIRE_DATE = #{hireDate},
+			ADDRESS_DETAIL = #{addressDetail},
+			UPDATE_DATE = #{updateDate}
+		WHERE USER_NO = #{userNo}
+	</update>
 </mapper>
 
 

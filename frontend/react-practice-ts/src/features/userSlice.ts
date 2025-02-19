@@ -1,28 +1,70 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-    userNo: 0,
-    deptName: "", 
-    positionName: "",
-    userName: "",
-    phone: "",
-    address: "",
-    email: "",
-    extension: "",
-    hireDate: "",
-    changeName: "",
-    filePath: ""
-} 
+// 1) localStorage에서 "user" 가져옴
+const storedUser = localStorage.getItem("user");
 
-const user = createSlice({
+// 2) 만약 있다면, 원하는 구조로 변환
+let initialState;
+
+if (storedUser) {
+    const parsed = JSON.parse(storedUser);
+    const { member, department, position, attachment } = parsed;
+
+    initialState = {
+        userNo: member?.userNo || 0,
+        userName: member?.userName || "",
+        statusType: member?.statusType || "",
+        deptName: department?.deptName || "",
+        positionName: position?.positionName || "",
+        changeName: attachment?.changeName || "",
+        filePath: attachment?.filePath || ""
+    }
+} else {
+    // 3) 없으면 기본값
+    initialState = {
+        userNo: 0,
+        userName: "",
+        statusType: "",
+        deptName: "",
+        positionName: "",
+        changeName: "",
+        filePath: ""
+    };
+}
+const userSlice = createSlice({
     name: "user",
     initialState,
-    reducers : {
-        loginSuccess(state, data) {
-            return data.payload;
+    reducers: {
+        loginUser(state, data) {
+            const { member, department, position, attachment } = data.payload;
+            localStorage.setItem("user", JSON.stringify(data.payload));
+
+            return {
+                userNo: member.userNo || 0,
+                userName: member?.userName || "",
+                statusType: member?.statusType || "",
+                deptName: department?.deptName || "",
+                positionName: position?.positionName || "",
+                changeName: attachment?.changeName || "",
+                filePath: attachment?.filePath || "",
+            }
+
+        },
+        logoutUser(state) {
+            localStorage.removeItem("user");
+
+            return {
+                userNo: 0,
+                userName: "",
+                statusType: "",
+                deptName: "",
+                positionName: "",
+                changeName: "",
+                filePath: ""
+            }
         }
     }
 })
 
-export default user;
-export const {loginSuccess} = user.actions;
+export const { loginUser, logoutUser } = userSlice.actions;
+export default userSlice.reducer;
