@@ -15,19 +15,23 @@ import SearchMember from "./components/chat/SearchMember";
 import GroupChat from "./components/chat/GroupChat";
 import OrgChart from "./components/chat/OrgChart";
 import CreateOrg from "./components/chat/CreateOrg";
+import { Department } from "./type/chatType";
+import Alarm from "./components/chat/Alarm";
 
 interface Member {
-  id: number;
+  no: number;
   name: string;
   position: string;
   team: string;
 }
 
 interface ChatRoom {
+  no: number;
   chatName: string;
   chatType: string;
   unreadCount?: number;
   isActive?: boolean;
+  isNotified : boolean;
 }
 
 
@@ -41,7 +45,10 @@ const Chat = () => {
   const [isMyInfoModalOpen, setIsMyInfoModalOpen] = useState(false);
   const [isFirstChatOpen, setIsFirstChatOpen] = useState(false);
   const [isChatListOpen, setIsChatListOpen] = useState(false);
-  const [chatList, setChatList] = useState<any[]>([]);
+  const [chatList, setChatList] = useState<ChatRoom[]>([
+    { no : 1, chatName: '개발팀 회의', chatType: 'group', unreadCount: 0, isActive: true, isNotified: true },
+    { no : 2, chatName: '디자인팀 회의', chatType: 'group', unreadCount: 2, isActive: false, isNotified: false },
+    ]);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSearchMemberOpen, setIsSearchMemberOpen] = useState(false);
   const [searchChatType, setSearchChatType] = useState<string>("");
@@ -49,7 +56,8 @@ const Chat = () => {
   const [selectedChatRoom, setSelectedChatRoom] = useState<ChatRoom | null>(null);
   const [isOrgOpen, setIsOrgOpen] = useState(false);
   const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
-  
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [isAlarmListOpen, setIsAlarmListOpen] = useState(false);
 
   const [myName] = useState("김젤리");
 
@@ -72,15 +80,23 @@ const Chat = () => {
 
   const openNoticeChat = () => setIsNoticeOpen(true);
 
+
   const handleChatClick = () => {
-    console.log("채팅방 클릭됨, chatList 상태:", chatList);
+    setIsInfoModalOpen(false);
+    setIsNoticeOpen(false);
+    setIsMyInfoModalOpen(false);
     if (chatList.length === 0) {
-      console.log("chatList가 비어있음 → isFirstChatOpen true");
       setIsFirstChatOpen(true);
+      setIsChatListOpen(false);
     } else {
-      console.log("chatList 있음 → isChatListOpen true");
+      setIsFirstChatOpen(false);
       setIsChatListOpen(true);
     }
+    setIsCreatingChat(false);
+    setIsSearchMemberOpen(false);
+    setSelectedChatRoom(null);
+    setIsOrgOpen(false);
+    setIsCreateOrgOpen(false);
   };
 
   const invitePeople = (chatType: string, chatName: string) => {
@@ -97,16 +113,25 @@ const Chat = () => {
   };
 
   const handleChatRoomComplete = (newChatRoom: {
-    chatName?: string;
-    chatType?: string;
-    selectedMembers?: Member[];
-    deptName?: string;
+    chatName: string;
+    chatType: string;
+    selectedMembers: Member[];
   }) => {
-    console.log(newChatRoom.chatName);
-    console.log(newChatRoom.chatType);
-    console.log(newChatRoom.selectedMembers);
-    console.log(newChatRoom.deptName);
+    setChatList((prev) => [
+      ...prev,
+      {
+        no: prev.length + 1,
+        chatName: newChatRoom.chatName,
+        chatType: newChatRoom.chatType,
+        unreadCount: 0,
+        isActive: true,
+        isNotified: true,
+      },
+    ]);
+    setIsSearchMemberOpen(false);
+    setIsChatListOpen(true);
   };
+  
 
   const handleProfileClickIcon = () => {
     setIsInfoModalOpen(false);
@@ -124,8 +149,32 @@ const Chat = () => {
   };
 
   const handleOpenOrg = () => {
+    setIsInfoModalOpen(false);
+    setIsNoticeOpen(false);
+    setIsMyInfoModalOpen(false);
+    setIsFirstChatOpen(false);
+    setIsChatListOpen(false);
+    setIsCreatingChat(false);
+    setIsSearchMemberOpen(false);
+    setSelectedChatRoom(null);
     setIsOrgOpen(true);
+    setIsCreateOrgOpen(false);
+  };
+
+  const handleAlarmClick = () => {
+    setIsInfoModalOpen(false);
+    setIsNoticeOpen(false);
+    setIsMyInfoModalOpen(false);
+    setIsFirstChatOpen(false);
+    setIsChatListOpen(false);
+    setIsCreatingChat(false);
+    setIsSearchMemberOpen(false);
+    setSelectedChatRoom(null);
+    setIsOrgOpen(false);
+    setIsCreateOrgOpen(false);
+    setIsAlarmListOpen(true);
   }
+  
 
   if (!isOpen) return null;
 
@@ -147,19 +196,31 @@ const Chat = () => {
             />
           </InfoContainer>
         ) : selectedChatRoom ? (
-        <GroupChat
-          //room={{ chatName: '개발팀 회의', chatType: 'group' }}
-          room={selectedChatRoom!}
-          messages={[
-            { userName: '홍길동', message: '안녕하세요!', chatNo: 1, lastReadChatNo: 0, receivedDate: '9:41 AM', isMine: false },
-            { userName: '김철수', message: '회의 시간 변경되었어요.', chatNo: 2, lastReadChatNo: 1, receivedDate: '9:41 AM', isMine: false },
-            { userName: '나(본인)', message: '넵 확인했습니다.', chatNo: 3, lastReadChatNo: 2, receivedDate: '9:41 AM', isMine: true }
-          ]}
-             onClose={() => {
-            setIsOpen(false);
-            setSelectedChatRoom(null);
-            setIsChatListOpen(false);}} // 여기 true인지 fal
-        />
+          <GroupChat
+            room={selectedChatRoom!}
+            messages={[
+              { userName: '홍길동', message: '안녕하세요!', chatNo: 1, lastReadChatNo: 0, receivedDate: '9:41 AM', isMine: false },
+              { userName: '김철수', message: '회의 시간 변경되었어요.', chatNo: 2, lastReadChatNo: 1, receivedDate: '9:41 AM', isMine: false },
+              { userName: '나(본인)', message: '넵 확인했습니다.', chatNo: 3, lastReadChatNo: 2, receivedDate: '9:41 AM', isMine: true }
+            ]}
+            onClose={() => {
+              setSelectedChatRoom(null);
+              setIsChatListOpen(true);
+            }}
+            onToggleAlarm={(chatName, isNotified) => {
+              setChatList((prev) =>
+                prev.map((room) =>
+                  room.chatName === chatName ? { ...room, isNotified } : room
+                )
+              );
+            }}
+            currentMembers={[  // ⬅️ 이런 식으로 실제 멤버들 내려주는 상태도 필요
+              { no: 1, name: '홍길동', position: '사원', team: '개발팀' },
+              { no: 2, name: '김철수', position: '대리', team: '개발팀' },
+              { no: 3, name: '나(본인)', position: '주임', team: '개발팀' },
+            ]}
+          />
+
           ) : isInfoModalOpen ? (
           <InfoContainer>
             <MemberInfo onClose={closeInfoModal} member={{ name: selectedMemberName, dept: "", position: "", email: "", phone: "", extension: "" }} />
@@ -173,36 +234,29 @@ const Chat = () => {
               chatName={searchChatName}
               onComplete={handleChatRoomComplete}
             />
-            <CreateOrg
-            onClose={() => setIsCreateOrgOpen(false)}
-            invitePeople={(deptName) => {
-              console.log(`${deptName} 부서 생성됨`);
-              setIsCreateOrgOpen(false);
-              setIsOrgOpen(true);
-            }}
-          />
           </>
         ) : isCreateOrgOpen ? (
           <CreateOrg
-            onClose={() => setIsCreateOrgOpen(false)}
-            invitePeople={(deptName) => {
-              console.log(`${deptName} 부서 생성됨`);
-              setIsCreateOrgOpen(false);
-              setIsOrgOpen(true);
+          onClose={() => setIsCreateOrgOpen(false)}
+          onComplete={(dept) => {
+            console.log(`${dept.deptName} 부서 생성됨, 멤버:`, dept.members);
+            setDepartments((prev) => [...prev, dept]); // 🔥부서와 멤버 추가
+            setIsCreateOrgOpen(false);
+            setIsOrgOpen(true); // 생성 후 다시 조직도로 돌아가게
             }}
           />
         ) : isOrgOpen ? (
-          <ChatContainer onClose={() => setIsOpen(false)}>
-            <OrgChart
-              onOpenCreateOrg={() => {
-                setIsOrgOpen(false);
-                setIsCreateOrgOpen(true);
-              }}
-            />
+          <ChatContainer onClose={() => setIsOpen(false)} onChatClick={handleChatClick} 
+          onProfileClick={handleProfileClickIcon} onOrgClick={handleOpenOrg} OnAlarmClick={handleAlarmClick}>
+          <OrgChart departments={departments}
+           onOpenCreateOrg={() => {
+            setIsOrgOpen(false);
+            setIsCreateOrgOpen(true);
+          }} />
           </ChatContainer>
         )  : isFirstChatOpen ? (
           <ChatContainer onClose={() => setIsOpen(false)} onChatClick={handleChatClick} 
-           onProfileClick={handleProfileClickIcon} onOrgClick={handleOpenOrg} >
+           onProfileClick={handleProfileClickIcon} OnAlarmClick={handleAlarmClick} onOrgClick={handleOpenOrg} >
             <ChatNewList setIsCreatingChat={setIsCreatingChat} setIsFirstChatOpen={setIsFirstChatOpen} />
           </ChatContainer>
         ) : isCreatingChat ? (
@@ -211,17 +265,30 @@ const Chat = () => {
             onClose={() => setIsCreatingChat(false)}
           />
         ) : isChatListOpen ? (
-          <ChatContainer onClose={() => setIsOpen(false)} onOrgClick={handleOpenOrg} onProfileClick={handleProfileClickIcon}>
+          <ChatContainer onClose={() => setIsOpen(false)} onOrgClick={handleOpenOrg} OnAlarmClick={handleAlarmClick} onProfileClick={handleProfileClickIcon}>
             <ChatList
               chatRooms={chatList}
+              setChatList={setChatList}
               setIsCreatingChat={setIsCreatingChat}
               setIsFirstChatOpen={setIsFirstChatOpen}
-              openNoticeChat = {() => setIsNoticeOpen(true)}
-              openChatRoom={handleOpenChatRoom}
+              openNoticeChat={() => setIsNoticeOpen(true)}
+              openChatRoom={(room) => handleOpenChatRoom({ ...room, isNotified: true })}
             />
           </ChatContainer>
-        ) : (
-          <ChatContainer onClose={() => setIsOpen(false)} onOrgClick={handleOpenOrg}  onChatClick={handleChatClick} onProfileClick={handleProfileClickIcon}>
+        ) :  isAlarmListOpen ? (
+          <ChatContainer
+            onClose={() => setIsOpen(false)}
+            onChatClick={handleChatClick}
+            onProfileClick={handleProfileClickIcon}
+            onOrgClick={handleOpenOrg}
+            OnAlarmClick={handleAlarmClick}
+          >
+            <Alarm 
+            chatRooms={chatList} setChatList={setChatList} onNoticeClick={openNoticeChat} />
+          </ChatContainer>
+        ): 
+        (
+          <ChatContainer onClose={() => setIsOpen(false)} onOrgClick={handleOpenOrg} OnAlarmClick={handleAlarmClick} onChatClick={handleChatClick} onProfileClick={handleProfileClickIcon}>
             <button className="chat-close-button" onClick={() => setIsOpen(false)} style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10 }}>
               ×
             </button>

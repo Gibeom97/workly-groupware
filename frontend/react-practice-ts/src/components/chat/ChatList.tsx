@@ -5,10 +5,21 @@ import profile from "../../assets/Images/chat/profile.png";
 //import groupProfile from "../../assets/Images/chat/groupList.png"
 
 interface ChatRoom {
+  no: number;
   chatName: string;
   chatType: string;
   unreadCount?: number;
-  isActive?: boolean; // 사용자 활성 상태 여부
+  isActive?: boolean;
+  isNotified: boolean;
+}
+
+interface ChatListProps {
+  chatRooms: ChatRoom[]; // 배열 타입!
+  setChatList: React.Dispatch<React.SetStateAction<ChatRoom[]>>;
+  setIsCreatingChat: (value: boolean) => void;
+  setIsFirstChatOpen: (value: boolean) => void;
+  openNoticeChat: () => void;
+  openChatRoom: (room: ChatRoom) => void;
 }
 
 const ChatList = ({
@@ -16,13 +27,7 @@ const ChatList = ({
   setIsCreatingChat,
   openNoticeChat,
   openChatRoom,
-}: {
-  chatRooms?: ChatRoom[];
-  setIsCreatingChat: (value: boolean) => void;
-  setIsFirstChatOpen: (value: boolean) => void;
-  openNoticeChat?: () => void;
-  openChatRoom?: (room: ChatRoom) => void;
-}) => {
+}: ChatListProps) => {
   return (
     <div
       style={{

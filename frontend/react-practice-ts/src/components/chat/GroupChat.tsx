@@ -2,14 +2,30 @@ import profile from "../../assets/Images/chat/profile.png";
 import bell from "../../assets/Images/chat/bellGray.png";
 import personplus from "../../assets/Images/chat/personPlus.png";
 import exit from "../../assets/Images/chat/exit.png";
-//import groupProfile from "../../assets/Images/chat/groupList.png";
 import file from "../../assets/Images/chat/file.png";
+import { useState } from "react";
+import { Member } from "../../type/chatType";
+import AddMemberPanel from "./AddMemberPanel";
+
+const members: Member[] = [
+  { no: 1, name: '박솜이', position: '이사', team: '경영지원팀' },
+  { no: 2, name: '안관주', position: '이사', team: '경영지원팀' },
+  { no: 3, name: '임사윤', position: '부장', team: '경영지원팀' },
+  { no: 4, name: '김자수', position: '대리', team: '경영지원팀' },
+  { no: 5, name: '김예삐', position: '주임', team: '인사팀' },
+  { no: 6, name: '채소염', position: '주임', team: '인사팀' },
+  { no: 7, name: '최웡카', position: '부장', team: '인사팀' },
+  { no: 8, name: '김기밤', position: '대리', team: '인사팀' },
+  { no: 9, name: '김젤리', position: '사원', team: '인사팀' },
+  { no: 10, name: '이용휘', position: '주임', team: '인사팀' },
+];
 
 interface ChatRoom {
   chatName: string;
   chatType: string;
   unreadCount?: number;
   isActive?: boolean;
+  isNotified: boolean;
 }
 
 interface ChatMessage {
@@ -26,13 +42,75 @@ interface UserChat {
   lastReadChatNo: number;
 }
 
+interface GroupChatProps {
+  room: ChatRoom;
+  messages: ChatMessage[];
+  onClose: () => void;
+  onToggleAlarm: (chatName: string, isNotified: boolean) => void;
+  currentMembers: Member[];
+}
+
 const userChatList: UserChat[] = [
   { userNo: 1, lastReadChatNo: 3 },
   { userNo: 2, lastReadChatNo: 2 },
-  { userNo: 3, lastReadChatNo: 1 }, // 추후 백엔드 연결 후 수정
+  { userNo: 3, lastReadChatNo: 1 },
 ];
 
-const GroupChat = ({ room, messages, onClose }: { room: ChatRoom; messages: ChatMessage[]; onClose: () => void }) => {
+const GroupChat = ({
+  room,
+  messages,
+  onClose,
+  onToggleAlarm,
+  currentMembers,
+}: GroupChatProps) => {
+  const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
+  const [allEmployees] = useState<Member[]>(members);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(messages);
+  const [chatMembers, setChatMembers] = useState<Member[]>(currentMembers);
+
+  const handlePersonPlusClick = () => {
+    setIsAddMemberPanelOpen(true);
+  };
+
+  const handleAddMemberConfirm = (newMembers: Member[]) => {
+    const filteredNewMembers = newMembers.filter(
+      (newMember) => !chatMembers.some((member) => member.no === newMember.no)
+    );
+
+    if (filteredNewMembers.length === 0) {
+      alert("이미 참여 중인 멤버입니다.");
+      setIsAddMemberPanelOpen(false);
+      return;
+    }
+
+    const updatedMembers = [...chatMembers, ...filteredNewMembers];
+    setChatMembers(updatedMembers);
+
+    const inviteMessages: ChatMessage[] = filteredNewMembers.map((member, index) => ({
+      userName: '시스템',
+      message: `${member.name}님이 초대되었습니다.`,
+      chatNo: chatMessages.length + 1 + index,
+      lastReadChatNo: 0,
+      receivedDate: new Date().toLocaleTimeString(),
+      isMine: false,
+    }));
+
+    setChatMessages((prevMessages) => [...prevMessages, ...inviteMessages]);
+    setIsAddMemberPanelOpen(false);
+  };
+
+  const handleBellClick = () => {
+    const action = room.isNotified ? '해제' : '설정';
+    const confirmResult = window.confirm(`알림을 ${action}하시겠습니까?`);
+    if (confirmResult) {
+      onToggleAlarm(room.chatName, !room.isNotified);
+      alert(`알림이 ${action}되었습니다.`);
+    }
+  };
+
+  // 여기 나가기 백엔드랑 연동해서 수정하기 
+  //const handle
+  
   return (
     <div className="group-chat" style={{
       width: 390,
@@ -190,9 +268,43 @@ const GroupChat = ({ room, messages, onClose }: { room: ChatRoom; messages: Chat
 
       {/* 하단 아이콘 */}
       <img className="file" style={{ width: 30, height: 30, left: 31, top: 545, position: 'absolute' }} src={file} alt="icon" />
-      <img className="bell" style={{ width: 30, height: 30, left: 75, top: 545, position: 'absolute' }} src={bell} alt="icon" />
-      <img className="personplus" style={{ width: 30, height: 30, left: 121, top: 545, position: 'absolute' }} src={personplus} alt="icon" />
-      <img className="exit" style={{ width: 30, height: 30, left: 168, top: 545, position: 'absolute' }} src={exit} alt="icon" />
+      <img className="bell" onClick={handleBellClick} style={{ cursor: "pointer", width: 30, height: 30, left: 75, top: 545, position: 'absolute' }} src={bell} alt="icon" />
+      {/* 사람 추가 아이콘 */}
+      <img
+        className="personplus"
+        onClick={handlePersonPlusClick} // ✅ 클릭 이벤트 수정
+        style={{  width: 30, height: 30, left: 121, top: 545, position: 'absolute', cursor: 'pointer' }}
+        src={personplus}
+      />
+
+      {isAddMemberPanelOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          }}
+        >
+          <AddMemberPanel
+            allEmployees={allEmployees}
+            //selectedMembers={currentMembers.map((member) => member.name)}
+            currentMembers={chatMembers}
+            onClose={() => setIsAddMemberPanelOpen(false)}
+            onConfirm={handleAddMemberConfirm}
+          />
+        </div>
+      )}
+
+
+      <img className="exit"
+      // onClick={}
+      style={{ width: 30, height: 30, left: 168, top: 545, position: 'absolute' }} src={exit} alt="icon" />
     </div>
 
     
