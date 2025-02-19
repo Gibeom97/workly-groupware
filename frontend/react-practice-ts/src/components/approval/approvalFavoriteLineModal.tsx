@@ -1,20 +1,25 @@
 import React, { useState } from "react";
 
-const ApprovalFavoriteLineModal = ({ onClose }) => {
+const ApprovalFavoriteLineModal = ({ onClose, favoriteName, setFavoriteName, saveFavoriteLine }) => {
   return (
     <div style={modalOverlay}>
       <div style={modalContainer}>
-        {/* 모달 헤더 */}
         <div style={modalHeader}>
           <span style={modalTitle}>즐겨찾기 명</span>
           <button style={closeButton} onClick={onClose}>×</button>
         </div>
 
         {/* 입력 필드 */}
-        <input type="text" placeholder="결재라인 즐겨찾기 명 입력" style={inputStyle} />
+        <input
+          type="text"
+          placeholder="결재라인 즐겨찾기 명 입력"
+          value={favoriteName}
+          onChange={(e) => setFavoriteName(e.target.value)}
+          style={inputStyle}
+        />
 
         {/* 저장 버튼 */}
-        <button style={saveButton}>저장</button>
+        <button style={saveButton} onClick={saveFavoriteLine}>저장</button>
       </div>
     </div>
   );

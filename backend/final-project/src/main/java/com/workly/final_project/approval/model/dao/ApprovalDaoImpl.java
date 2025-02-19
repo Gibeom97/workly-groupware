@@ -1,6 +1,7 @@
 package com.workly.final_project.approval.model.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,9 @@ import com.workly.final_project.approval.model.vo.Approval;
 @Repository
 public class ApprovalDaoImpl implements ApprovalDao{
 
+	@Autowired
 	private final SqlSession sqlSession;
 	
-	@Autowired
 	public ApprovalDaoImpl(SqlSession sqlSession) {
 		this.sqlSession = sqlSession;
 	}
@@ -34,6 +35,11 @@ public class ApprovalDaoImpl implements ApprovalDao{
 	@Override
 	public List<Approval> getAllApprovals() {
 		return sqlSession.selectList("Approval.getAllApprovals");
+	}
+
+	@Override
+	public List<Map<String, Object>> getDepartmentsWithEmployees() {
+		return sqlSession.selectList("Approval.getDepartmentsWithEmployees");
 	}
 
 }

@@ -1,7 +1,8 @@
 package com.workly.final_project.approval.model.service;
 
 import java.util.List;
-    
+import java.util.Map;
+
 import com.workly.final_project.approval.model.vo.Approval;
 
 public interface ApprovalService {
@@ -11,4 +12,6 @@ public interface ApprovalService {
 	Approval getApprovalById(int approvalNo);
 	
 	List<Approval> getAllApprovals(); // 모든 결재 문서 조회
+
+	List<Map<String, Object>> getDepartmentsWithEmployees();
 }

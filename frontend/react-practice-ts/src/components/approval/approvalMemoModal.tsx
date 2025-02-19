@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 export const ApprovalMemoModal = ({ onClose, onSave }) => {
   const [memoContent, setMemocontent] = useState("");
-
   const navigate = useNavigate();
-
   return (
     <div
       style={{
@@ -23,7 +20,7 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
     >
       <div
         style={{
-          width: "442px", // ✅ 모달 크기 조정
+          width: "442px", // :흰색_확인_표시: 모달 크기 조정
           background: "white",
           borderRadius: "8px",
           border: "1px solid #ccc",
@@ -31,7 +28,7 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
           flexDirection: "column",
           padding: "20px",
           position: "relative",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // ✅ 그림자 추가
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // :흰색_확인_표시: 그림자 추가
         }}
       >
         {/* 닫기 버튼 (오른쪽 상단) */}
@@ -60,7 +57,6 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
             />
           </svg>
         </div>
-
         {/* 타이틀 */}
         <div
           style={{
@@ -71,7 +67,6 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
         >
           결재의견
         </div>
-
         {/* 내용 타이틀 */}
         <div
           style={{
@@ -81,7 +76,6 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
           }}
         >
         </div>
-
         {/* 입력 필드 */}
         <textarea
           value={memoContent}
@@ -89,21 +83,20 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
           placeholder="결재의견을 입력하세요"
           style={{
             width: "100%",
-            height: "100px", // ✅ 입력 필드 크기 조정
+            height: "100px", // :흰색_확인_표시: 입력 필드 크기 조정
             borderRadius: "4px",
             border: "1px solid #ccc",
             padding: "10px",
             fontSize: "14px",
             resize: "none",
             overflowY: "auto",
-            background: "#fafafa", // ✅ 약간의 배경색 추가
+            background: "#FAFAFA", // :흰색_확인_표시: 약간의 배경색 추가
           }}
         />
-
         {/* 버튼 */}
         <button
           style={{
-            width: "100%", // ✅ 버튼 크기 조정
+            width: "100%", // :흰색_확인_표시: 버튼 크기 조정
             height: "40px",
             background: "#4880FF",
             borderRadius: "8px",

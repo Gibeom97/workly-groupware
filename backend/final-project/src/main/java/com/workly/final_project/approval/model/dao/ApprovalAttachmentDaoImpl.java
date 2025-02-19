@@ -1,7 +1,7 @@
 package com.workly.final_project.approval.model.dao;
 
 import org.apache.ibatis.session.SqlSession;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
