@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { ApprovalMark } from "./approvalMark";
 import axios from 'axios';
 import { ApprovalFooter } from "./approvalFooter";
+import { format, addHours } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { ApprovalSearchBar } from "./approvalSearchBar";
 
 interface Post {
   approvalNo: number;
@@ -15,73 +18,148 @@ interface Post {
   approvalUser: string;
 }
 
+interface SearchParams {
+  approvalType: string;
+  year: string;
+  searchText: string;
+}
+
 export const ApprovalPost = () => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
+  const [filters, setFilters] = useState({
+    approvalType: "",
+    year: "",
+    searchText: ""
+  });
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await axios.get('http://localhost:8003/workly/api/approval/list');
-        console.log("서버 응답 데이터:", response.data);
         setPosts(response.data);
+        setFilteredPosts(response.data);
       } catch (error) {
         console.error('결재 목록을 불러오는데 실패했습니다:', error);
       }
     };
-
     fetchPosts();
   }, []);
 
-  // 현재 페이지에 해당하는 데이터 가져오기
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const endIndex = startIndex + postsPerPage;
-  const currentPosts = posts.slice(startIndex, endIndex);
+  const applyFilters = (currentFilters: typeof filters) => {
+    let result = [...posts];
+
+    if (currentFilters.approvalType) {
+      result = result.filter(post => 
+        post.approvalType === currentFilters.approvalType
+      );
+    }
+
+    if (currentFilters.year) {
+      result = result.filter(post => {
+        const postDate = new Date(parseInt(post.startDate));
+        return postDate.getFullYear().toString() === currentFilters.year;
+      });
+    }
+
+    if (currentFilters.searchText) {
+      const searchLower = currentFilters.searchText.toLowerCase().trim();
+      result = result.filter(post => {
+        const titleMatch = post.approvalTitle?.toLowerCase().includes(searchLower);
+        const approvalNoMatch = post.approvalNo.toString().includes(searchLower) || 
+                              `기안-${post.approvalNo}`.toLowerCase().includes(searchLower);
+        const userMatch = post.approvalUser?.toLowerCase().includes(searchLower);
+        return titleMatch || approvalNoMatch || userMatch;
+      });
+    }
+
+    setFilteredPosts(result);
+  };
+
+  const handleSearch = (searchParams: { approvalType: string; year: string; searchText: string }) => {
+    const newFilters = {
+      ...filters,
+      ...searchParams
+    };
+    setFilters(newFilters);
+    applyFilters(newFilters);
+  };
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  const formatDate = (timestamp: string) => {
+    try {
+      const date = new Date(parseInt(timestamp));
+      const kstDate = addHours(date, 9);
+      return format(kstDate, 'yyyy. MM. dd. a hh:mm', { locale: ko });
+    } catch (error) {
+      console.error('날짜 포맷팅 오류:', error);
+      return timestamp;
+    }
+  };
+
+  const getAvailableYears = () => {
+    const years = new Set<number>();
+    posts.forEach(post => {
+      const postDate = new Date(parseInt(post.startDate));
+      years.add(postDate.getFullYear());
+    });
+    return Array.from(years).sort((a, b) => b - a);
+  };
 
   return (
-    <div style={containerStyle}>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}></th>
-            <th style={thStyle}>구분</th>
-            <th style={thStyle}>기안번호</th>
-            <th style={thStyle}>기안자</th>
-            <th style={thStyle}>제목</th>
-            <th style={thStyle}>기안일</th>
-            <th style={thStyle}>상태</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentPosts.map((post) => (
-            <tr key={post.approvalNo} style={rowStyle}>
-              <td style={tdIconStyle}>
-                <ApprovalMark isUnread={post.approvalStatus === '미확인'} />
-              </td>
-              <td style={tdStyle}>{post.approvalType}</td>
-              <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
-              <td style={tdStyle}>{post.approvalUser}</td>
-              <td style={tdTitleStyle}>{post.approvalTitle}</td>
-              <td style={tdStyle}>{new Date(post.startDate).toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</td>
-              <td style={tdStyle}>
-                <span style={getStatusStyle(post.approvalStatus)}>{post.approvalStatus}</span>
-              </td>
+    <>
+      <ApprovalSearchBar onSearch={handleSearch} />
+      <div style={containerStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={thStyle}></th>
+              <th style={thStyle}>구분</th>
+              <th style={thStyle}>기안번호</th>
+              <th style={thStyle}>기안자</th>
+              <th style={thStyle}>제목</th>
+              <th style={thStyle}>기안일</th>
+              <th style={thStyle}>상태</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <ApprovalFooter totalPosts={posts.length} postsPerPage={postsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} />
-    </div>
+          </thead>
+          <tbody>
+            {currentPosts.map((post) => (
+              <tr key={post.approvalNo} style={rowStyle}>
+                <td style={tdIconStyle}>
+                  <ApprovalMark isUnread={post.approvalStatus === '미확인'} />
+                </td>
+                <td style={tdStyle}>{post.approvalType}</td>
+                <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
+                <td style={tdStyle}>{post.approvalUser}</td>
+                <td style={tdTitleStyle}>{post.approvalTitle}</td>
+                <td style={tdStyle}>{formatDate(post.startDate)}</td>
+                <td style={tdStyle}>
+                  <span style={getStatusStyle(post.approvalStatus)}>{post.approvalStatus}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <ApprovalFooter 
+          pageInfo={{ 
+            listCount: filteredPosts.length, 
+            currentPage, 
+            pageLimit: 5, 
+            contentsLimit: postsPerPage,
+            maxPage: Math.ceil(filteredPosts.length / postsPerPage) || 1, // ✅ maxPage 추가
+          }} 
+          setCurrentPage={setCurrentPage} 
+        />
+
+      </div>
+    </>
   );
 };
-
 
 const containerStyle = {
     width: "100%",

@@ -1,62 +1,126 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export const ApprovalSearchBar = () => {
-  const [searchText, setSearchText] = useState(""); // 검색어 상태
-  const [firstOption, setFirstOption] = useState(""); // 첫 번째 셀렉트 박스 상태
-  const [secondOption, setSecondOption] = useState(""); // 두 번째 셀렉트 박스 상태
+interface SearchBarProps {
+  onSearch: (searchParams: SearchParams) => void;
+}
 
-  // 검색 버튼 클릭 시 동작
+interface SearchParams {
+  approvalType: string;
+  year: string;
+  searchText: string;
+}
+
+export const ApprovalSearchBar = ({ onSearch }: SearchBarProps) => {
+  const [searchText, setSearchText] = useState("");
+  const [approvalType, setApprovalType] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+
+  // 년도 옵션 생성 (2021~2025년)
+  const getYearOptions = () => {
+    const endYear = 2025;
+    const startYear = 2021;
+    const years = [];
+    
+    for (let year = endYear; year >= startYear; year--) {
+      years.push(year);
+    }
+    
+    return years;
+  };
+
+  // 검색 실행
   const handleSearch = () => {
-    console.log("검색어:", searchText);
-    console.log("첫 번째 옵션:", firstOption);
-    console.log("두 번째 옵션:", secondOption);
-    alert(`검색: ${searchText}, 옵션1: ${firstOption}, 옵션2: ${secondOption}`);
+    onSearch({
+      approvalType,
+      year: selectedYear,
+      searchText
+    });
+  };
+
+  // 엔터키 검색 지원
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   return (
     <div style={containerStyle}>
-      {/* 왼쪽 셀렉트 박스 */}
       <div style={selectContainerStyle}>
         <select
-          value={firstOption}
-          onChange={(e) => setFirstOption(e.target.value)}
+          value={approvalType}
+          onChange={(e) => {
+            setApprovalType(e.target.value);
+            onSearch({
+              approvalType: e.target.value,
+              year: selectedYear,
+              searchText
+            });
+          }}
           style={selectBoxStyle}
         >
           <option value="">구분</option>
-          <option value="option1">일반</option>
-          <option value="option2">휴가원</option>
+          <option value="일반">일반</option>
+          <option value="휴가원">휴가원</option>
         </select>
 
         <select
-          value={secondOption}
-          onChange={(e) => setSecondOption(e.target.value)}
+          value={selectedYear}
+          onChange={(e) => {
+            setSelectedYear(e.target.value);
+            onSearch({
+              approvalType,
+              year: e.target.value,
+              searchText
+            });
+          }}
           style={selectBoxStyle}
         >
           <option value="">년도</option>
-          <option value="optionA">2025</option> {/* 당해년도 포함 5년 전까지 조회 */}
+          {getYearOptions().map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
         </select>
       </div>
 
-      {/* 검색창 */}
       <div style={searchContainerStyle}>
-        {/* 검색 입력 필드 */}
         <input
           type="text"
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="문서 제목/기안 번호 입력"
+          onChange={(e) => {
+            setSearchText(e.target.value);
+            // 실시간 검색을 위해 onChange에서 바로 검색 실행
+            onSearch({
+              approvalType,
+              year: selectedYear,
+              searchText: e.target.value
+            });
+          }}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              onSearch({
+                approvalType,
+                year: selectedYear,
+                searchText
+              });
+            }
+          }}
+          placeholder="문서 제목/기안 번호/기안자 입력"
           style={searchInputStyle}
         />
-
-        {/* 검색 버튼 (돋보기 아이콘) */}
-        <button onClick={handleSearch} style={searchButtonStyle}>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+        <button 
+          onClick={() => 
+            onSearch({
+              approvalType,
+              year: selectedYear,
+              searchText
+            })
+          } 
+          style={searchButtonStyle}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g opacity="0.5">
               <path
                 fillRule="evenodd"
