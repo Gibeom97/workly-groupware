@@ -50,5 +50,10 @@ public class ApprovalController {
         System.out.println("결재 목록: " + approvals); // 로그 추가
         return approvals;
     }
+ 
+ @GetMapping("/approvalLineList")
+ public List<Map<String, Object>> getDepartmentsWithEmployees(){
+	 return approvalService.getDepartmentsWithEmployees();
+ }
 }
 

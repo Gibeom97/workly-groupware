@@ -1,6 +1,7 @@
 package com.workly.final_project.approval.model.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,8 +11,6 @@ import com.workly.final_project.approval.model.dao.ApprovalDao;
 import com.workly.final_project.approval.model.vo.Approval;
 
 import lombok.RequiredArgsConstructor;
-
-
 
 @RequiredArgsConstructor
 @Service
@@ -39,5 +38,10 @@ public class ApprovalServiceImpl implements ApprovalService {
         System.out.println("ApprovalServiceImpl - 가져온 데이터: " + approvals); // 로그 추가
         return approvals;
     }
+
+	@Override
+	public List<Map<String, Object>> getDepartmentsWithEmployees() {
+		return approvalDao.getDepartmentsWithEmployees();
+	}
 }
 

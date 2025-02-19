@@ -1,16 +1,83 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ApprovalFavoriteLineModal from "./approvalFavoriteLineModal";
+import axios from "axios";
 
-const ApprovalLineModal = ( {onClose} ) => {
-  const [approvalLine, setApprovalLine] = useState([
-    { id: 1, name: "박삼이 이사", type: "승인" },
-    { id: 2, name: "김기밤 대리", type: "승인" },
-    { id: 3, name: "채소염 주임", type: "수신" },
-  ]);
+// ✅ 데이터 타입 정의 (TypeScript 적용)
+interface Employee {
+  id: number;
+  POSITION_NAME: string;
+  USER_NO: number,
+  DEPT_NAME: string;
+  USER_NAME: string;
+  approvalType: string;
+  type: '결재자';
+  level: number;
 
-  const [favorites, setFavorites] = useState(["지출 결재라인"]);
+}
+
+const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
+  const [approvalLine, setApprovalLine] = useState<Employee[]>([]); // 결재자 리스트
+  const [favoriteLine, setFavoriteLine] = useState<{ name: string; employees: Employee[] }[]>([]); // 즐겨찾기 리스트
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
   const [showFavoriteModal, setShowFavoriteModal] = useState(false);
+  const [favoriteName, setFavoriteName] = useState(""); // 즐겨찾기 명
+  const [employees, setEmployees] = useState<Employee[]>([]);
+
+  // ✅ 백엔드에서 직원 목록 가져오기 (axios 사용)
+  useEffect(() => {
+    axios
+      .get<Employee[]>("http://localhost:8003/workly/api/approval/approvalLineList")
+      .then((response) => setEmployees(response.data))
+      .catch((error) => console.error("데이터 가져오기 실패:", error));
+  }, []);
+
+  // ✅ 검색어 적용된 직원 목록 필터링
+  const filteredEmployees = employees.filter((emp) =>
+    emp.USER_NAME.includes(searchTerm)
+  );
+
+  // 즐겨찾기 추가
+  const saveFavoriteLine  = () => {
+    if(favoriteName.trim() === ""){
+      alert("즐겨찾기 명을 입력해주세요!");
+      return;
+    }
+    if(approvalLine.length === 0){
+      alert("추가할 결재자가 없습니다.");
+      return;
+    }
+
+    setFavoriteLine([...favoriteLine, {name: favoriteName, employees: approvalLine}]);
+    setShowFavoriteModal(false); // 모달 닫기
+    setFavoriteName(""); // 입력 값 초기화
+  }
+
+  // 즐겨찾기 삭제
+  const removeFavoriteLine = (index: number) => {
+    setFavoriteLine(favoriteLine.filter((_, i) => i !== index));
+  };
+    
+
+  const addFavoriteToApprovalLine = (favorite: { name: string; employees: Employee[] }) => {
+    // 기존 결재자 리스트에 즐겨찾기 결재자 추가 (중복 방지)
+    const newApprovalLine = [...approvalLine];
+  
+    favorite.employees.forEach(emp => {
+      if (!newApprovalLine.some(existingEmp => existingEmp.USER_NAME === emp.USER_NAME)) {
+        newApprovalLine.push(emp);
+      }
+    });
+    setApprovalLine(newApprovalLine);
+  };
+
+  const handleSaveApprovalLine = () => {
+    setApprovalData((prevData) => ({
+      ...prevData,
+      approvalLine: approvalLine, // ✅ approvalData 내부에 approvalLine 속성 추가
+    }));
+    onClose();
+  };
+  
 
   return (
     <div
@@ -105,7 +172,7 @@ const ApprovalLineModal = ( {onClose} ) => {
             </button>
           </div>
 
-          {/* 📌 테이블 스크롤 추가 (기능 정상 유지) */}
+          {/* 📌 테이블 스크롤 추가 (기능 정상 유지)*/}
           <div
             style={{
               width: "100%",
@@ -127,92 +194,138 @@ const ApprovalLineModal = ( {onClose} ) => {
                 <tr>
                 <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>부서</th>
                 <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>사원</th>
+                <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>직위</th>
                 </tr>
             </thead>
-            <tbody>
-                {[...Array(20)].map((_, index) => (
-                <tr key={index}>
-                    <td style={{ padding: "6px", borderBottom: "1px solid #ddd", width: "20%" }}>인사팀</td>
-                    <td style={{ padding: "6px", borderBottom: "1px solid #ddd", width: "20%" }}>홍길동</td>
-                </tr>
-                ))}
-            </tbody>
+             <tbody>
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map((emp, index) => (
+                    <tr 
+                    key={index}
+                    onClick={() => {
+                      if(!approvalLine.some(person => person.USER_NAME === emp.USER_NAME)){
+                        setApprovalLine([...approvalLine,{
+                        id: Date.now(), // 고유한 id 추가
+                        USER_NAME: emp.USER_NAME,
+                        DEPT_NAME: emp.DEPT_NAME,
+                        POSITION_NAME: emp.POSITION_NAME,
+                        approvalType: "승인", // 기본 타입 설정
+                        type: '결재자',
+                        level: approvalLine.length + 1, // ✅ 레벨값 자동 부여
+                        USER_NO: emp.USER_NO,
+                        }]);
+                      }
+                    }}
+                    style={{cursor: "pointer"}} // 마우스 커서 변경(클릭 가능 표시)
+                    >
+                      <td style={{ padding: "6px", borderBottom: "1px solid #ddd" }}>{emp.DEPT_NAME}</td>
+                      <td style={{ padding: "6px", borderBottom: "1px solid #ddd" }}>{emp.USER_NAME}</td>
+                      <td style={{ padding: "6px", borderBottom: "1px solid #ddd" }}>{emp.POSITION_NAME}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} style={{ textAlign: "center", padding: "10px", color: "gray" }}>
+                      데이터 없음
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
           </div>
         </div>
 
-     {/* 오른쪽: 결재라인 & 즐겨찾기 */}
-     <div style={{ width: 350, display: "flex", flexDirection: "column", gap: 8 }}>
-         {/* 즐겨찾기 박스 */}
-         <h2 style={{ fontSize: 12, fontWeight: 700, /*marginTop: "-10px",*/ marginBottom: "2px"}}>즐겨찾기</h2>
-        <div
-        style={{
-            width: "100%",
-            height: 100,
-            border: "1px solid #404040",
-            borderRadius: 4,
-            padding: 8,
-            overflowY: "auto",
-            maxHeight: 150, // 최대 높이 설정 (초과 시 스크롤)
-           
-        }}
-        >
-  
-  <ul style={{ listStyle: "none", padding: 0, fontSize: 11 }}>
-    {favorites.map((fav, index) => (
-      <li
-        key={index}
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "4px 0",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        {fav}
-        <button
-          onClick={() => setFavorites(favorites.filter((_, i) => i !== index))}
-          style={{
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-          }}
-        >
-          <svg
-            width="30" // 버튼 크기 줄이기
-            height="16"
-            viewBox="0 0 35 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        {/* 오른쪽: 결재라인 & 즐겨찾기 */}
+        <div style={{ width: 350, display: "flex", flexDirection: "column", gap: 8}}>
+          {/* 즐겨찾기 박스 */}
+          <h2 style={{ fontSize: 12, fontWeight: 700, marginBottom: "2px" }}>즐겨찾기</h2>
+
+          <div
+            style={{
+              width: "100%",
+              height: 100,
+              border: "1px solid #404040",
+              borderRadius: 4,
+              padding: 8,
+              overflowY: "auto",
+              maxHeight: 150, // 최대 높이 설정 (초과 시 스크롤)
+            }}
           >
-            <rect
-              x="0.5"
-              y="0.5"
-              width="34"
-              height="19"
-              rx="10"
-              fill="white"
-              stroke="black"
-            />
-            <line x1="10" y1="10" x2="25" y2="10" stroke="black" strokeWidth="2" />
-          </svg>
-        </button>
-      </li>
-    ))}
-  </ul>
-</div>
+            <ul style={{ listStyle: "none", padding: 0, fontSize: 11 }}>
+              {favoriteLine.map((fav, index) => (
+                <li key={index} 
+                  style={{
+                    display: "flex",
+                    flexDirection: "column", // ✅ 세로 정렬
+                    borderBottom: "1px solid #ddd",
+                    paddingBottom: "6px",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <strong>{fav.name}</strong>
+                  <ul style={{ paddingLeft: "10px", marginTop: "4px"}}>
+                    {fav.employees.map((emp, empIndex) => (
+                      <li key={empIndex}>
+                        {emp.USER_NAME} ({emp.DEPT_NAME} - {emp.POSITION_NAME})
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setFavoriteLine(favoriteLine.filter((_, i) => i !== index))}
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      cursor: "pointer",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    <svg
+                      width="30"
+                      height="16"
+                      viewBox="0 0 35 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        x="0.5"
+                        y="0.5"
+                        width="34"
+                        height="19"
+                        rx="10"
+                        fill="white"
+                        stroke="black"
+                      />
+                      <line x1="10" y1="10" x2="25" y2="10" stroke="black" strokeWidth="2" />
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
 
            {/* 결재자 설정 */}
-           <h3 style={{ fontSize: 12, fontWeight: 700, marginTop: "17px", marginBottom: "2px" }}>결재자 설정</h3>
+           <h3 style={{ fontSize: 12, fontWeight: 700, marginTop: "17px"}}>결재자 설정</h3>
            <div
             style={{
-                width: "100%",
-                height: 208,
-                border: "1px solid #404040",
-                borderRadius: 3,
-                padding: 6,
-            }}
+              width: "100%",
+              height: 208,
+              border: "1px solid #404040",
+              borderRadius: 3,
+              padding: 6,
+              display: "flex",
+              flexDirection: "column", // 세로 정렬   
+          }}
+            >
+
+            {/* 📌 결재자 리스트 부분 (스크롤 적용) */}
+            <div
+              style={{
+                flexGrow: 1, // 리스트가 남은 공간을 차지하도록 설정
+                overflowY: "auto", // 📌 스크롤 적용
+                maxHeight: "1000px", // 최대 높이 지정 (버튼을 고려하여 조정)
+                paddingRight: "5px", // 스크롤바 공간 확보
+              }}
             >
             
             <ol style={{ fontSize: 10, paddingLeft: 10 }}>
@@ -231,9 +344,9 @@ const ApprovalLineModal = ( {onClose} ) => {
                     <select
                     value={person.type}
                     onChange={(e) => {
-                        const newApprovalLine = [...approvalLine];
-                        newApprovalLine[index].type = e.target.value;
-                        setApprovalLine(newApprovalLine);
+                      setApprovalLine(approvalLine.map((item) =>
+                        item.id === person.id ? { ...item, type: e.target.value } : item
+                      ));
                     }}
                     style={{
                         padding: "3px 8px",
@@ -245,7 +358,9 @@ const ApprovalLineModal = ( {onClose} ) => {
                     <option value="승인">승인</option>
                     <option value="수신">수신</option>
                     </select>
-                    <span style={{ fontSize: 10 }}>{person.name}</span>
+                    <span style={{ fontSize: 10 }}>{person.DEPT_NAME}</span>
+                    <span style={{ fontSize: 10 }}>{person.USER_NAME}</span>
+                    <span style={{ fontSize: 10 }}>{person.POSITION_NAME}</span>
                     <button
                     onClick={() =>
                         setApprovalLine(approvalLine.filter((_, i) => i !== index))
@@ -278,6 +393,7 @@ const ApprovalLineModal = ( {onClose} ) => {
                 </li>
                 ))}
             </ol>
+            </div>
               {/* 즐겨찾기 추가 버튼 */}
               <button
               onClick={() => setShowFavoriteModal(true)}
@@ -291,7 +407,7 @@ const ApprovalLineModal = ( {onClose} ) => {
                 fontWeight: 500,
                 cursor: "pointer",
                 marginLeft: "40px",
-                marginTop: "60px",
+                marginTop: "40px",
               }}
             >
               즐겨찾기 추가
@@ -299,7 +415,9 @@ const ApprovalLineModal = ( {onClose} ) => {
           </div>
 
             {/* 결재라인 저장 버튼 */}
-            <button style={{
+            <button
+            onClick={handleSaveApprovalLine}
+            style={{
             width: "80%",
             padding: 8,
             background: "#4880FF",
@@ -314,14 +432,18 @@ const ApprovalLineModal = ( {onClose} ) => {
           }}>
             결재라인 저장
           </button>
+          </div>
         </div>
-      </div>
-
       {/* 즐겨찾기 모달 추가 */}
       {showFavoriteModal && (
-        <ApprovalFavoriteLineModal onClose={() => setShowFavoriteModal(false)} />
+        <ApprovalFavoriteLineModal 
+        onClose={() => setShowFavoriteModal(false)} 
+        favoriteName={favoriteName}
+        setFavoriteName={setFavoriteName}
+        saveFavoriteLine={saveFavoriteLine}
+        />
       )}
-    </div>
+      </div>
     </div>
   );
 };

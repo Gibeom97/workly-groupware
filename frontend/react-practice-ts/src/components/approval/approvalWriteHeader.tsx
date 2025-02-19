@@ -23,6 +23,16 @@ export const ApprovalWriteHeader = ({approvalData, setApprovalData}) => {
     }
   };
 
+// 파일 삭제 함수 추가
+const handleRemoveFile = (index: number) => {
+  setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+
+  // approvalData에서도 파일 제거
+  setApprovalData((prevData: any) => ({
+    ...prevData,
+    attachments: prevData.attachments?.filter((_, i) => i !== index) || [],
+  }));
+};
 
   // 입력값 변경 시 상태 업데이트하는 함수
   const handleChange = (e:any) => {
@@ -114,12 +124,36 @@ export const ApprovalWriteHeader = ({approvalData, setApprovalData}) => {
           <button style={actionButtonStyle} onClick={() => setApprovalLineModalOpen(true)}>
             + 선택
           </button>
-          <input type="text" style={inputStyle} />
+
+   {/* ✅ 결재라인 목록 (자동 크기 조절) */}
+   <div
+    style={{
+      //width: "100%", // 부모 요소에 맞게 너비 설정
+      minHeight: "20px", // 최소 높이 설정 (데이터 없을 때도 공간 확보)
+      padding: "8px",
+      wordBreak: "break-word", // 긴 텍스트 자동 줄바꿈
+      fontSize: "12px",
+      color: "#007bff",
+    }}
+  >
+    {approvalData.approvalLine && approvalData.approvalLine.length > 0 ? (
+      approvalData.approvalLine.map((emp, index) => (
+        <div key={index} style={{ marginBottom: "5px" }}>
+          {emp.USER_NAME} ({emp.DEPT_NAME} - {emp.POSITION_NAME})
         </div>
+      ))
+    ) : (
+      <div style={{ color: "gray", fontSize: "11px"}}>결재자를 추가하세요</div>
+    )}
+  </div>
+</div>
 
         {/* ✅ 결재라인 모달 (조건부 렌더링) */}
         {approvalLineModalOpen && (
-          <ApprovalLineModal onClose={() => setApprovalLineModalOpen(false)} />
+          <ApprovalLineModal 
+          onClose={() => setApprovalLineModalOpen(false)} 
+          setApprovalData={setApprovalData} // 결재라인 저장을 위해 추가
+          />
         )}
 
         {/* 구분선 */}

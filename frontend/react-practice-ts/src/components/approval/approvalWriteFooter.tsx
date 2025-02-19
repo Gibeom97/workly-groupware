@@ -4,7 +4,7 @@ import ApprovalOutcheckModal from "./approvalOutcheckModal";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export const ApprovalWriteFooter = ({ approvalData}) => {
+export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [outCheckModalOpen, setOutCheckModalOpen] = useState(false);
@@ -15,6 +15,11 @@ export const ApprovalWriteFooter = ({ approvalData}) => {
         memoContent: "",
         memoDate: new Date().toISOString(),
     });
+
+    // 데이터 확인용 로그 추가
+    useEffect(() => {
+        console.log("footer에서 받은 approvalData:", approvalData);
+    }, [approvalData]);
 
     // ✅ 📌 여기 추가: approvalNo가 변경될 때 approvalMemoData 업데이트
     useEffect(() => {
@@ -37,7 +42,7 @@ export const ApprovalWriteFooter = ({ approvalData}) => {
         navigate('/approvalMain/ApprovalWriteDetailPage');
     };
 
-    // ✅ 결재 문서 + 결재 의견 함께 저장
+    // ✅ 결재 문서 + 결재 의견 + 결재라인 함께 저장
     const submitApproval = async (memoContent:any) => {
 
         try {
@@ -81,6 +86,23 @@ export const ApprovalWriteFooter = ({ approvalData}) => {
                 memoContent: memoContent, // ✅ 최신 결재 의견 반영
             };
             await axios.post("http://localhost:8003/workly/api/approvalMemos/create", finalApprovalMemoData);
+
+            // 결재라인 저장 요청 (approvalLine 데이터 전송)
+            if ((approvalData.approvalLine ?? []).length > 0) {
+                const approvalLineData = approvalData.approvalLine.map(emp => ({
+                    approvalNo: approvalNo, // 방금 저장된 결재 문서의 approvalNo
+                    approvalLineType: emp.approvalType,
+                    type: emp.type,
+                    approvalLevel: emp.level,
+                    userNo: emp.USER_NO,
+                }));
+
+                console.log("전송할 결재라인 데이터:", approvalLineData);
+
+                await axios.post("http://localhost:8003/workly/api/approval/saveApprovalLine", approvalLineData);
+
+                console.log("결재라인 저장 완료!");
+            }
 
             // 파일 업로드 처리(APPROVAL_ATTACHMENT 테이블 저장)
             if(approvalData.attachments?.length > 0){

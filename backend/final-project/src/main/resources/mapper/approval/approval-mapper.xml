@@ -25,6 +25,18 @@
     FROM APPROVAL
     ORDER BY CREATED_AT DESC
 	</select>
+	
+	<select id="getDepartmentsWithEmployees" resultType="map">
+		SELECT
+			POSITION_NAME,
+			DEPT_NAME,
+			USER_NAME,
+			USER_NO
+		FROM MEMBER
+		JOIN DEPARTMENT USING(DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		ORDER BY DEPT_NAME, USER_NAME
+	</select>
 
     
 </mapper>
