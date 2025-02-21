@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @Component
 public class PageRow {
-
 	private int startRow;
 	private int endRow;
 }

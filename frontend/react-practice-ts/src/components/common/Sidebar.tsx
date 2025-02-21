@@ -74,12 +74,14 @@ const Sidebar = () => {
             <span>채팅</span>
               <span className={styles.badge}>3</span>
           </li>
+          <Link to={"/leave"} className={styles.link}>
           <li>
             <span>
               <img src={icon6} alt="연차관리" />
             </span>
             <span>연차관리</span>
           </li>
+          </Link>
           <li>
             <span>
               <img src={icon7} alt="근태관리" />

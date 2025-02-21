@@ -19,6 +19,10 @@ import CreateEmployee from "./components/personnel/CreateEmployee";
 import ManagePermission from "./components/personnel/ManagePermission";
 import PersonnelTable from "./components/personnel/PersonnelTable";
 import PersonnelDetail from "./components/personnel/PersonnelDetail";
+import LeaveMain from "./pages/LeaveMain";
+import MyLeave from "./components/leave/MyLeave";
+import LeavePolicy from "./components/leave/LeavePolicy";
+import ManageLeave from "./components/leave/ManageLeave";
 
 function App() {
   return (
@@ -46,6 +50,12 @@ function App() {
           <Route path="createEmployee" element={<CreateEmployee />} />
           <Route path="managePermissions" element={<ManagePermission />} />
           <Route path=":userNo" element={<PersonnelDetail />} />
+        </Route>
+
+        <Route path="/leave" element={<LeaveMain/>}>
+          <Route index element={<MyLeave/>}/>
+          <Route path="manage" element={<ManageLeave/>}/>
+          <Route path="policy" element={<LeavePolicy/>}/>
         </Route>
 
         <Route path="/form" element={<FormMain/>}>

@@ -4,14 +4,6 @@
     margin-bottom: 16px;
 }
 
-.primaryButton {
-    background-color: #3b82f6;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: none;
-}
-
 .button {
     background-color: white;
     justify-content: center;
@@ -35,6 +27,6 @@
 }
 
 .activeButton {
-    background-color: #3b82f6 !important; /* 선택된 버튼의 배경색 */
+    background-color: #3b82f6 !important;
     color: white !important;
 }

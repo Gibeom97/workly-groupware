@@ -16,7 +16,6 @@ public class Member {
 	private int statusType;
 	private int positionNo;
 	private int deptNo;
-	private int totalLeaveDays;
 	private String status;
 	private String userPwd;
 	private String userName;
@@ -24,7 +23,7 @@ public class Member {
 	private String extension;
 	private String email;
 	private String address;
-	private String addressDetail;
 	private Date hireDate;
 	private Date updateDate;
+	private String addressDetail;
 }

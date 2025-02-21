@@ -41,7 +41,7 @@ const PersonnelTable = () => {
 
     useEffect(() => {
         fetchPesonnel();
-    }, [currentPage, category]);
+    }, [currentPage, category, searchMember]);
 
     const phoneFormat = (phone) => {
         return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
@@ -49,7 +49,7 @@ const PersonnelTable = () => {
 
     return (
         <div>
-            <SearchBar category={category} setCategory={setCategory} handleSearch={handleSearch} setSearchMember={setSearchMember} searchMember={searchMember} />
+            <SearchBar category={category} setCategory={setCategory} setCurrentPage={setCurrentPage} handleSearch={handleSearch} setSearchMember={setSearchMember} searchMember={searchMember} />
             <table className={styles.table}>
                 <thead>
                     <tr className={styles.headerRow}>
@@ -62,7 +62,6 @@ const PersonnelTable = () => {
                         <th className={styles.thStyle}>직급</th>
                         <th className={styles.thStyle}>입사일</th>
                         <th className={styles.thStyle}>퇴사일</th>
-                        <th className={styles.thStyle}>연차</th>
                         <th className={styles.thStyle}>주소</th>
                     </tr>
                 </thead>
@@ -79,7 +78,6 @@ const PersonnelTable = () => {
                             <td className={styles.tdStyle}>{e.position.positionName}</td>
                             <td className={styles.tdStyle}>{new Date(e.member.hireDate).toISOString().split("T")[0]}</td>
                             <td className={styles.tdStyle}>{e.member.updateDate === null ? "" : new Date(e.member.updateDate).toISOString().split("T")[0]}</td>
-                            <td className={styles.tdStyle}>{e.member.totalLeaveDays}</td>
                             <td className={`${styles.tdStyle} ${styles.address}`}>{e.member.address}</td>
                         </tr>
                     ))}

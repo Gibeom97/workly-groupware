@@ -8,15 +8,15 @@ const Category = () => {
     return (
         <div className={styles.buttonGroup}>
             <button 
-            className={`${styles.button} ${location.pathname === "viewPersonnel" ? styles.activeButton : ""}`}
+            className={`${styles.button} ${location.pathname === "/personnel" ? styles.activeButton : ""}`}
             onClick={() => navigate("/personnel")}    
             >인사정보조회</button>
             <button 
-            className={`${styles.button} ${location.pathname === "createEmployee" ? styles.activeButton : ""}`}
+            className={`${styles.button} ${location.pathname === "/personnel/createEmployee" ? styles.activeButton : ""}`}
             onClick={() => navigate("/personnel/createEmployee")}
             >사원생성</button>
             <button 
-            className={`${styles.button} ${location.pathname === "managePermissions" ? styles.activeButton : ""}`}
+            className={`${styles.button} ${location.pathname === "/personnel/managePermissions" ? styles.activeButton : ""}`}
             onClick={() => navigate("/personnel/managePermissions")}
             >권한관리</button>
         </div>
