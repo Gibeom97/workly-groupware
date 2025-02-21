@@ -34,5 +34,7 @@ public interface MemberDao {
 
 	int checkAttachment(Member m);
 
+	int insertLeave(Member m);
+
 
 }

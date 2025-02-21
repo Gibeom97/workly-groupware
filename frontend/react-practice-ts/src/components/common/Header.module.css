@@ -31,15 +31,20 @@
 
 /* 이름 텍스트 */
 .profileName {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    color: #333;
+    color: black;
+}
+
+.infoSection {
+    display: flex;
+    gap: 30px;
 }
 
 /* 역할(직책) 텍스트 */
 .profileRole {
     font-size: 12px;
-    color: #555555;
+    color: #828282;
 }
 
 /* 드롭다운 버튼 (화살표) */
