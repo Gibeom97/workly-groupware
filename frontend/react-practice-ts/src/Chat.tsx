@@ -19,19 +19,20 @@ import { Department } from "./type/chatType";
 import Alarm from "./components/chat/Alarm";
 
 interface Member {
-  no: number;
+  userNo: number;
   name: string;
-  position: string;
-  team: string;
+  positionNo: number;
+  deptNo: number;
 }
 
 interface ChatRoom {
-  no: number;
-  chatName: string;
+  chatRoomNo: number;
+  roomTitle: string;
   chatType: string;
   unreadCount?: number;
   isActive?: boolean;
-  isNotified : boolean;
+  bellSetting: 'Y' | 'N';
+  createdChat?: string;
 }
 
 
@@ -46,13 +47,13 @@ const Chat = () => {
   const [isFirstChatOpen, setIsFirstChatOpen] = useState(false);
   const [isChatListOpen, setIsChatListOpen] = useState(false);
   const [chatList, setChatList] = useState<ChatRoom[]>([
-    { no : 1, chatName: '개발팀 회의', chatType: 'group', unreadCount: 0, isActive: true, isNotified: true },
-    { no : 2, chatName: '디자인팀 회의', chatType: 'group', unreadCount: 2, isActive: false, isNotified: false },
+    { chatRoomNo : 1, roomTitle: '개발팀 회의', chatType: 'group', unreadCount: 0, isActive: true, bellSetting: 'Y' },
+    { chatRoomNo : 2, roomTitle: '디자인팀 회의', chatType: 'group', unreadCount: 2, isActive: false, bellSetting: 'Y' },
     ]);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSearchMemberOpen, setIsSearchMemberOpen] = useState(false);
   const [searchChatType, setSearchChatType] = useState<string>("");
-  const [searchChatName, setSearchChatName] = useState<string>("");
+  const [searchRoomTitle, setsearchRoomTitle] = useState<string>("");
   const [selectedChatRoom, setSelectedChatRoom] = useState<ChatRoom | null>(null);
   const [isOrgOpen, setIsOrgOpen] = useState(false);
   const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
@@ -99,33 +100,33 @@ const Chat = () => {
     setIsCreateOrgOpen(false);
   };
 
-  const invitePeople = (chatType: string, chatName: string) => {
-    console.log('Chat.tsx - invitePeople 실행됨!', chatType, chatName);
+  const invitePeople = (chatType: string, roomTitle: string) => {
+    console.log('Chat.tsx - invitePeople 실행됨!', chatType, roomTitle);
 
     setIsCreatingChat(false);
 
     setTimeout(() => {
       setIsSearchMemberOpen(true);
       setSearchChatType(chatType);
-      setSearchChatName(chatName);
+      setsearchRoomTitle(roomTitle);
       console.log('Chat.tsx - setIsSearchMemberOpen(true) 설정 완료');
     }, 0);
   };
 
   const handleChatRoomComplete = (newChatRoom: {
-    chatName: string;
+    roomTitle: string;
     chatType: string;
     selectedMembers: Member[];
   }) => {
     setChatList((prev) => [
       ...prev,
       {
-        no: prev.length + 1,
-        chatName: newChatRoom.chatName,
+        chatRoomNo: prev.length + 1,
+        roomTitle: newChatRoom.roomTitle,
         chatType: newChatRoom.chatType,
         unreadCount: 0,
         isActive: true,
-        isNotified: true,
+        bellSetting: 'Y',
       },
     ]);
     setIsSearchMemberOpen(false);
@@ -144,7 +145,7 @@ const Chat = () => {
   };
 
   const handleOpenChatRoom = (room: ChatRoom) => {
-    console.log(`${room.chatName} 채팅방 열림!`);
+    console.log(`${room.roomTitle} 채팅방 열림!`);
     setSelectedChatRoom(room);
   };
 
@@ -199,25 +200,26 @@ const Chat = () => {
           <GroupChat
             room={selectedChatRoom!}
             messages={[
-              { userName: '홍길동', message: '안녕하세요!', chatNo: 1, lastReadChatNo: 0, receivedDate: '9:41 AM', isMine: false },
-              { userName: '김철수', message: '회의 시간 변경되었어요.', chatNo: 2, lastReadChatNo: 1, receivedDate: '9:41 AM', isMine: false },
-              { userName: '나(본인)', message: '넵 확인했습니다.', chatNo: 3, lastReadChatNo: 2, receivedDate: '9:41 AM', isMine: true }
+              { userName: '홍길동', message: '안녕하세요!', chatNo: 1, lastReadChatNo: 0, receivedDate: '9:41 AM', isMine: false, chatRoomNo: 1 },
+              { userName: '김철수', message: '회의 시간 변경되었어요.', chatNo: 2, lastReadChatNo: 1, receivedDate: '9:41 AM', isMine: false, chatRoomNo: 1 },
+              { userName: '나(본인)', message: '넵 확인했습니다.', chatNo: 3, lastReadChatNo: 2, receivedDate: '9:41 AM', isMine: true, chatRoomNo: 1 }
             ]}
+            
             onClose={() => {
               setSelectedChatRoom(null);
               setIsChatListOpen(true);
             }}
-            onToggleAlarm={(chatName, isNotified) => {
+            onToggleAlarm={(chatRoomNo, bellSetting) => {
               setChatList((prev) =>
                 prev.map((room) =>
-                  room.chatName === chatName ? { ...room, isNotified } : room
+                  room.chatRoomNo === chatRoomNo ? { ...room, bellSetting } : room
                 )
               );
             }}
             currentMembers={[  // ⬅️ 이런 식으로 실제 멤버들 내려주는 상태도 필요
-              { no: 1, name: '홍길동', position: '사원', team: '개발팀' },
-              { no: 2, name: '김철수', position: '대리', team: '개발팀' },
-              { no: 3, name: '나(본인)', position: '주임', team: '개발팀' },
+              { userNo: 1, userName: '홍길동', positionNo: 9, deptNo: 3 },
+              { userNo: 2, userName: '김철수', positionNo: 7, deptNo: 3 },
+              { userNo: 3, userName: '나(본인)',positionNo: 8,deptNo: 3 },
             ]}
           />
 
@@ -226,12 +228,17 @@ const Chat = () => {
             <MemberInfo onClose={closeInfoModal} member={{ name: selectedMemberName, dept: "", position: "", email: "", phone: "", extension: "" }} />
           </InfoContainer>
         ) : isNoticeOpen ? (
-          <NoticeChat onClose={closeNoticeChat} />
+          <NoticeChat onClose={closeNoticeChat} 
+          // currentMembers={noticeChatMembers} // 공지방 멤버 내려줌
+          //   onAddMembers={(newMembers) => {
+          //     setNoticeChatMembers((prev) => [...prev, ...newMembers]);
+          //   }} // 백엔드 연결시 풀기
+          />
         ) : isSearchMemberOpen ? ( // ✅ 우선순위 맨 위로 변경!
           <>
             <SearchMember
               chatType={searchChatType}
-              chatName={searchChatName}
+              roomTitle={searchRoomTitle}
               onComplete={handleChatRoomComplete}
             />
           </>
@@ -272,7 +279,7 @@ const Chat = () => {
               setIsCreatingChat={setIsCreatingChat}
               setIsFirstChatOpen={setIsFirstChatOpen}
               openNoticeChat={() => setIsNoticeOpen(true)}
-              openChatRoom={(room) => handleOpenChatRoom({ ...room, isNotified: true })}
+              openChatRoom={(room) => handleOpenChatRoom({ ...room, bellSetting: 'Y' })}
             />
           </ChatContainer>
         ) :  isAlarmListOpen ? (

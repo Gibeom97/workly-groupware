@@ -1,17 +1,17 @@
 import chatPlus from "../../assets/Images/chat/chatplus.png";
 import profile from "../../assets/Images/chat/profile.png";
-//import speaker from "../../assets/Images/chat/loud-speaker 11.png";
-//import searchIcon from "../../assets/Images/chat/search.png";
-//import groupProfile from "../../assets/Images/chat/groupList.png"
+
 
 interface ChatRoom {
-  no: number;
-  chatName: string;
-  chatType: string;
-  unreadCount?: number;
-  isActive?: boolean;
-  isNotified: boolean;
-}
+    chatRoomNo: number; // 채팅방 번호
+    roomTitle: string;  // 채팅방 이름 (기존 roomTitle -> roomTitle)
+    unreadCount?: number;
+    isActive?: boolean;
+    bellSetting: 'Y' | 'N'; // 알림 설정 (기존 boolean → 'Y' / 'N'으로 변경)
+    createdChat?: string; // 생성일자 (백 붙이면 받을 가능성 있으니 여유롭게)
+    chatType: string;
+  }
+  
 
 interface ChatListProps {
   chatRooms: ChatRoom[]; // 배열 타입!
@@ -105,7 +105,7 @@ const ChatList = ({
         
            {/* 채팅방 이름 */}
           <div style={{ flexGrow: 1 }}>
-            <div style={{ fontWeight: 600, marginLeft:15 , cursor:"pointer"}}>{room.chatName}</div>
+            <div style={{ fontWeight: 600, marginLeft:15 , cursor:"pointer"}}>{room.roomTitle}</div>
             {/* 비활성화 활성화 */}
             <div
               style={{
