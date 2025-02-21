@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import profileIcon from "../../assets/Images/chat/profile.png";
 import starFullIcon from "../../assets/Images/chat/starFull.png";
 import star from "../../assets/Images/chat/star 62.png";
 import noticeIcon from "../../assets/Images/chat/loud-speaker 11.png";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../store";
+import { addFavorite, removeFavorite } from "../../features/chatSlice";
+
+
 
 interface ChatMainProps {
   selectedStatus: string;
@@ -17,25 +23,39 @@ const ChatMain: React.FC<ChatMainProps> = ({
   onProfileClick,
   onNoticeClick,
 }) => {
-  // 즐겨찾기 상태 관리
-  const [favorites, setFavorites] = useState<string[]>(["김예삐"]);
+  // 🔹 Redux에서 현재 로그인한 유저 정보 가져오기
+  const user = useSelector((state: RootState) => state.user);
+
+  // 🔹 Redux에서 즐겨찾기 목록 가져오기
+  const favorites = useSelector((state: RootState) => state.chat.favorites);
+  const dispatch = useDispatch();
 
   const toggleFavorite = (name: string) => {
-    setFavorites((prev) =>
-      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
-    );
+    if (favorites.includes(name)) {
+      dispatch(removeFavorite(name));
+    } else {
+      dispatch(addFavorite(name));
+    }
   };
 
-  
+  // 🔹 사원 목록 상태 관리
+  const [members, setMembers] = useState<
+    { userNo: number; userName: string; deptName: string; positionName: string }[]
+  >([]);
 
-  const members = ["김예삐", "박솜이", "최웡카", "김기밤", "채소염"];
-  const memberStatus: Record<string, string> = {
-  김예삐: "비활성화",
-  박솜이: "비활성화",
-  최웡카: "비활성화",
-  김기밤: "활성화",
-  채소염: "비활성화",
-};
+  useEffect(() => {
+    axios
+      .get("http://localhost:8003/workly/api/chat/members")
+      .then((res) => {
+        setMembers(res.data);
+      })
+      .catch((err) => {
+        console.error("멤버 목록 불러오기 실패", err);
+      });
+  }, []);
+
+  // 🔹 로그인한 유저를 제외한 사원 목록 필터링
+  const filteredMembers = members.filter((member) => member.userNo !== user.userNo);
 
   return (
     <div
@@ -51,7 +71,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
         flexDirection: "column",
       }}
     >
-      {/* 🔹 김젤리 프로필 */}
+      {/* 🔹 로그인한 유저 프로필 */}
       <div className="mine" style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
         <div
           className="mineProfile"
@@ -65,12 +85,19 @@ const ChatMain: React.FC<ChatMainProps> = ({
             alignItems: "center",
             cursor: "pointer",
           }}
-          onClick={() => onProfileClick("김젤리")}
+          onClick={() => onProfileClick(user.userName)}
         >
-          <img className="mineProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
+          <img
+            className="mineProfileIcon"
+            style={{ width: "22px", height: "22px", objectFit: "cover" }}
+            src={profileIcon}
+            alt="profile"
+          />
         </div>
         <div style={{ marginLeft: "10px" }}>
-          <div className="mineUserName" style={{ fontSize: "16px", fontWeight: "600" }}>김젤리</div>
+          <div className="mineUserName" style={{ fontSize: "16px", fontWeight: "600" }}>
+            {user.userName}
+          </div>
           <select
             className="mineStatusDropdown"
             value={selectedStatus}
@@ -117,72 +144,105 @@ const ChatMain: React.FC<ChatMainProps> = ({
         <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0" }} />
       </div>
 
-      {/* 🔹 즐겨찾기 */}
+
+      {/* 🔹 즐겨찾기 목록 */}
       <div style={{ marginBottom: "5px" }}>
-        <div className="favoriteHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>즐겨찾기</div>
-        {members.filter(name => favorites.includes(name)).length === 0 ? (
+        <div className="favoriteHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>
+          즐겨찾기
+        </div>
+        {filteredMembers.filter((member) => favorites.includes(member.userName)).length === 0 ? (
           <div style={{ height: "20px" }}>{/* 빈 공간 확보 */}</div>
         ) : (
-          members.filter(name => favorites.includes(name)).map((name) => (
-            <div key={name} className="memberCard" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", cursor: 'pointer' }} onClick={() => onProfileClick(name)}>
-                <div className="memberProfile" style={{ width: "40px", height: "40px", background: "#D9D9D9", borderRadius: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                  <img className="memberProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
+          filteredMembers
+            .filter((member) => favorites.includes(member.userName))
+            .map((member) => (
+              <div
+                key={member.userNo.toString()}
+                className="memberCard"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "10px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => onProfileClick(member.userName)}>
+                  <div
+                    className="memberProfile"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "#D9D9D9",
+                      borderRadius: "10px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <img
+                      className="memberProfileIcon"
+                      style={{ width: "22px", height: "22px", objectFit: "cover" }}
+                      src={profileIcon}
+                      alt="profile"
+                    />
+                  </div>
+                  <div style={{ marginLeft: "10px" }}>
+                    <div>{member.userName}</div>
+                  </div>
                 </div>
-                <div style={{ marginLeft: "10px" }}>
-                  <div>{name}</div>
-                  <div style={{ fontSize: "11px", color: "#B3B3B3" }}>{memberStatus[name]}</div>
-                </div>
+                <img
+                  src={starFullIcon}
+                  alt="star-full"
+                  style={{ cursor: "pointer", width: "15px" }}
+                  onClick={() => toggleFavorite(member.userName)}
+                />
               </div>
-              <img src={starFullIcon} alt="star-full" style={{ cursor: 'pointer', width: '15px' }} onClick={() => toggleFavorite(name)} />
-            </div>
-          ))
+            ))
         )}
-        {/* 🔹 구분선 - 즐겨찾기와 팀원 사이 고정 */}
-        <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0", marginTop: "5px" }} />
       </div>
 
+      {/* 🔹 구분선 */}
+      <div style={{ marginBottom: "15px" }}>
+        <div className="divider" style={{ width: "100%", height: "1px", background: "#E0E0E0" }} />
+      </div>
 
-      {/* 🔹 팀원 */}
-      <div className="memberHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>팀원</div>
-      {members.map((name) => (
-      <div key={name} className="memberCard" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", cursor: 'pointer' }} onClick={() => onProfileClick(name)}>
-          {/* 🔹 프로필 사진 영역 복구 */}
-          <div
-            className="memberProfile"
-            style={{
-              width: "40px",
-              height: "40px",
-              background: "#D9D9D9",
-              borderRadius: "10px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <img
-              className="memberProfileIcon"
-              style={{ width: "22px", height: "22px", objectFit: "cover" }}
-              src={profileIcon}
-              alt="profile"
-            />
+     {/* 🔹 팀원 목록 */}
+      <div className="memberHeader" style={{ fontSize: "11px", fontWeight: "500", color: "#8C8C8D", marginBottom: "5px" }}>
+        팀원
+      </div>
+      {filteredMembers.map((member) => (
+        <div key={member.userNo} className="memberCard" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => onProfileClick(member.userName)}>
+            <div
+              className="memberProfile"
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "#D9D9D9",
+                borderRadius: "10px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <img className="memberProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
+            </div>
+            <div style={{ marginLeft: "10px" }}>
+              <div>{member.userName}</div>
+            </div>
           </div>
 
-          <div style={{ marginLeft: "10px" }}>
-            <div>{name}</div>
-            <div style={{ fontSize: "11px", color: "#B3B3B3" }}>{memberStatus[name]}</div>
-          </div>
+          {/* 🔹 팀원 옆에 즐겨찾기(★) 아이콘 복구 */}
+          <img
+            src={favorites.includes(member.userName) ? starFullIcon : star}
+            alt="star"
+            style={{ cursor: "pointer", width: "15px" }}
+            onClick={() => toggleFavorite(member.userName)}
+          />
         </div>
-        <img
-          src={favorites.includes(name) ? starFullIcon : star}
-          alt="star"
-          style={{ cursor: 'pointer', width: '15px' }}
-          onClick={() => toggleFavorite(name)}
-        />
-      </div>
-    ))}
+      ))}
 
+      
     </div>
   );
 };

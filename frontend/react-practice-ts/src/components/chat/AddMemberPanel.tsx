@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Member } from '../../type/chatType';
+import { departments, Member, positions } from '../../type/chatType';
 import SearchClick from './SearchClick';
+
 
 interface AddMemberPanelProps {
   allEmployees: Member[];
@@ -9,31 +10,40 @@ interface AddMemberPanelProps {
   onConfirm: (newMembers: Member[]) => void;
 }
 
+const getDeptName = (deptNo: number) => {
+  return departments.find((dept) => dept.deptNo === deptNo)?.deptName || '알 수 없음';
+};
+
+const getPositionName = (positionNo: number) => {
+  return positions.find((pos) => pos.positionNo === positionNo)?.positionName || '알 수 없음';
+};
+
+
 const AddMemberPanel = ({
   allEmployees,
   currentMembers,
   onClose,
   onConfirm,
 }: AddMemberPanelProps) => {
-  const currentMemberNos = currentMembers.map((m) => m.no);
+  const currentMemberuserNos = currentMembers.map((m) => m.userNo);
 
-  const [checkedMembers, setCheckedMembers] = useState<number[]>(currentMemberNos);
+  const [checkedMembers, setCheckedMembers] = useState<number[]>(currentMemberuserNos);
 
   // ✅ currentMembers가 바뀔 때마다 checkedMembers 초기화
   useEffect(() => {
-    setCheckedMembers(currentMembers.map((m) => m.no));
+    setCheckedMembers(currentMembers.map((m) => m.userNo));
   }, [currentMembers]);
 
-  const handleToggle = (no: number) => {
-    if (currentMemberNos.includes(no)) return;
+  const handleToggle = (userNo: number) => {
+    if (currentMemberuserNos.includes(userNo)) return;
     setCheckedMembers((prev) =>
-      prev.includes(no) ? prev.filter((m) => m !== no) : [...prev, no]
+      prev.includes(userNo) ? prev.filter((m) => m !== userNo) : [...prev, userNo]
     );
   };
 
   const handleConfirm = () => {
     const selectedMembersObjects = allEmployees.filter((member) =>
-      checkedMembers.includes(member.no)
+      checkedMembers.includes(member.userNo)
     );
     onConfirm(selectedMembersObjects);
     onClose();
@@ -69,7 +79,7 @@ const AddMemberPanel = ({
       >
         {currentMembers.map((member) => (
           <span
-            key={member.no}
+            key={member.userNo}
             style={{
               backgroundColor: '#E9F3FF',
               color: '#4880FF',
@@ -110,21 +120,21 @@ const AddMemberPanel = ({
           </thead>
           <tbody>
             {allEmployees.map((member) => {
-              const isAlreadyAdded = currentMemberNos.includes(member.no);
-              const isSelected = checkedMembers.includes(member.no);
+              const isAlreadyAdded = currentMemberuserNos.includes(member.userNo);
+              const isSelected = checkedMembers.includes(member.userNo);
 
               return (
-                <tr key={member.no} style={{ borderBottom: '1px solid #E0E0E0' }}>
-                  <td style={{ padding: '8px' }}>{member.team}</td>
+                <tr key={member.userNo} style={{ borderBottom: '1px solid #E0E0E0' }}>
+                  <td style={{ padding: '8px', textDecoration:"bold" }}>{getDeptName(member.deptNo)}</td>
                   <td style={{ padding: '8px', display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
                       checked={isSelected || isAlreadyAdded}
-                      onChange={() => handleToggle(member.no)}
+                      onChange={() => handleToggle(member.userNo)}
                       disabled={isAlreadyAdded}
                       style={{ marginRight: '8px', accentColor: '#4880FF' }}
                     />
-                    {member.name} ({member.position})
+                    {member.name} ({getPositionName(member.positionNo)})
                   </td>
                 </tr>
               );
