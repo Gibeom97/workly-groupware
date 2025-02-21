@@ -40,6 +40,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     }
 
 	@Override
+	@Transactional
 	public List<Map<String, Object>> getDepartmentsWithEmployees() {
 		return approvalDao.getDepartmentsWithEmployees();
 	}

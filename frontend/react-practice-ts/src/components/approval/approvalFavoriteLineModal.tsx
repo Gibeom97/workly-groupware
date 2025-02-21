@@ -1,6 +1,76 @@
+import axios from "axios";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
-const ApprovalFavoriteLineModal = ({ onClose, favoriteName, setFavoriteName, saveFavoriteLine }) => {
+const ApprovalFavoriteLineModal = ({ onClose, approvalLines, refreshFavoriteList, userNo }) => {
+  const [favoriteName, setFavoriteName] = useState("");
+  const [loading, setLoading] = useState(false)
+
+
+  // 백엔드API 요청 (저장 가능)
+  const saveFavoriteLine = async () => {
+    if (!favoriteName.trim()){
+      alert("즐겨찾기 이름을 입력해주세요");
+      return;
+    }
+
+      setLoading(true);
+
+    try {
+      // 즐겨찾기 정보 저장
+      const favoriteResponse = await axios.post(
+        "http://localhost:8003/workly/api/approval/saveFavoriteInfo",
+        {favoriteName, userNo},
+        {headers: { "Content-Type":"application/json"}}
+      );
+
+      console.log("서버 응답:", favoriteResponse); // 응답 전체 확인
+      console.log("서버에서 받은 데이터:", favoriteResponse.data); // 데이터 확인인
+      // 서버에서 생성된 LINE_NO 받아오기
+      const lineNo = favoriteResponse.data;
+
+      if(!lineNo){
+        throw new Error("LINE_NO를 받지 못했습니다.");
+      }
+
+      console.log("생성된 LINE_NO:", lineNo);
+
+      // 결재라인에 포함된 사람들 저장
+      if (!approvalLines || !Array.isArray(approvalLines)) {
+        console.error("approvalLines가 존재하지 않거나 배열이 아닙니다.", approvalLines);
+        return;
+    }
+      const approvalLineData = approvalLines.map(emp => ({
+        lineNo, // 받아온 LINE_NO사용
+        userNo: emp.USER_NO, // 결재라인에 포함된 사람
+        approvalType: emp.approvalType,
+        type: emp.type,
+        level: emp.level,
+      }));
+
+      console.log("전송할 결재라인 데이터:", approvalLineData);
+
+      await axios.post(
+        "http://localhost:8003/workly/api/approval/saveFavoriteLine",
+        approvalLineData,
+        {headers: {"Content-Type":"application/json"}}
+      );
+
+      if (refreshFavoriteList) {
+        refreshFavoriteList(); // 저장된 즐겨찾기 리스트 바로 화면에 출력
+      }
+
+      console.log("즐겨찾기 결재라인 저장 완료!");
+      alert("즐겨찾기 저장 완료")
+      onClose();
+    }catch(error){
+      console.error("즐겨찾기 저장 실패:", error);
+      alert("즐겨찾기 저장에 실패했습니다.");
+    }finally{
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={modalOverlay}>
       <div style={modalContainer}>
@@ -19,7 +89,8 @@ const ApprovalFavoriteLineModal = ({ onClose, favoriteName, setFavoriteName, sav
         />
 
         {/* 저장 버튼 */}
-        <button style={saveButton} onClick={saveFavoriteLine}>저장</button>
+        <button style={saveButton} onClick={saveFavoriteLine} disabled={loading}>
+          {loading ? "저장 중..." : "저장"}</button>
       </div>
     </div>
   );

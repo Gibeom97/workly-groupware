@@ -5,6 +5,8 @@ import axios from "axios";
 
 export const ApprovalWriteHeader = ({approvalData, setApprovalData}) => {
 
+  const userNo = approvalData?.userNo; // 현재 문서를 작성 중인 사용자 번호
+
   // 파일 업로드용 state
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null); // 파일 선택 트리거용 Ref
