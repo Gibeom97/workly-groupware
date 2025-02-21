@@ -1,28 +1,46 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+
+interface Employee {
+  USER_NO: number;
+  USER_NAME: string;
+  DEPT_NAME: string;
+  POSITION_NAME: string;
+}
 
 const ApprovalCCModal = ({ onClose }) => {
-  const [selectedUsers, setSelectedUsers] = useState([
-    { id: 1, name: "김예삔 주임" },
-    { id: 2, name: "김젤리 사원" },
-  ]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const[selectedUsers, setSelectedUsers] = useState([]);
 
-  const employees = [
-    { id: 3, department: "임원", name: "박삼이 이사" },
-    { id: 4, department: "영업팀", name: "최웡카 과장" },
-    { id: 5, department: "영업팀", name: "김기밤 대리" },
-    { id: 6, department: "영업팀", name: "채소염 주임" },
-    { id: 7, department: "인사팀", name: "김예삔 주임" },
-    { id: 8, department: "인사팀", name: "김젤리 사원" },
-  ];
 
+  // ✅ 백엔드에서 직원 목록 가져오기 (axios 사용)
+  useEffect(() => {
+    axios
+      .get("http://localhost:8003/workly/api/approval/approvalLineList")
+      .then((response) => {
+        console.log("가져온 직원 목록: ", response.data)
+        setEmployees(response.data);
+      })
+      .catch((error) => console.error("데이터 가져오기 실패:", error));
+  }, []);
+
+  
+  // ✅ 검색어 적용된 직원 목록 필터링
+  const filteredEmployees = employees.filter((emp) =>
+    emp.USER_NAME.includes(searchTerm)
+  );
+
+  // 직원 선택
   const handleSelect = (employee) => {
-    if (!selectedUsers.some((user) => user.id === employee.id)) {
+    if(!selectedUsers.some((user) => user.USER_NO === employee.USER_NO)){
       setSelectedUsers([...selectedUsers, employee]);
     }
   };
-
-  const handleRemove = (id) => {
-    setSelectedUsers(selectedUsers.filter((user) => user.id !== id));
+  
+  // 선택한 직원 제거거
+  const handleRemove = (userNo) => {
+    setSelectedUsers(selectedUsers.filter((user) => user.USER_NO !== userNo));
   };
 
   return (
@@ -36,7 +54,12 @@ const ApprovalCCModal = ({ onClose }) => {
 
         {/* ✅ 검색창 */}
         <div style={searchContainer}>
-          <input type="text" placeholder="이름 입력" style={searchInput} />
+          <input type="text" 
+          placeholder="이름 입력" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={searchInput} 
+          />
         </div>
 
         <div style={contentContainer}>
@@ -47,15 +70,25 @@ const ApprovalCCModal = ({ onClose }) => {
                 <tr>
                   <th style={thStyle}>부서</th>
                   <th style={thStyle}>사원</th>
+                  <th style={thStyle}>직급</th>
                 </tr>
               </thead>
               <tbody>
-                {employees.map((employee) => (
-                  <tr key={employee.id} style={trStyle} onClick={() => handleSelect(employee)}>
-                    <td style={tdStyle}>{employee.department}</td>
-                    <td style={tdStyle}>{employee.name}</td>
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map ((employee) => (
+                    <tr key={employee.USER_NO} style={trStyle} onClick={() => handleSelect(employee)}>
+                      <td style={tdStyle}>{employee.DEPT_NAME}</td>
+                      <td style={tdStyle}>{employee.USER_NAME}</td>
+                      <td style={tdStyle}>{employee.POSITION_NAME}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" style={{textAlign: "center", padding: "10px", color: "gray"}}>
+                      검색 결과 없음
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -64,9 +97,9 @@ const ApprovalCCModal = ({ onClose }) => {
           <div style={selectedListContainer}>
             <ul style={selectedList}>
               {selectedUsers.map((user, index) => (
-                <li key={user.id} style={selectedItem}>
-                  {index + 1}. {user.name}
-                  <button style={removeButton} onClick={() => handleRemove(user.id)}> - </button>
+                <li key={user.USER_NO} style={selectedItem}>
+                  {index + 1}. {user.USER_NAME}
+                  <button style={removeButton} onClick={() => handleRemove(user.USER_NO)}> - </button>
                 </li>
               ))}
             </ul>
