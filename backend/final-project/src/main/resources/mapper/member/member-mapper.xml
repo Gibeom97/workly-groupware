@@ -52,7 +52,7 @@
 	        	AND USER_NAME LIKE '%'||#{filter.name}||'%'
 	        </if>
 	    </where>
-		            ORDER BY HIRE_DATE DESC, USER_NO DESC) A)
+		            ORDER BY DEPT_NO, HIRE_DATE DESC) A)
 		WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow} 
 	</select>
 	
@@ -205,6 +205,14 @@
 			UPDATE_DATE = #{updateDate}
 		WHERE USER_NO = #{userNo}
 	</update>
+	
+	<select id="selectModalMemberList" resultMap="memberDTOMap">
+		SELECT USER_NO, USER_NAME, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, STATUS, HIRE_DATE
+		FROM MEMBER
+		JOIN DEPARTMENT USING(DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		ORDER BY DEPT_NO, HIRE_DATE DESC
+	</select>
 </mapper>
 
 

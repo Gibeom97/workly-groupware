@@ -1,152 +1,75 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
-import { DateSelectArg, EventApi, EventClickArg, EventInput } from "@fullcalendar/core";
+import { EventInput, EventClickArg } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import allLocales from "@fullcalendar/core/locales-all";
 import interactionPlugin from "@fullcalendar/interaction";
-import styles from "./Calendar1.module.css"; // ✅ module.css 객체로 불러오기
+import styles from "./Calendar3.module.css";
+import Modal1 from "../calendar/Modal1"; // ✅ Modal1 import
 
-// ✅ 고유 ID 생성 함수S
-let eventGuid = 0;
-const createEventId = () => String(eventGuid++);
+// ✅ Props 타입 정의 (전역 상태 전달 받음)
+interface Calendar3Props {
+  meetingRoomEvents: EventInput[];
+  setMeetingRoomEvents: (newEvent: EventInput) => void;
+}
 
-// ✅ 오늘 날짜
-const todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD
+function Calendar3({ meetingRoomEvents, setMeetingRoomEvents }: Calendar3Props) {
+  const [isMeetingRoomModalOpen, setMeetingRoomModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
 
-// 🌈 무지개 색상 배열
-const rainbowColors = [
-  "#FF0000", // 빨강
-  "#FF7F00", // 주황
-  "#FFFF00", // 노랑
-  "#00FF00", // 초록
-  "#0000FF", // 파랑
-  "#4B0082", // 남색
-  "#9400D3"  // 보라
-];
-
-// ✅ 초기 일정 데이터
-const INITIAL_EVENTS: EventInput[] = [
-  {
-    id: createEventId(),
-    title: "회의",
-    start: todayStr,
-    backgroundColor: rainbowColors[2], // 노랑
-    borderColor: rainbowColors[2],
-  },
-  {
-    id: createEventId(),
-    title: "최종평가",
-    start: todayStr + "T12:00:00",
-    backgroundColor: rainbowColors[3], // 초록
-    borderColor: rainbowColors[3],
-  }
-];
-
-function Calendar() {
-  const [currentEvents, setCurrentEvents] = useState<EventApi[]>([]);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<DateSelectArg | null>(null);
-
-  // 🌈 색상 선택 옵션
-  const colorOptions = rainbowColors.map((color, index) => ({
-    name: `색상 ${index + 1}`,
-    value: color
-  }));
-
-  const handleEvents = useCallback(
-    (events: EventApi[]) => setCurrentEvents(events),
-    []
-  );
-
-  // 일정 선택 시 색상 선택 UI 표시
-  const handleDateSelect = useCallback((selectInfo: DateSelectArg) => {
-    setSelectedDate(selectInfo);
-    setShowColorPicker(true);
-  }, []);
-
-  // 색상 선택 후 일정 추가
-  const handleAddEvent = useCallback((color: string) => {
-    let title = prompt("일정 제목을 입력하세요")?.trim();
-    if (!title || !selectedDate) return;
-
-    let calendarApi = selectedDate.view.calendar;
-    calendarApi.unselect();
-
-    calendarApi.addEvent({
-      id: createEventId(),
-      title,
-      start: selectedDate.startStr,
-      end: selectedDate.endStr,
-      allDay: selectedDate.allDay,
-      backgroundColor: color,
-      borderColor: color
+  // ✅ 일정 클릭 시 수정 모달 오픈
+  const handleEventClick = (clickInfo: EventClickArg) => {
+    setSelectedEvent({
+      id: clickInfo.event.id,
+      title: clickInfo.event.title,
+      start: clickInfo.event.startStr,
+      end: clickInfo.event.endStr || clickInfo.event.startStr,
+      description: clickInfo.event.extendedProps.description || "",
+      backgroundColor: clickInfo.event.backgroundColor,
     });
+    setMeetingRoomModalOpen(true);
+  };
 
-    setShowColorPicker(false);
-    setSelectedDate(null);
-  }, [selectedDate]);
-
-  // ✅ 색상 선택 창 외부 클릭 시 닫기
-  const handleCloseColorPicker = useCallback((e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).classList.contains(styles.colorPickerOverlay)) {
-      setShowColorPicker(false);
-      setSelectedDate(null);
-    }
-  }, []);
-
-  const handleEventClick = useCallback((clickInfo: EventClickArg) => {
-    if (window.confirm(`이 일정 「${clickInfo.event.title}」을 삭제하시겠습니까?`)) {
-      clickInfo.event.remove();
-    }
-  }, []);
+  // ✅ 회의실 예약 저장 핸들러
+  const handleSaveMeeting = (newMeeting: EventInput) => {
+    setMeetingRoomEvents(newMeeting); // ✅ 전역 상태 업데이트
+    setMeetingRoomModalOpen(false);
+  };
 
   return (
     <div className={styles.calendarContainer}>
+      <div className={styles.toolbar}>
+        <button
+          className={styles.meetingRoomButton}
+          onClick={() => {
+            setSelectedEvent(null);
+            setMeetingRoomModalOpen(true);
+          }}
+        >
+          회의실 예약
+        </button>
+      </div>
+
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        selectable={true}
         editable={true}
-        initialEvents={INITIAL_EVENTS}
+        events={meetingRoomEvents} // ✅ 전역 상태에서 가져온 회의실 예약 데이터 사용
+        eventClick={handleEventClick}
         locales={allLocales}
         locale="ko"
-        firstDay={1} // ✅ 월요일부터 시작하도록 설정
-        eventsSet={handleEvents}
-        select={handleDateSelect}
-        eventClick={handleEventClick}
+        firstDay={0}
         headerToolbar={{
           left: "prev,next",
           center: "title",
           right: "today",
         }}
         height="auto"
-        eventContent={(eventInfo) => (
-          <div className={styles.customEvent}>
-            <span>{eventInfo.timeText ? `${eventInfo.timeText} ` : ""}{eventInfo.event.title}</span>
-          </div>
-        )}
       />
 
-      {/* ✅ 색상 선택 UI - 외부 클릭 시 닫힘 */}
-      {showColorPicker && (
-        <div className={styles.colorPickerOverlay} onClick={handleCloseColorPicker}>
-          <div className={styles.colorPicker}>
-            <h3>색상을 선택하세요</h3>
-            <div className={styles.colorOptions}>
-              {colorOptions.map((color) => (
-                <button
-                  key={color.value}
-                  className={styles.colorCircle}
-                  style={{ backgroundColor: color.value }}
-                  onClick={() => handleAddEvent(color.value)}
-                ></button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal1 isOpen={isMeetingRoomModalOpen} onClose={() => setMeetingRoomModalOpen(false)} onSave={handleSaveMeeting} selectedEvent={selectedEvent} />
     </div>
   );
 }
 
-export default Calendar;
+export default Calendar3;
