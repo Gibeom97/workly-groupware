@@ -21,4 +21,6 @@ public class ApprovalDTO {
     private Date startDate;
     private Date endDate;
     private String approvalUser;
+	
+	
 }

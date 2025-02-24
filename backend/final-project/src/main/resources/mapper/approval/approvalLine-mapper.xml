@@ -12,6 +12,17 @@
 		    SELECT 1 FROM DUAL
 		</insert>
 
+		
+		<!-- 진행 중 결재 문서 조회 쿼리 -->
+		<select id="getInProgressApprovals" resultType="ApprovalLine">
+		    SELECT al.APPROVAL_NO, al.USER_NO, al.TYPE, al.APPROVAL_LEVEL, a.APPROVAL_TITLE, a.APPROVAL_DATE, al.STATUS
+		    FROM APPROVAL_LINE al
+		    JOIN APPROVAL a ON al.APPROVAL_NO = a.APPROVAL_NO
+		    WHERE al.USER_NO = #{userNo}
+		      AND al.STATUS = 1
+		      AND al.TYPE = '결재자'
+		</select>
+
 
 
 </mapper>

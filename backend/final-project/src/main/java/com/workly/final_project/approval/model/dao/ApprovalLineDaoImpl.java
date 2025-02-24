@@ -6,6 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 
 @Repository
@@ -23,5 +24,9 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 		sqlSession.insert("ApprovalLine.saveApprovalLine", approvalLines);
 	}
 	
+//	@Override
+//	public List<ApprovalLine> findInProgressApprovalsByUserNo(int userNo) {
+//        return sqlSession.selectList("ApprovalLine.getInProgressApprovals", userNo);
+//    }
 
 }

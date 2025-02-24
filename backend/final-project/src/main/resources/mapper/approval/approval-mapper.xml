@@ -38,6 +38,45 @@
 		ORDER BY DEPT_NAME, USER_NAME
 	</select>
 
+    <!-- Approval_Status가 4인 문서만 조회 -->
+    <select id="getDraftApprovals" resultType="Approval">
+        SELECT 
+            APPROVAL_NO as approvalNo,
+            USER_NO as userNo,
+            APPROVAL_TYPE as approvalType,
+            APPROVAL_STATUS as approvalStatus,
+            APPROVAL_TITLE as approvalTitle,
+            APPROVAL_CONTENT as approvalContent,
+            START_DATE as startDate,
+            END_DATE as endDate,
+            APPROVAL_USER as approvalUser
+        FROM APPROVAL
+        WHERE APPROVAL_STATUS = 4
+        ORDER BY START_DATE DESC
+    </select>
+
+    <!-- 선택한 문서 삭제 -->
+    <delete id="deleteApprovals">
+        DELETE FROM APPROVAL WHERE APPROVAL_NO IN 
+        <foreach item="approvalNo" collection="list" open="(" separator="," close=")">
+            #{approvalNo}
+        </foreach>
+    </delete>
+    
+    <!-- 임시저장 -->
+	<insert id="insertTempApproval" parameterType="Approval">
+    	INSERT INTO APPROVAL (APPROVAL_NO, USER_NO, APPROVAL_TYPE, APPROVAL_STATUS, APPROVAL_TITLE, APPROVAL_CONTENT, START_DATE)
+    	VALUES (#{approvalNo}, #{userNo}, #{approvalType}, 4, #{approvalTitle}, #{approvalContent}, SYSDATE)
+	</insert>
+
+	<!-- 임시저장 작성하기 -->
+	<select id="getApprovalByNo" resultType="Approval">
+	    SELECT * FROM APPROVAL WHERE APPROVAL_NO = #{approvalNo}
+	</select>
+
+
+
+    
     
 </mapper>
 

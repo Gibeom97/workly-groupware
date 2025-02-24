@@ -4,133 +4,141 @@ import ApprovalOutcheckModal from "./approvalOutcheckModal";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
-
+export const ApprovalWriteFooter = ({ approvalData, approvalLine }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [outCheckModalOpen, setOutCheckModalOpen] = useState(false);
 
     const [approvalMemoData, setApprovalMemoData] = useState({
-        userNo: approvalData?.userNo ?? 1, // null이나 undefined가 오면 1로 설정
-        approvalNo: approvalData.approvalNo || null, // 결재 문서 저장 후 업데이트 필요
+        userNo: approvalData?.userNo ?? 1,
+        approvalNo: approvalData.approvalNo || null,
         memoContent: "",
         memoDate: new Date().toISOString(),
     });
 
-    // 데이터 확인용 로그 추가
+    // 데이터 확인용 로그
     useEffect(() => {
         console.log("footer에서 받은 approvalData:", approvalData);
     }, [approvalData]);
 
-    // ✅ 📌 여기 추가: approvalNo가 변경될 때 approvalMemoData 업데이트
     useEffect(() => {
         if (approvalData?.approvalNo && approvalMemoData.approvalNo !== approvalData.approvalNo) {
-            setApprovalMemoData(prevMemoData => ({
+            setApprovalMemoData((prevMemoData) => ({
                 ...prevMemoData,
                 approvalNo: approvalData.approvalNo,
-                userNo: prevMemoData.userNo
+                userNo: prevMemoData.userNo,
             }));
         }
-    }, [approvalData.approvalNo]); 
-
-    useEffect(() => {
-        console.log("현재 approvalData.userNo 값:", approvalData.userNo);
-    }, [approvalData]);
+    }, [approvalData.approvalNo]);
 
     const navigate = useNavigate();
-    
+
     const handleExit = () => {
-        navigate('/approvalMain/ApprovalWriteDetailPage');
+        navigate("/approvalMain/ApprovalWriteDetailPage");
     };
 
-    // ✅ 결재 문서 + 결재 의견 + 결재라인 함께 저장
-    const submitApproval = async (memoContent:any) => {
-
+    // ✅ 임시저장 + 불러오기
+    const handleTempSave = async () => {
         try {
+          const tempApprovalData = {
+            ...approvalData,
+            approvalStatus: "4", // 임시저장 상태
+            startDate: new Date().toISOString(), // 시작 날짜 자동 설정
+          };
+      
+          if (!tempApprovalData.approvalTitle || !tempApprovalData.approvalContent) {
+            alert("제목과 내용을 모두 입력해주세요.");
+            return;
+          }
+      
+          // 임시 저장 요청
+          await axios.post(
+            "http://localhost:8003/workly/api/approval/tempSave",
+            tempApprovalData,
+            {
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+      
+          alert("임시저장 완료!");
+      
+        } catch (error) {
+          console.error("임시저장 실패:", error);
+          alert("임시저장 실패!");
+        }
+      };
+      
+    
 
-            console.log("결재 문서 저장 요청 데이터:", approvalData);
 
-            // 1️⃣ 결재 문서 저장 요청
+    // ✅ 결재 문서 + 결재 의견 + 결재라인 저장
+    const submitApproval = async (memoContent: any) => {
+        try {
             const approvalResponse = await axios.post(
                 "http://localhost:8003/workly/api/approval/submit",
-                approvalData, 
+                approvalData,
                 {
-                    headers: {"Content-Type": "application/json"}, //JSON명시
+                    headers: { "Content-Type": "application/json" },
                 }
             );
 
-            // 2️⃣ 저장된 Approval의 approvalNo 받아오기
             const approvalNo = approvalResponse.data?.approvalNo;
 
-            // approvalNo가 유효한지 확인
             if (!approvalNo) {
-                console.error("[ERROR] approvalNo를 받지 못함. 서버 응답 확인:", approvalResponse.data);
+                console.error("approvalNo를 받지 못함. 서버 응답 확인:", approvalResponse.data);
                 throw new Error("Invalid approvalNo received");
             }
 
-            setApprovalMemoData(prevState => ({
+            setApprovalMemoData((prevState) => ({
                 ...prevState,
-                approvalNo: approvalNo
+                approvalNo: approvalNo,
             }));
 
-            console.log("approvalNo값:", approvalNo);
-            
-            
-            // **🔥 `setApprovalMemoData` 업데이트 후 비동기 처리가 끝나기를 기다림**
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
 
-            // 3️⃣ ApprovalMemoData 업데이트 후 저장 요청
             const finalApprovalMemoData = {
                 ...approvalMemoData,
-                approvalNo: approvalNo, // ✅ 방금 저장된 approvalNo 설정
+                approvalNo: approvalNo,
                 userNo: approvalData.userNo,
-                memoContent: memoContent, // ✅ 최신 결재 의견 반영
+                memoContent: memoContent,
             };
-            await axios.post("http://localhost:8003/workly/api/approvalMemos/create", finalApprovalMemoData);
 
-            // 결재라인 저장 요청 (approvalLine 데이터 전송)
+            await axios.post(
+                "http://localhost:8003/workly/api/approvalMemos/create",
+                finalApprovalMemoData
+            );
+
             if ((approvalData.approvalLine ?? []).length > 0) {
-                const approvalLineData = approvalData.approvalLine.map(emp => ({
-                    approvalNo: approvalNo, // 방금 저장된 결재 문서의 approvalNo
+                const approvalLineData = approvalData.approvalLine.map((emp) => ({
+                    approvalNo: approvalNo,
                     approvalLineType: emp.approvalType,
                     type: emp.type,
                     approvalLevel: emp.level,
                     userNo: emp.USER_NO,
                 }));
 
-                console.log("전송할 결재라인 데이터:", approvalLineData);
-
-                await axios.post("http://localhost:8003/workly/api/approval/saveApprovalLine", approvalLineData);
-
-                console.log("결재라인 저장 완료!");
+                await axios.post(
+                    "http://localhost:8003/workly/api/approval/saveApprovalLine",
+                    approvalLineData
+                );
             }
 
-            // 파일 업로드 처리(APPROVAL_ATTACHMENT 테이블 저장)
-            if(approvalData.attachments?.length > 0){
+            if (approvalData.attachments?.length > 0) {
                 const formData = new FormData();
-                approvalData.attachments.forEach((file:File) => {
+                approvalData.attachments.forEach((file: File) => {
                     formData.append("files", file);
                 });
                 formData.append("approvalNo", approvalNo.toString());
-
-            // 🔥 formData 값 확인 (FormData가 비어있으면 오류 발생 가능)
-            for (const pair of formData.entries()) {
-                console.log(`🔥 formData Key: ${pair[0]}, Value: ${pair[1]}`);
-            }
 
                 await axios.post(
                     "http://localhost:8003/workly/api/approval/attachments",
                     formData,
                     {
-                        headers: {"Content-Type": "multipart/form-data"}
+                        headers: { "Content-Type": "multipart/form-data" },
                     }
                 );
-
-                console.log("파일 업로드 성공!")
             }
 
-
             alert("결재상신 완료");
-
         } catch (error) {
             console.error("결재 문서 저장 실패:", error);
         }
@@ -140,11 +148,11 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
         <footer
             style={{
                 display: "flex",
-                justifyContent: "center", // ✅ 버튼들을 중앙으로 배치
+                justifyContent: "center",
                 alignItems: "center",
                 padding: "20px 20px",
                 width: "100%",
-                gap: "700px", // ✅ 그룹 사이 간격 조정
+                gap: "700px",
             }}
         >
             {/* 임시저장 버튼 */}
@@ -164,14 +172,14 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
                         alignItems: "center",
                         justifyContent: "center",
                     }}
-                    onClick={() => navigate('/approvalMain/ApprovalWriteDetailPage')}
+                    onClick={handleTempSave}
                 >
                     임시저장
                 </button>
             </div>
 
             {/* 결재 & 취소 버튼 그룹 */}
-            <div style={{ display: "flex", gap: "10px" }}> {/* ✅ 버튼 간격 유지 */}
+            <div style={{ display: "flex", gap: "10px" }}>
                 <button
                     style={{
                         width: 75,
@@ -189,7 +197,7 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
                     }}
                     onClick={() => {
                         if (!approvalData.approvalType || !approvalData.approvalTitle || !approvalData.approvalContent) {
-                            alert("필수 입력사항을 모두 입력해야 합니다."); // 🚨 경고 메시지
+                            alert("필수 입력사항을 모두 입력해야 합니다.");
                         } else {
                             setModalOpen(true);
                         }
@@ -198,7 +206,6 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
                     결재상신
                 </button>
 
-                {/* ✅ 모달 창 */}
                 {modalOpen && (
                     <ApprovalMemoModal
                         onClose={() => setModalOpen(false)}
@@ -208,7 +215,7 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
                                 memoContent,
                             }));
                             setModalOpen(false);
-                            submitApproval(memoContent); // ✅ 저장 후 데이터 전송
+                            submitApproval(memoContent);
                         }}
                     />
                 )}
@@ -233,9 +240,8 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
                     결재취소
                 </button>
 
-                {/* 결재취소 확인 모달 */}
                 {outCheckModalOpen && (
-                    <ApprovalOutcheckModal 
+                    <ApprovalOutcheckModal
                         onClose={() => setOutCheckModalOpen(false)}
                         onGoBack={() => setOutCheckModalOpen(false)}
                         onExit={handleExit}
