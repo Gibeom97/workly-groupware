@@ -13,7 +13,7 @@ const PersonnelTable = () => {
     const [category, setCategory] = useState({
         cDept: "0",
         cPosi: "0",
-        cStatus: "0",
+        cStatus: "Y",
     })
 
     const navigate = useNavigate();
@@ -49,7 +49,14 @@ const PersonnelTable = () => {
 
     return (
         <div>
-            <SearchBar category={category} setCategory={setCategory} setCurrentPage={setCurrentPage} handleSearch={handleSearch} setSearchMember={setSearchMember} searchMember={searchMember} />
+            <SearchBar 
+                category={category} 
+                setCategory={setCategory} 
+                setCurrentPage={setCurrentPage} 
+                handleSearch={handleSearch} 
+                setSearchMember={setSearchMember} 
+                searchMember={searchMember} 
+            />
             <table className={styles.table}>
                 <thead>
                     <tr className={styles.headerRow}>

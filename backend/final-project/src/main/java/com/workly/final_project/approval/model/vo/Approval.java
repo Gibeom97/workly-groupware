@@ -22,4 +22,6 @@ public class Approval {
 	private Date endDate;// 최종승인 날짜
 	private String approvalUser;//결재해주는사람
 	
+	private String userName;
+	
 }

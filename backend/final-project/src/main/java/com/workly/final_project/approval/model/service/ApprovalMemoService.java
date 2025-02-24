@@ -9,4 +9,8 @@ public interface ApprovalMemoService{
 	int createApprovalMemo(ApprovalMemo approvalMemo);
 
 	List<ApprovalMemo> getMemosByApprovalId(int approvalNo);
+
+	boolean deleteApproval(int memoNo);
+
+	boolean updateApprovalReply(int memoNo, String memoContent);
 }

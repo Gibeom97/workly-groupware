@@ -31,6 +31,7 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
 const selectFavoriteForApprovalLine = (favorite: { name: string; employees: Employee[] }) => {
   const updatedEmployees = favorite.employees.map(emp => ({
     ...emp,
+    USER_NO: emp.USER_NO,
     approvalLineType: emp.approvalType// 해당 리스트 타입 유지
   }));
   setApprovalLine(updatedEmployees); // 선택한 즐겨찾기 내의 결재자 목록으로 결재라인 교체
@@ -60,6 +61,9 @@ const userNo = useSelector((state: any) => state.user.userNo);
               approvalLineType: emp.APPROVAL_TYPE,
             })),
           }));
+
+          console.log("즐겨찾기 선택 후 결재라인:", formattedFavorites); // ✅ 확인용 로그
+
           setFavoriteLine(formattedFavorites); // 상태 업데이트
          })
          .catch((error) => console.error("즐겨찾기 가져오기 실패:", error));
@@ -114,24 +118,13 @@ const userNo = useSelector((state: any) => state.user.userNo);
     });
   };
     
-
-  const addFavoriteToApprovalLine = (favorite: { name: string; employees: Employee[] }) => {
-    // 기존 결재자 리스트에 즐겨찾기 결재자 추가 (중복 방지)
-    const newApprovalLine = [...approvalLine];
-  
-    favorite.employees.forEach(emp => {
-      if (!newApprovalLine.some(existingEmp => existingEmp.USER_NAME === emp.USER_NAME)) {
-        newApprovalLine.push(emp);
-      }
-    });
-    setApprovalLine(newApprovalLine);
-  };
-
   const handleSaveApprovalLine = () => {
+    console.log("결재라인 저장 전 데이터:",  approvalLine);
     setApprovalData((prevData) => ({
       ...prevData,
       approvalLine: approvalLine.map(person => ({
         ...person,
+        USER_NO: person.USER_NO,
         approvalLineType: person.approvalType
       })), // ✅ approvalData 내부에 approvalLine 속성 추가
     }));
