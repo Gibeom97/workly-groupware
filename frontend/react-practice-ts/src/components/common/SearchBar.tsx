@@ -32,7 +32,7 @@ const SearchBar = ({ category, setCategory, searchMember, setSearchMember, handl
         setCategory({
             cDept: "0",
             cPosi: "0",
-            cStatus: "0",
+            cStatus: "Y",
         });
         setSearchMember('');
     }
@@ -67,7 +67,7 @@ const SearchBar = ({ category, setCategory, searchMember, setSearchMember, handl
                     }
                 </select>
                 <select name="cStatus" value={category.cStatus} className={styles.select} onChange={handleCategoryChange}>
-                    <option value="0">상태</option>
+                    <option value="0">전체</option>
                     <option value="Y">재직</option>
                     <option value="X">퇴직</option>
                     <option value="Z">휴직</option>

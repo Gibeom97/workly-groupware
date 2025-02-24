@@ -35,4 +35,6 @@ public interface MemberService {
 	int checkAttachment(Member m);
 
 	int updateMember(Attachment at, Member m);
+
+	List<MemberDTO> selectModalMemberList();
 }

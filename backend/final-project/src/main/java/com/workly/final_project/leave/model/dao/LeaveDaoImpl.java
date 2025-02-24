@@ -9,6 +9,7 @@ import com.workly.final_project.common.model.vo.PageInfo;
 import com.workly.final_project.common.model.vo.PageRow;
 import com.workly.final_project.common.utils.Util;
 import com.workly.final_project.leave.model.dto.AnnualHistoryDTO;
+import com.workly.final_project.leave.model.vo.AnnualLeave;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +26,6 @@ public class LeaveDaoImpl implements LeaveDao {
 		
 		history.setPr(pr);
 		
-		System.out.println("history: " + history);
 		return session.selectList("leave.selectLeaveHistory", history);
 	}
 
@@ -33,5 +33,15 @@ public class LeaveDaoImpl implements LeaveDao {
 	public int selectLeaveCount(AnnualHistoryDTO history) {
 		
 		return session.selectOne("leave.selectLeaveCount",history);
+	}
+
+	@Override
+	public List<AnnualHistoryDTO> selectLeaveDetail(AnnualHistoryDTO history) {
+		return session.selectList("leave.selectLeaveDetail", history);
+	}
+
+	@Override
+	public int updateLeave(AnnualLeave leave) {
+		return session.update("leave.updateLeave", leave);
 	}
 }
