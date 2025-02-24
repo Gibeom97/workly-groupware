@@ -1,49 +1,87 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface ChatState {
-  favorites: string[]; // 즐겨찾기한 유저 목록
-  currentRoomNo: number | null; // 현재 접속 중인 채팅방 번호
-  participants: number[]; // 현재 참가하고 있는 참가자 목록 (USER_NO 리스트)
-  unreadMessages: Record<number, number>; // 채팅방별 안 읽은 메시지 수 { roomNo: unreadCount }
+interface ChatRoom {
+    chatRoomNo : number;
+    roomTitle : string;
+    unreadCount?:number;
+    isActive? : boolean;
+    bellSetting : 'Y' |'N';
+    createdChat? : string; // string으로 변경?
+    chatType : string; 
 }
 
-const initialState: ChatState = { 
-  favorites: [], // Redux Persist가 자동으로 저장 및 복원함 (localStorage 직접 접근 X)
-  currentRoomNo: null, 
-  participants: [], 
-  unreadMessages: {}, 
+interface ChatState {
+  favorites: { userNo: number; userName: string; deptName: string; positionName: string }[];
+    chatRooms: ChatRoom[];  
+    currentRoomNo: number | null;
+    participants: number[];
+    unreadMessages: Record<number, number>;
+    memberInvite: string[];  // ✅ 여기에 memberInvite 추가!
+}
+
+const initialState: ChatState = {
+    favorites: [],
+    chatRooms: [], 
+    currentRoomNo: null,
+    participants: [],
+    unreadMessages: {},
+    memberInvite: [],  
 };
 
+
 const chatSlice = createSlice({
-  name: "chat",
-  initialState,
-  reducers: {
-    // 🔹 즐겨찾기 추가/삭제
-    addFavorite: (state, action: PayloadAction<string>) => {
-      if (!state.favorites.includes(action.payload)) {
-        state.favorites.push(action.payload);
-      }
-    },
-    removeFavorite: (state, action: PayloadAction<string>) => {
-      state.favorites = state.favorites.filter((name) => name !== action.payload);
-    },
+    name: "chat",
+    initialState,
+    reducers: {
+      setFavorites: (state, action: PayloadAction<{ userNo: number; userName: string; deptName: string; positionName: string }[]>) => {
+            console.log("💡 Redux 상태 업데이트: setFavorites 실행됨!", action.payload);
+            state.favorites = action.payload;  // ✅ 이제 객체 배열을 Redux에 저장
+        },
+          addFavorite: (state, action: PayloadAction<{ userNo: number; userName: string; deptName: string; positionName: string }>) => {
+            if (!state.favorites.some(fav => fav.userNo === action.payload.userNo)) {  // ✅ userNo으로 비교
+                state.favorites.push(action.payload);
+            }
+        },
+        removeFavorite: (state, action: PayloadAction<number>) => {
+            state.favorites = state.favorites.filter(fav => fav.userNo !== action.payload);  // ✅ userNo을 기준으로 제거
+        },
+  
+        setCurrentRoom: (state, action: PayloadAction<number | null>) => {
+            state.currentRoomNo = action.payload;
+        },
+        setParticipants: (state, action: PayloadAction<number[]>) => {
+            state.participants = action.payload;
+        },
+        setUnreadMessages: (state, action: PayloadAction<{ roomNo: number; count: number }>) => {
+            state.unreadMessages[action.payload.roomNo] = action.payload.count;
+        },
+        
+        setMemberInvite: (state, action: PayloadAction<string[]>) => {
+            state.memberInvite = action.payload;
+        },
 
-    // 🔹 현재 접속 중인 채팅방 번호 변경
-    setCurrentRoom: (state, action: PayloadAction<number | null>) => {
-      state.currentRoomNo = action.payload;
-    },
+        setChatRooms: (state, action: PayloadAction<ChatRoom[]>) => {
+            console.log("💬 Redux 상태 업데이트: 채팅방 목록 저장됨!", action.payload);
+            state.chatRooms = action.payload; // ✅ 채팅방 목록 업데이트
+        },
 
-    // 🔹 참가 중인 사용자 목록 업데이트
-    setParticipants: (state, action: PayloadAction<number[]>) => {
-      state.participants = action.payload;
+        addChatRoom: (state, action: PayloadAction<ChatRoom>) => {
+            console.log("💬 새로운 채팅방 추가됨:", action.payload);
+            state.chatRooms.push(action.payload);
+        },
     },
-
-    // 🔹 안 읽은 메시지 수 업데이트
-    setUnreadMessages: (state, action: PayloadAction<{ roomNo: number; count: number }>) => {
-      state.unreadMessages[action.payload.roomNo] = action.payload.count;
-    },
-  },
 });
 
-export const { addFavorite, removeFavorite, setCurrentRoom, setParticipants, setUnreadMessages } = chatSlice.actions;
+export const {
+    setFavorites,
+    addFavorite,
+    removeFavorite,
+    setCurrentRoom,
+    setParticipants,
+    setUnreadMessages,
+    setMemberInvite, 
+    setChatRooms,
+    addChatRoom,
+} = chatSlice.actions;
+
 export default chatSlice.reducer;

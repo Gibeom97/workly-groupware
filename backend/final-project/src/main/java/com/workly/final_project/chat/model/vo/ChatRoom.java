@@ -1,7 +1,8 @@
 package com.workly.final_project.chat.model.vo;
 
+import java.sql.Date;
+
 import lombok.AllArgsConstructor;
-import java.time.LocalDate;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ChatRoom {
 
 	private int chatRoomNo;
-	private LocalDate createChat;
-	private String roomName;
+	private Date createdChat; // localDate로 자료형 변경?
+	private String roomTitle;
+	private String chatType;
 }
