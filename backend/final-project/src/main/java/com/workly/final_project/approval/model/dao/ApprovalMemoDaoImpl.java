@@ -1,6 +1,8 @@
 package com.workly.final_project.approval.model.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,24 @@ public class ApprovalMemoDaoImpl implements ApprovalMemoDao{
 	@Override
 	public List<ApprovalMemo> selectMemosByApprovalId(int approvalNo) {
 		return sqlSession.selectList("ApprovalMemo.selectMemosByApprovalId", approvalNo);
+	}
+
+	@Override
+	public boolean updateApprovalReply(int memoNo, String memoContent) {
+		
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("memoNo", memoNo);
+		paramMap.put("memoContent", memoContent);
+		
+        int updatedRows = sqlSession.update("ApprovalMemo.updateApprovalReply", paramMap);
+        
+        return updatedRows > 0;
+	}
+
+	@Override
+	public boolean deleteApproval(int memoNo) {
+		int deletedRows = sqlSession.delete("Approvalmemo.deleteApproval", memoNo);
+		return deletedRows > 0;
 	}
 
 }

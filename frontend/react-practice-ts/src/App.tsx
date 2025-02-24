@@ -34,7 +34,7 @@ function App() {
         {/*전자결재Route*/}
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
-        <Route path="/ApprovalCompletePage" element={<ApprovalCompletePage/>}/>
+        <Route path="/ApprovalCompletePage/:approvalNo" element={<ApprovalCompletePage/>}/>
 
         <Route path="/approvalTempPage" element={<ApprovalTempPage />} />
         <Route path="/approvalRejectPage" element={<ApprovalRejectPage />} />

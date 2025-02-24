@@ -10,4 +10,8 @@ public interface ApprovalMemoDao {
 
 	List<ApprovalMemo> selectMemosByApprovalId(int approvalNo);
 
+	boolean updateApprovalReply(int memoNo, String memoContent);
+
+	boolean deleteApproval(int memoNo);
+
 }

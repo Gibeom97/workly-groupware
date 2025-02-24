@@ -37,8 +37,75 @@
 		JOIN POSITION USING(POSITION_NO)
 		ORDER BY DEPT_NAME, USER_NAME
 	</select>
-
-    
+	
+	<select id="getApprovalData" resultType="Approval">
+		SELECT
+			USER_NO,
+			APPROVAL_NO,
+			APPROVAL_TYPE,
+			APPROVAL_STATUS,
+			APPROVAL_TITLE,
+			APPROVAL_CONTENT,
+			START_DATE,
+			APPROVAL_USER
+		FROM APPROVAL
+		WHERE APPROVAL_NO = #{approvalNo}
+	</select>
+	
+	<select id="getApprovalLine" resultType="ApprovalLine">
+		SELECT
+		    A.APPROVAL_LEVEL,
+		    A.APPROVAL_NO,
+		    A.USER_NO,
+		    A.TYPE,
+		    A.STATUS,
+		    A.CONFIRM_STATUS,
+		    A.APPROVAL_DATE,
+		    A.APPROVAL_LINE_TYPE,
+        	M.USER_NAME AS userName,
+        	D.DEPT_NAME AS deptName,
+        	P.POSITION_NAME AS positionName   
+		FROM APPROVAL_LINE A
+		JOIN MEMBER M ON A.USER_NO = M.USER_NO
+		JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO 
+		JOIN POSITION P ON M.POSITION_NO = P.POSITION_NO  
+		WHERE A.APPROVAL_NO = #{approvalNo}
+	</select>
+	
+	<select id="getApprovalAttachmentByApprovalNo" resultType="ApprovalAttachment">
+		SELECT
+			FILE_NO,
+			APPROVAL_NO,
+			REF_NO,
+			ORIGIN_NAME,
+			FILE_DATA
+		FROM APPROVAL_ATTACHMENT
+		WHERE APPROVAL_NO = #{approvalNo}
+	</select>
+	
+	<select id="getApprovalMemo" resultType="map">
+		SELECT
+			D.DEPT_NAME,
+			P.POSITION_NAME,
+			M.USER_NAME,
+			A.USER_NO,
+			A.MEMO_NO,
+			A.MEMO_CONTENT,
+			A.MEMO_DATE
+		FROM APPROVAL_MEMO A
+		JOIN MEMBER M ON A.USER_NO = M.USER_NO
+		JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO 
+		JOIN POSITION P ON M.POSITION_NO = P.POSITION_NO 
+		WHERE A.APPROVAL_NO = #{approvalNo}	
+	</select>
+	
+	<select id="getApprovalWriteUser" resultType="Approval">
+		SELECT
+			USER_NAME
+		FROM APPROVAL A
+		JOIN MEMBER M ON A.USER_NO = M.USER_NO
+		WHERE A.APPROVAL_NO = #{approvalNo}
+	</select>
 </mapper>
 
 

@@ -1,11 +1,17 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ApprovalLineModal from "./approvalLineModal";
 import ApprovalCCModal from "./approvalCCModal";
-import axios from "axios";
 
-export const ApprovalWriteHeader = ({approvalData, setApprovalData}) => {
+export const ApprovalWriteHeader = ({approvalData, setApprovalData, selectedCCUsers = [], setSelectedCCUsers = []}) => {
 
-  const userNo = approvalData?.userNo; // 현재 문서를 작성 중인 사용자 번호
+  
+  // 참조자 목록 상태 추가
+  //const [selectedCCUsers, setSelectedCCUsers] = useState([]);
+  
+  useEffect(() => {
+    console.log("✅ Header에서 업데이트된 selectedCCUsers:", selectedCCUsers);
+  }, [selectedCCUsers]);
+
 
   // 파일 업로드용 state
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -202,12 +208,27 @@ const handleRemoveFile = (index: number) => {
           <button style={actionButtonStyle} onClick={() => setApprovalCCModalOpen(true)}>
             + 선택
           </button>
-          <input type="text" style={inputStyle} />
+          <div style={infoContainer}>
+            {selectedCCUsers.length > 0 ? (
+              selectedCCUsers.map((emp, index) => (
+                <div key={index} style={{ marginBottom: "5px" }}>
+                  {emp.USER_NAME} ({emp.DEPT_NAME} - {emp.POSITION_NAME})
+                </div>
+              ))
+            ) : (
+              <div style={emptyMessage}>참조자를 추가하세요</div>
+            )}
+          </div>
         </div>
         
         {/* ✅ 참조 모달 (조건부 렌더링) */}
         {approvalCCModalOpen && (
-          <ApprovalCCModal onClose={() => setApprovalCCModalOpen(false)} />
+          <ApprovalCCModal 
+          onClose={() => setApprovalCCModalOpen(false)} 
+          setSelectedCCUsers={setSelectedCCUsers} // 상태 업데이트 함수 전달
+          selectedCCUsers={selectedCCUsers} // 현재 선택된 참조자 목록 전달
+          />
+
         )}
 
         {/* 구분선 */}
@@ -217,6 +238,16 @@ const handleRemoveFile = (index: number) => {
     
   );
 };
+
+const infoContainer = {
+  minHeight: "20px",
+  padding: "8px",
+  wordBreak: "break-word",
+  fontSize: "12px",
+  color: "#007bff",
+};
+
+const emptyMessage = { color: "gray", fontSize: "11px" };
 
 // 삭제 버튼 스타일
 const removeButtonStyle = {

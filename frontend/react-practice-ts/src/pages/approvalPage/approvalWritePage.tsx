@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react"
 import ApprovalWriteBody from "../../components/approval/approvalWriteBody"
 import { ApprovalWriteFooter } from "../../components/approval/approvalWriteFooter"
@@ -8,6 +7,12 @@ import Sidebar from "../../components/common/Sidebar"
 import axios from "axios"
 
 export const ApprovalWritePage = () => {
+  const [selectedCCUsers, setSelectedCCUsers] = useState([]); // ✅ 참조자 목록 상태 추가
+
+  useEffect(() => {
+    console.log("🚀 ApprovalWritePage에서 관리하는 selectedCCUsers:", selectedCCUsers);
+  }, [selectedCCUsers]);
+
 
     // 전자결재 데이터를 관리하는 상태 추가
     const [approvalData, setApprovalData] = useState({
@@ -72,10 +77,10 @@ export const ApprovalWritePage = () => {
             <Header/>
             <div style={scrollableContentStyle}>
             {/*setApprovalData를 Header, Body에 전달하여 입력 데이터 업데이트*/}
-            <ApprovalWriteHeader approvalData={approvalData} setApprovalData={setApprovalData}/>
+            <ApprovalWriteHeader approvalData={approvalData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers}/>
             <ApprovalWriteBody approvalData={approvalData} setApprovalData={setApprovalData}/>
             {/*submitApproval Footer에 전달하여 입력 데이터 업데이트*/}
-            <ApprovalWriteFooter approvalData={approvalData} submitApproval={submitApproval}  setApprovalMemoData={setApprovalMemoData}/>
+            <ApprovalWriteFooter approvalData={approvalData} submitApproval={submitApproval}  setApprovalMemoData={setApprovalMemoData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers} />
             </div>
           </div>
         </div>   
