@@ -6,9 +6,29 @@ export interface ChatDropdownProps {
   export interface Member {
     userNo: number;     // 고유번호
     userName: string;       // 이름
-    positionNo: number; // 직급번호
-    deptNo: number;     // 부서번호
+    positionNo?: number; // 직급번호
+    deptNo?: number;     // 부서번호
+    status?:string;// 상태값
+    deptName: string;
+    positionName: string;
+    email?: string;
+    phone?: string;
+    extension?: string;
   }
+
+// ✅ 기본값을 가지는 빈 Member 객체를 생성
+export const defaultMember: Member = {
+  userNo: 0,
+  userName: "알 수 없음",
+  positionNo: 0,
+  deptNo: 0,
+  status: "비활성화",
+  deptName: "미정",
+  positionName: "미정",
+  email: "",
+  phone: "",
+  extension: "",
+};
   
 
 export interface Department {

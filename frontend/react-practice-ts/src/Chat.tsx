@@ -15,15 +15,11 @@ import SearchMember from "./components/chat/SearchMember";
 import GroupChat from "./components/chat/GroupChat";
 import OrgChart from "./components/chat/OrgChart";
 import CreateOrg from "./components/chat/CreateOrg";
-import { Department } from "./type/chatType";
+import { Department,  Member, defaultMember  } from "./type/chatType";
 import Alarm from "./components/chat/Alarm";
+import { useSelector } from "react-redux";
+import { RootState } from "./store"; //
 
-interface Member {
-  userNo: number;
-  name: string;
-  positionNo: number;
-  deptNo: number;
-}
 
 interface ChatRoom {
   chatRoomNo: number;
@@ -37,19 +33,20 @@ interface ChatRoom {
 
 
 const Chat = () => {
+  const loggedInUser = useSelector((state: RootState) => state.user);
+
   const [isOpen, setIsOpen] = useState(true);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("비활성화");
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
-  const [selectedMemberName, setSelectedMemberName] = useState<string>("");
   const [isMyInfoModalOpen, setIsMyInfoModalOpen] = useState(false);
   const [isFirstChatOpen, setIsFirstChatOpen] = useState(false);
   const [isChatListOpen, setIsChatListOpen] = useState(false);
-  const [chatList, setChatList] = useState<ChatRoom[]>([
-    { chatRoomNo : 1, roomTitle: '개발팀 회의', chatType: 'group', unreadCount: 0, isActive: true, bellSetting: 'Y' },
-    { chatRoomNo : 2, roomTitle: '디자인팀 회의', chatType: 'group', unreadCount: 2, isActive: false, bellSetting: 'Y' },
-    ]);
+  // const [chatList, setChatList] = useState<ChatRoom[]>([
+  //   { chatRoomNo : 1, roomTitle: '개발팀 회의', chatType: 'group', unreadCount: 0, isActive: true, bellSetting: 'Y' },
+  //   { chatRoomNo : 2, roomTitle: '디자인팀 회의', chatType: 'group', unreadCount: 2, isActive: false, bellSetting: 'Y' },
+  // ]);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSearchMemberOpen, setIsSearchMemberOpen] = useState(false);
   const [searchChatType, setSearchChatType] = useState<string>("");
@@ -59,28 +56,31 @@ const Chat = () => {
   const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isAlarmListOpen, setIsAlarmListOpen] = useState(false);
-
-  const [myName] = useState("김젤리");
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [chatList, setChatList] = useState<ChatRoom[]>([]);
 
   const toggleSearch = () => {
     setIsSearchVisible((prev) => !prev);
   };
 
-  const handleProfileClick = (name: string) => {
-    if (name === myName) {
-      setIsMyInfoModalOpen(true);
+  const handleProfileClick = (member: Member) => {  
+    if (member.userNo === loggedInUser.userNo) {
+      setIsMyInfoModalOpen(true); // 로그인한 사용자 (나) myinfo열기
     } else {
-      setSelectedMemberName(name);
-      setIsInfoModalOpen(true);
+      setSelectedMember(member);
+      setIsInfoModalOpen(true); // 다른 사용자면 memberinfo 열기
     }
   };
 
-  const closeInfoModal = () => setIsInfoModalOpen(false);
+  const closeInfoModal = () => {
+    setIsInfoModalOpen(false);
+    setSelectedMember(null); // 모달 닫을 때 초기화
+  };
+
   const closeMyInfoModal = () => setIsMyInfoModalOpen(false);
   const closeNoticeChat = () => setIsNoticeOpen(false);
 
   const openNoticeChat = () => setIsNoticeOpen(true);
-
 
   const handleChatClick = () => {
     setIsInfoModalOpen(false);
@@ -104,12 +104,15 @@ const Chat = () => {
     console.log('Chat.tsx - invitePeople 실행됨!', chatType, roomTitle);
 
     setIsCreatingChat(false);
+    setIsInfoModalOpen(false); // MemberInfo 모달이 열리지 않도록 설정
+    setIsMyInfoModalOpen(false); // MyInfo 모달이 열리지 않도록 설정
+    setSelectedMember(null); // ✅ selectedMember 초기화 추가
 
     setTimeout(() => {
       setIsSearchMemberOpen(true);
       setSearchChatType(chatType);
       setsearchRoomTitle(roomTitle);
-      console.log('Chat.tsx - setIsSearchMemberOpen(true) 설정 완료');
+      
     }, 0);
   };
 
@@ -132,7 +135,6 @@ const Chat = () => {
     setIsSearchMemberOpen(false);
     setIsChatListOpen(true);
   };
-  
 
   const handleProfileClickIcon = () => {
     setIsInfoModalOpen(false);
@@ -175,26 +177,24 @@ const Chat = () => {
     setIsCreateOrgOpen(false);
     setIsAlarmListOpen(true);
   }
-  
 
   if (!isOpen) return null;
 
   return (
     <div className="chat-modal-overlay">
       <div className="chat-modal-content">
-        {isMyInfoModalOpen ? (
-          <InfoContainer>
-            <MyInfo
-              onClose={closeMyInfoModal}
-              myinfo={{
-                name: "김젤리",
-                dept: "개발팀",
-                position: "사원",
-                email: "kimjelly@example.com",
-                phone: "010-1234-5678",
-                extension: "1234",
-              }}
+        { isSearchMemberOpen ? ( // ✅ 우선순위 맨 위로 변경!
+          <>
+            <SearchMember 
+              chatType={searchChatType} 
+              roomTitle={searchRoomTitle}
+              member={selectedMember ?? defaultMember} // ✅ 이제 오류 없음!
+              onComplete={handleChatRoomComplete} 
             />
+          </>
+        ) : isMyInfoModalOpen ? (
+         <InfoContainer> 
+             <MyInfo myinfo={loggedInUser}  onClose={closeMyInfoModal} />
           </InfoContainer>
         ) : selectedChatRoom ? (
           <GroupChat
@@ -217,15 +217,18 @@ const Chat = () => {
               );
             }}
             currentMembers={[  // ⬅️ 이런 식으로 실제 멤버들 내려주는 상태도 필요
-              { userNo: 1, userName: '홍길동', positionNo: 9, deptNo: 3 },
-              { userNo: 2, userName: '김철수', positionNo: 7, deptNo: 3 },
-              { userNo: 3, userName: '나(본인)',positionNo: 8,deptNo: 3 },
+              // { userNo: 1, userName: '홍길동', positionNo: 9, deptName: 3 },
+              // { userNo: 2, userName: '김철수', positionNo: 7, deptNo: 3 },
+              // { userNo: 3, userName: '나(본인)',positionNo: 8,deptNo: 3 },
             ]}
           />
 
           ) : isInfoModalOpen ? (
           <InfoContainer>
-            <MemberInfo onClose={closeInfoModal} member={{ name: selectedMemberName, dept: "", position: "", email: "", phone: "", extension: "" }} />
+            <MemberInfo 
+              member={selectedMember ?? defaultMember}
+              onClose={closeInfoModal}
+            />
           </InfoContainer>
         ) : isNoticeOpen ? (
           <NoticeChat onClose={closeNoticeChat} 
@@ -234,14 +237,6 @@ const Chat = () => {
           //     setNoticeChatMembers((prev) => [...prev, ...newMembers]);
           //   }} // 백엔드 연결시 풀기
           />
-        ) : isSearchMemberOpen ? ( // ✅ 우선순위 맨 위로 변경!
-          <>
-            <SearchMember
-              chatType={searchChatType}
-              roomTitle={searchRoomTitle}
-              onComplete={handleChatRoomComplete}
-            />
-          </>
         ) : isCreateOrgOpen ? (
           <CreateOrg
           onClose={() => setIsCreateOrgOpen(false)}
@@ -306,7 +301,7 @@ const Chat = () => {
                 </div>
               </div>
 
-              {isSearchVisible && <SearchClick />}
+              {isSearchVisible && <SearchClick onProfileClick={handleProfileClick} />}
 
               <ChatMain selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onProfileClick={handleProfileClick} onNoticeClick={openNoticeChat} />
             </div>

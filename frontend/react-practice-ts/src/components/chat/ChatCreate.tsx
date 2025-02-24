@@ -2,6 +2,8 @@ import { useState } from 'react';
 import chatIcon from "../../assets/Images/chat/chatBiggest.png";
 import group from "../../assets/Images/chat/groupChat.png";
 import searchIcon from "../../assets/Images/chat/search.png"; // 🔍 검색 아이콘 이미지 임포트 (파일경로는 네 프로젝트에 맞게 수정해)
+import { useEffect } from "react";
+
 
 const ChatCreate = ({
   invitePeople,
@@ -14,14 +16,34 @@ const ChatCreate = ({
   const [roomTitle, setRoomTitle] = useState('');
   
 
+  // const handleInviteClick = () => {
+  //   if (!chatType) {
+  //     alert('채팅 종류를 선택해주세요!');
+  //     return;
+  //   }
+  //   console.log("ChatCreate - handleInviteClick 실행됨!", chatType, roomTitle); // ✅ 확인용 로그 추가
+  //   invitePeople(chatType, roomTitle);
+  // };
+
   const handleInviteClick = () => {
     if (!chatType) {
       alert('채팅 종류를 선택해주세요!');
       return;
     }
-    console.log("ChatCreate - handleInviteClick 실행됨!", chatType, roomTitle); // ✅ 확인용 로그 추가
+  
+    console.log("🔥 handleInviteClick 실행됨!");
+    console.log("✅ 선택된 chatType:", chatType); // chatType 값 확인
+    console.log("✅ 입력된 roomTitle:", roomTitle); // roomTitle 값 확인
+  
     invitePeople(chatType, roomTitle);
   };
+
+    useEffect(() => {
+      console.log("✅ chatType 변경됨:", chatType);
+    }, [chatType]); // chatType이 변경될 때마다 실행
+  
+
+    
 
   return (
     <div
@@ -105,7 +127,8 @@ const ChatCreate = ({
 
       {/* 1:1 채팅 */}
       <div
-        onClick={() => setChatType('1:1')}
+        onClick={() => {console.log("🔥 1:1 채팅 버튼 클릭됨");
+          setChatType('1:1')}}
         style={{
           position: "absolute",
           top: "60px",
