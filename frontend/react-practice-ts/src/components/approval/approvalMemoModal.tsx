@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-export const ApprovalMemoModal = ({ onClose, onSave }) => {
+export const ApprovalMemoModal = ({ onClose, onSave, approvalNo }) => {
+
+  console.log("footer에서 받은 approvalNo값:", approvalNo);
+  
   const [memoContent, setMemocontent] = useState("");
   const navigate = useNavigate();
   return (
@@ -107,9 +110,13 @@ export const ApprovalMemoModal = ({ onClose, onSave }) => {
             cursor: "pointer",
             marginTop: "15px",
           }}
-          onClick={() =>{
-            onSave(memoContent);// 저장 버튼 클릭 시 부모 컴포넌트로 의견 전달
-            navigate('/ApprovalCompletePage')}}
+          onClick={() => {
+            onSave(memoContent); // 부모 컴포넌트로 의견 전달
+            navigate(`/ApprovalCompletePage/${approvalNo}`);
+            setTimeout(() => {
+              window.location.reload(); // 이동 후 새로고침
+            });
+          }}
         >
           저장
         </button>

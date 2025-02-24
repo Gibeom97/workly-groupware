@@ -1,6 +1,8 @@
 package com.workly.final_project.approval.model.vo;
 
-import java.util.Date;
+import java.sql.Timestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +21,12 @@ public class ApprovalLine {
 	private String type;
 	private int status;
 	private String confirmStatus;
-	private Date approvalDate;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+	private Timestamp approvalDate;
 	private String approvalLineType;
 
+	private String userName;
+	private String deptName;
+	private String positionName;
 }

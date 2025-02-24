@@ -6,12 +6,13 @@ interface Employee {
   USER_NAME: string;
   DEPT_NAME: string;
   POSITION_NAME: string;
+  type: '참조자';
+  approvalLevel: 1;
 }
 
-const ApprovalCCModal = ({ onClose }) => {
+const ApprovalCCModal = ({ onClose, selectedCCUsers, setSelectedCCUsers }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const[selectedUsers, setSelectedUsers] = useState([]);
 
 
   // ✅ 백엔드에서 직원 목록 가져오기 (axios 사용)
@@ -32,16 +33,32 @@ const ApprovalCCModal = ({ onClose }) => {
   );
 
   // 직원 선택
-  const handleSelect = (employee) => {
-    if(!selectedUsers.some((user) => user.USER_NO === employee.USER_NO)){
-      setSelectedUsers([...selectedUsers, employee]);
+  const handleSelect = (employee: Employee) => {
+    if(!selectedCCUsers.some((user) => user.USER_NO === employee.USER_NO)){
+      const updatedUsers = [...selectedCCUsers, employee];
+      setSelectedCCUsers(updatedUsers);
     }
   };
   
-  // 선택한 직원 제거거
-  const handleRemove = (userNo) => {
-    setSelectedUsers(selectedUsers.filter((user) => user.USER_NO !== userNo));
+  // 선택한 직원 제거
+  const handleRemove = (userNo: number) => {
+    const updatedUsers = selectedCCUsers.filter((user) => user.USER_NO !== userNo);
+    setSelectedCCUsers(updatedUsers);
   };
+
+    // 참조자 저장 후 ApprovalWriteHeader에 전달
+    const handleSave = () => {
+      console.log("✅ 참조자 저장 버튼 클릭됨. 최신 selectedUsers:", JSON.stringify(selectedCCUsers));
+
+      setSelectedCCUsers([...selectedCCUsers]); // ✅ 부모 컴포넌트 상태 업데이트
+      console.log("🚀 setSelectedCCUsers 실행 완료! 전달 값:", selectedCCUsers);
+      onClose(); // ✅ 모달 닫기
+
+        // 🔥 상태가 업데이트된 후 값을 확인하기 위해 setTimeout 사용
+  setTimeout(() => {
+    console.log("🔥 저장 후 selectedCCUsers 확인:", selectedCCUsers);
+  }, 500);
+    };
 
   return (
     <div style={modalOverlay}>
@@ -96,18 +113,21 @@ const ApprovalCCModal = ({ onClose }) => {
           {/* ✅ 선택된 사원 목록 */}
           <div style={selectedListContainer}>
             <ul style={selectedList}>
-              {selectedUsers.map((user, index) => (
+              {selectedCCUsers.map((user, index) => (
                 <li key={user.USER_NO} style={selectedItem}>
-                  {index + 1}. {user.USER_NAME}
-                  <button style={removeButton} onClick={() => handleRemove(user.USER_NO)}> - </button>
-                </li>
+                <span style={{ marginRight: "10px" }}>{index + 1}.</span>
+                <span style={{ marginRight: "15px" }}>{user.DEPT_NAME}</span>
+                <span style={{ marginRight: "15px" }}>{user.USER_NAME}</span>
+                <span style={{ marginRight: "15px" }}>{user.POSITION_NAME}</span>
+                <button style={removeButton} onClick={() => handleRemove(user.USER_NO)}> - </button>
+              </li>
               ))}
             </ul>
           </div>
         </div>
 
         {/* ✅ 저장 버튼 */}
-        <button style={saveButton}>참조 저장</button>
+        <button style={saveButton} onClick={handleSave}>참조 저장</button>
       </div>
     </div>
   );
@@ -183,6 +203,7 @@ const searchInput = {
 const contentContainer = {
   display: "flex",
   gap: "20px",
+  fontSize: "12px"
 };
 
 const listContainer = {
@@ -234,6 +255,7 @@ const selectedItem = {
   alignItems: "center",
   padding: "8px",
   borderBottom: "1px solid #ddd",
+  fontSize: "12px"
 };
 
 const removeButton = {
