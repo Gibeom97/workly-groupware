@@ -138,4 +138,9 @@ public class MemberServiceImpl implements MemberService {
 		return dao.checkAttachment(m);
 	}
 
+	@Override
+	public List<MemberDTO> selectModalMemberList() {
+		return dao.selectModalMemberList();
+	}
+
 }

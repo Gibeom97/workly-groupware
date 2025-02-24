@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -65,5 +66,58 @@ public class LeaveController {
 			error.put("msg", "연차 사용 내역을 조회할 수 없습니다.");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 		}
+	}
+	
+	@CrossOrigin("http://localhost:5173")
+	@GetMapping("/leaveDetail")
+	public List<AnnualHistoryDTO> selectLeaveDetail(
+			@RequestParam int userNo,
+			@RequestParam int year
+			) {
+		AnnualHistoryDTO history = AnnualHistoryDTO.builder()
+				  								   .annualLeave(AnnualLeave.builder()
+				  										   				   .userNo(userNo)
+				  										   				   .year(year)
+				  										   				   .build())
+				  								   .build();
+		log.debug("history: {}", history);
+		
+		List<AnnualHistoryDTO> list = service.selectLeaveDetail(history);
+		log.debug("list: {}", list);
+		
+		return list;
+	}
+	
+	@CrossOrigin("http://localhost:5173")
+	@PutMapping("/updateLeave")
+	public ResponseEntity<Map<String, Object>> updateLeave(
+			@RequestParam int userNo,
+			@RequestParam int year,
+			@RequestParam int updateLeave
+			) {
+		log.debug("userNo : {}", userNo);
+		log.debug("year : {}", year);
+		log.debug("updateLeave : {}", updateLeave);
+		
+		AnnualLeave leave = AnnualLeave.builder()
+									   .userNo(userNo)
+									   .year(year)
+									   .totalAnnualLeave(updateLeave)
+									   .build();
+		
+		int result = service.updateLeave(leave);
+		log.debug("result : {}", result);
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		
+		if(result > 0) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("msg", leave.getUserNo() + " 사원의 "+ year + "년 총 연차수를 "+ updateLeave + "일로 변경하였습니다.");
+			responseEntity = ResponseEntity.ok().body(map);
+		} else {
+			Map<String, Object> error = new HashMap<>();
+			error.put("msg", leave.getUserNo() + " 사원의 총 연차수 변경에 실패하였습니다.");
+			responseEntity =  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+		}
+		return responseEntity;
 	}
 }

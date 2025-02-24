@@ -36,5 +36,7 @@ public interface MemberDao {
 
 	int insertLeave(Member m);
 
+	List<MemberDTO> selectModalMemberList();
+
 
 }

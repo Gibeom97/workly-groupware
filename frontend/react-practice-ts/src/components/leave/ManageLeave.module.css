@@ -1,5 +1,5 @@
 .vacationPageContainer {
-    padding: 30px 0px;
+    padding: 30px 0px 0px;
 }
 
 .searchContainer {
@@ -16,7 +16,6 @@
     color: #202224;
     font-Size: 12px;
     font-Weight: 400;
-    opacity: 0.8;
     height: 100%;
     width: 100%;
     border-Radius: 20px;
@@ -61,6 +60,12 @@
     margin-bottom: 40px;
 }
 
+.tmpName {
+    font-size: 24px;
+    margin-bottom: 40px;
+    color: #666;
+}
+
 /* 부가 정보(부서, 직급) */
 .profileSubInfo {
     display: flex;
@@ -76,15 +81,22 @@
 }
 
 /* 연차 정보 */
-.annualLeaveContainer {
+.infoContainer {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 15px;
 }
 
 .annualLeaveLabel {
     color: #767676;
     font-size: 15px;
+    text-align: right;
+}
+
+.annualLeaveContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .usedLeaveCount {
@@ -116,12 +128,59 @@
     background-color: #126bfa;
 }
 
+.dateSection {
+    display:flex;
+    justify-content: flex-end;
+    margin: 20px 20px;
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+.button {
+    border: none;
+    background-color: white;
+    cursor: pointer;
+}
+
+.button:hover {
+    color: #3b82f6;
+    cursor: pointer;
+}
+
+.calendar {
+    display: none;
+}
+
+.date {
+    font-size: 20px;
+    color: #434343;
+}
+
+.date:hover {
+    color: #3b82f6;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
 /* 휴가 테이블 */
+.listContainer {
+    max-height: 350px;
+    overflow-Y: auto;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
     table-layout: fixed;
+}
+
+.stickyHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: white;
 }
 
 .thStyle {
@@ -144,8 +203,8 @@
     border-bottom: 1px solid #E0E0E0;
 }
 
-.thStyle:nth-child(1), .tdStyle:nth-child(1) { width: 10%; }
-.thStyle:nth-child(2), .tdStyle:nth-child(2) { width: 10%; } 
+.thStyle:nth-child(1), .tdStyle:nth-child(1) { width: 15%; }
+.thStyle:nth-child(2), .tdStyle:nth-child(2) { width: 15%; } 
 .thStyle:nth-child(3), .tdStyle:nth-child(3) { width: 20%; } 
 .thStyle:nth-child(4), .tdStyle:nth-child(4) { width: 20%; } 
 .thStyle:nth-child(5), .tdStyle:nth-child(5) { width: 15%; } 

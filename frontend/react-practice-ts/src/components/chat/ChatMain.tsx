@@ -8,8 +8,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
 import { addFavorite, removeFavorite } from "../../features/chatSlice";
 
-
-
 interface ChatMainProps {
   selectedStatus: string;
   setSelectedStatus: (status: string) => void;

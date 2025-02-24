@@ -89,6 +89,11 @@ public class MemberDaoImpl implements MemberDao {
 
 	@Override
 	public int checkAttachment(Member m) {
-		return session.selectOne("member.checkAttachment", m);
+		return session.selectOne("member.heckAttachment", m);
+	}
+
+	@Override
+	public List<MemberDTO> selectModalMemberList() {
+		return session.selectList("member.selectModalMemberList");
 	}
 }
