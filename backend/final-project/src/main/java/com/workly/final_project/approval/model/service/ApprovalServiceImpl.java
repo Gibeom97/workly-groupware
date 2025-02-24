@@ -4,12 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.approval.model.dao.ApprovalDao;
 import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.Approval;
+import com.workly.final_project.approval.model.vo.ApprovalAttachment;
+import com.workly.final_project.approval.model.vo.ApprovalLine;
+import com.workly.final_project.approval.model.vo.ApprovalMemo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +45,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     }
 
 	@Override
+	@Transactional
 	public List<Map<String, Object>> getDepartmentsWithEmployees() {
 		return approvalDao.getDepartmentsWithEmployees();
 	}
@@ -64,7 +69,31 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public Approval getApprovalByNo(int approvalNo) {
 	    return approvalDao.getApprovalByNo(approvalNo);
 	}
+  
+  @Override
+	public Approval getApprovalData(int approvalNo) {
+		return approvalDao.getApprovalData(approvalNo);
+	}
 
+	@Override
+	public List<ApprovalLine> getApprovalLine(int approvalNo) {
+		return approvalDao.getApprovalLine(approvalNo);
+	}
+
+	@Override
+	public List<ApprovalAttachment> getApprovalAttachmentByApprovalNo(int approvalNo) {
+		return approvalDao.getApprovalAttachmentByApprovalNo(approvalNo);
+	}
+
+	@Override
+	public List<ApprovalMemo> getApprovalMemo(int approvalNo, int userNo) {
+		return approvalDao.getApprovalMemo(approvalNo, userNo);
+	}
+
+	@Override
+	public Approval getApprovalWriteUser(int approvalNo) {
+		return approvalDao.getApprovalWriteUser(approvalNo);
+	}
 
 }
 

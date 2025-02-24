@@ -7,38 +7,43 @@ import { useState } from "react";
 import { Member } from "../../type/chatType";
 import AddMemberPanel from "./AddMemberPanel";
 
+
 const members: Member[] = [
-  { no: 1, name: '박솜이', position: '이사', team: '경영지원팀' },
-  { no: 2, name: '안관주', position: '이사', team: '경영지원팀' },
-  { no: 3, name: '임사윤', position: '부장', team: '경영지원팀' },
-  { no: 4, name: '김자수', position: '대리', team: '경영지원팀' },
-  { no: 5, name: '김예삐', position: '주임', team: '인사팀' },
-  { no: 6, name: '채소염', position: '주임', team: '인사팀' },
-  { no: 7, name: '최웡카', position: '부장', team: '인사팀' },
-  { no: 8, name: '김기밤', position: '대리', team: '인사팀' },
-  { no: 9, name: '김젤리', position: '사원', team: '인사팀' },
-  { no: 10, name: '이용휘', position: '주임', team: '인사팀' },
+  { userNo: 1, name: '박솜이', positionNo: 3, deptNo: 1 },
+  { userNo: 2, name: '안관주', positionNo: 3, deptNo: 1 },
+  { userNo: 3, name: '임사윤', positionNo: 4, deptNo: 1 },
+  { userNo: 4, name: '김자수', positionNo: 7, deptNo: 1 },
+  { userNo: 5, name: '김예삐', positionNo: 8, deptNo: 2 },
+  { userNo: 6, name: '채소염', positionNo: 8, deptNo: 2 },
+  { userNo: 7, name: '최웡카', positionNo: 4, deptNo: 2 },
+  { userNo: 8, name: '김기밤', positionNo: 7, deptNo: 2 },
+  { userNo: 9, name: '김젤리', positionNo: 9, deptNo: 2 },
+  { userNo: 10, name: '이용휘', positionNo: 8, deptNo: 2 },
 ];
 
+
 interface ChatRoom {
-  chatName: string;
-  chatType: string;
+  chatRoomNo: number; // 채팅방 번호
+  roomTitle: string;  // 채팅방 이름 (기존 chatName -> roomTitle)
   unreadCount?: number;
   isActive?: boolean;
-  isNotified: boolean;
+  bellSetting: 'Y' | 'N'; // 알림 설정 (기존 boolean → 'Y' / 'N'으로 변경)
+  createdChat?: string; // 생성일자 (백 붙이면 받을 가능성 있으니 여유롭게)
 }
 
 interface ChatMessage {
+  chatNo: number;
+  chatRoomNo: number; // 채팅방 번호 FK (만약 필요하면)
   userName: string;
   message: string;
-  chatNo: number;
-  lastReadChatNo: number;
   receivedDate: string;
   isMine: boolean;
+  lastReadChatNo?:number; 
 }
 
 interface UserChat {
   userNo: number;
+  chatRoomNo: number;
   lastReadChatNo: number;
 }
 
@@ -46,14 +51,14 @@ interface GroupChatProps {
   room: ChatRoom;
   messages: ChatMessage[];
   onClose: () => void;
-  onToggleAlarm: (chatName: string, isNotified: boolean) => void;
+  onToggleAlarm: (chatRoomNo: number, bellSetting: 'Y' | 'N') => void;
   currentMembers: Member[];
 }
 
 const userChatList: UserChat[] = [
-  { userNo: 1, lastReadChatNo: 3 },
-  { userNo: 2, lastReadChatNo: 2 },
-  { userNo: 3, lastReadChatNo: 1 },
+  { userNo: 1, chatRoomNo: 1, lastReadChatNo: 3 },
+  { userNo: 2, chatRoomNo: 1, lastReadChatNo: 2 },
+  { userNo: 3, chatRoomNo: 1, lastReadChatNo: 1 },
 ];
 
 const GroupChat = ({
@@ -74,7 +79,7 @@ const GroupChat = ({
 
   const handleAddMemberConfirm = (newMembers: Member[]) => {
     const filteredNewMembers = newMembers.filter(
-      (newMember) => !chatMembers.some((member) => member.no === newMember.no)
+      (newMember) => !chatMembers.some((member) => member.userNo === newMember.userNo )
     );
 
     if (filteredNewMembers.length === 0) {
@@ -93,6 +98,7 @@ const GroupChat = ({
       lastReadChatNo: 0,
       receivedDate: new Date().toLocaleTimeString(),
       isMine: false,
+      chatRoomNo: 1,
     }));
 
     setChatMessages((prevMessages) => [...prevMessages, ...inviteMessages]);
@@ -100,13 +106,16 @@ const GroupChat = ({
   };
 
   const handleBellClick = () => {
-    const action = room.isNotified ? '해제' : '설정';
+    const newBellSetting = room.bellSetting === 'Y' ? 'N' : 'Y';
+    const action = newBellSetting === 'Y' ? '설정' : '해제';
+  
     const confirmResult = window.confirm(`알림을 ${action}하시겠습니까?`);
     if (confirmResult) {
-      onToggleAlarm(room.chatName, !room.isNotified);
+      onToggleAlarm(room.chatRoomNo, newBellSetting);
       alert(`알림이 ${action}되었습니다.`);
     }
   };
+  
 
   // 여기 나가기 백엔드랑 연동해서 수정하기 
   //const handle
@@ -162,7 +171,8 @@ const GroupChat = ({
           }}>
             <img className="chat-profile" style={{ width: '22px', height: '22px', objectFit: 'cover' }} src={profile} alt="profile" />
           </div> 
-          {room.chatName}
+          {room.roomTitle} 
+          {/* 채팅방 이름임 이거 현재 안나옴 바꾸기~! */}
         </div>
       </div>
 

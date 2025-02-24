@@ -29,6 +29,7 @@
 .pageButton:hover {
     border: 1px solid #3b82f6;;
     color: black;
+    transition: 0.3s;
 }
 
 .activePage {

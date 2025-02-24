@@ -8,12 +8,14 @@ let initialState;
 
 if (storedUser) {
     const parsed = JSON.parse(storedUser);
-    const { member, department, position, attachment } = parsed;
+    const { member, department, annualLeave, position, attachment } = parsed;
 
     initialState = {
         userNo: member?.userNo || 0,
         userName: member?.userName || "",
         statusType: member?.statusType || "",
+        totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
+        usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
         deptName: department?.deptName || "",
         positionName: position?.positionName || "",
         changeName: attachment?.changeName || "",
@@ -25,6 +27,8 @@ if (storedUser) {
         userNo: 0,
         userName: "",
         statusType: "",
+        totalAnnualLeave: 0,
+        usedAnnualLeave: 0,
         deptName: "",
         positionName: "",
         changeName: "",
@@ -36,13 +40,15 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         loginUser(state, data) {
-            const { member, department, position, attachment } = data.payload;
+            const { member, department, annualLeave, position, attachment } = data.payload;
             localStorage.setItem("user", JSON.stringify(data.payload));
 
             return {
                 userNo: member.userNo || 0,
                 userName: member?.userName || "",
                 statusType: member?.statusType || "",
+                totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
+                usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
                 deptName: department?.deptName || "",
                 positionName: position?.positionName || "",
                 changeName: attachment?.changeName || "",
@@ -57,6 +63,8 @@ const userSlice = createSlice({
                 userNo: 0,
                 userName: "",
                 statusType: "",
+                totalAnnualLeave : 0,
+                usedAnnualLeave : 0,
                 deptName: "",
                 positionName: "",
                 changeName: "",

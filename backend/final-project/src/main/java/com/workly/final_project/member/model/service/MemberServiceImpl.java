@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.workly.final_project.common.model.vo.Attachment;
 import com.workly.final_project.common.model.vo.PageInfo;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberServiceImpl implements MemberService {
 	
 	private final MemberDao dao;
@@ -38,9 +40,19 @@ public class MemberServiceImpl implements MemberService {
 		return dao.selectMemberList(pi, filter);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int insertMember(Member m) {
-		return dao.insertMember(m);
+		int result = dao.insertMember(m);
+		log.debug("m: {}", m);
+		
+		result = dao.insertLeave(m);
+	    if(result == 0) {
+	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	        return 0;
+	    }
+		
+		return result; 
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
@@ -48,11 +60,18 @@ public class MemberServiceImpl implements MemberService {
 	public int insertMember(Member m, Attachment at) {
 		int result = dao.insertMember(m);
 		
-		if(result > 0) {
-			at.setRefUserNo(m.getUserNo());
-			
-			result = dao.insertAttachment(at); 
+		result = dao.insertLeave(m);
+		if(result == 0) {
+		    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+		    return 0;
 		}
+		
+		at.setRefUserNo(m.getUserNo());
+		result = dao.insertAttachment(at);
+	    if(result == 0) {
+	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	        return 0;
+	    }
 		return result;
 	}
 
@@ -80,19 +99,24 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public int updateMember(Member m, Attachment at) {
 		int result = dao.deleteAttachment(m);
-		
-		if(result > 0) {
-			result = dao.insertAttachment(at);
-			
-			if(result > 0) result = dao.updateMember(m);
-		}
+	    if(result == 0) {
+	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	        return 0;
+	    }
+	    
+		result = dao.insertAttachment(at);
+	    if(result == 0) {
+	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	        return 0;
+	    }
+	    
+		result = dao.updateMember(m);
+	    if(result == 0) {
+	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	        return 0;
+	    }
 		
 		return result;
-	}
-
-	@Override
-	public int checkAttachment(Member m) {
-		return dao.checkAttachment(m);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -100,8 +124,23 @@ public class MemberServiceImpl implements MemberService {
 	public int updateMember(Attachment at, Member m) {
 		int result = dao.insertAttachment(at);
 		
-		if(result > 0) result = dao.updateMember(m);
+		result = dao.updateMember(m);
+	    if(result == 0) {
+	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+	        return 0;
+	    }
 		
 		return result;
 	}
+	
+	@Override
+	public int checkAttachment(Member m) {
+		return dao.checkAttachment(m);
+	}
+
+	@Override
+	public List<MemberDTO> selectModalMemberList() {
+		return dao.selectModalMemberList();
+	}
+
 }

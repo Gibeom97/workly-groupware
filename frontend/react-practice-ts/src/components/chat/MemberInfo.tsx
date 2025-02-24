@@ -2,22 +2,30 @@ import profileBig from "../../assets/Images/chat/profileBig.png";
 import chatBig from "../../assets/Images/chat/chatBig.png";
 import bell from "../../assets/Images/chat/bell.png";
 import starBig from "../../assets/Images/chat/starBig.png";
+import { defaultMember } from "../../type/chatType";
 
-type Member = {
-  name: string;
-  dept: string;
-  position: string;
-  email: string;
-  phone: string;
-  extension: string;
-};
+
+
+interface Member {
+  userNo: number;     // 고유번호
+  userName: string;       // 이름
+  positionNo?: number; // 직급번호
+  deptNo?: number;     // 부서번호
+  status?:string;// 상태값
+  deptName: string;
+  positionName: string;
+  email?: string;
+  phone?: string;
+  extension?: string;
+}
 
 type MemberInfoProps = {
-  member: Member;
+  member?: Member;
   onClose: () => void; // 닫기 버튼 이벤트 핸들러 추가
+  chatType?: string;
 };
 
-const MemberInfo = ({ member, onClose }: MemberInfoProps) => {
+const MemberInfo = ({ member= defaultMember, onClose }: MemberInfoProps) => {
   return (
     <div
       className="meminfo"
@@ -65,9 +73,9 @@ const MemberInfo = ({ member, onClose }: MemberInfoProps) => {
 
       <div style={{ marginTop: 35, paddingLeft: 0, paddingRight: 16}}>
         {[
-          { label: "이름", value: member.name },
-          { label: "부서", value: member.dept},
-          { label: "직급", value: member.position },
+          { label: "이름", value: member.userName },
+          { label: "부서", value: member.deptName},
+          { label: "직급", value: member.positionName },
           { label: "이메일", value: member.email },
           { label: "연락처", value: member.phone },
           { label: "내선번호", value: member.extension },

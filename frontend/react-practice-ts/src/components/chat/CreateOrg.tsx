@@ -45,10 +45,10 @@ const CreateOrg = ({ onComplete, onClose }: CreateOrgProps) => {
   };
 
   return isSearching ? (
-    <OrgMemberPlus
+        <OrgMemberPlus
       deptName={deptName}
       onComplete={(result) => {
-        handleMembersComplete(result.selectedMembers);
+        handleMembersComplete(result.selectedMembers as Member[]);
       }}
     />
   ) : (

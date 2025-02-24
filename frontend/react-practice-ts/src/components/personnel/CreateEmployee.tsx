@@ -53,6 +53,7 @@ const CreateEmployee = () => {
             ...member, 
             [e.target.name]: e.target.value 
             });
+        console.log(member);
     };
 
     const handleInsert = async (e: FormEvent) => {
@@ -103,20 +104,41 @@ const CreateEmployee = () => {
             <div className={styles.formContainer}>
                 <div className={styles.row}>
                     <label className={styles.label}>부서 / 직급</label>
-                    <DeptPositionSelect positionNo={0} deptNo={0} handleChange={handleChange}/>
+                    <DeptPositionSelect positionNo={member.positionNo} deptNo={member.deptNo} handleChange={handleChange}/>
                 </div>
-                <div className={styles.row}><label className={styles.label}>이름</label><input type="text" name="userName" className={styles.input} onChange={handleChange} required/></div>
-                <div className={styles.row}><label className={styles.label}>비밀번호</label><input type="password" name="userPwd" className={`${styles.input} ${styles.pwInput}`} onChange={handleChange} required /></div>
-                <div className={styles.row}><label className={styles.label}>연락처</label><input type="number" name="phone" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" required/></div>
+                <div className={styles.row}>
+                    <label className={styles.label}>이름</label>
+                    <input type="text" name="userName" className={styles.input} onChange={handleChange} required/>
+                </div>
+                <div className={styles.row}>
+                    <label className={styles.label}>비밀번호</label>
+                    <input type="password" name="userPwd" className={`${styles.input} ${styles.pwInput}`} onChange={handleChange} required />
+                </div>
+                <div className={styles.row}>
+                    <label className={styles.label}>연락처</label>
+                    <input type="number" name="phone" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" required/>
+                </div>
                 <div className={styles.row} >
                     <label className={styles.label}>주소</label>
                     <input type="text" name="address" value={addressApi} className={styles.input} onChange={handleChange} readOnly required/>
                     <AddressForm setAddressApi={setAddressApi}/>
                 </div>
-                <div className={styles.row}><label className={styles.label}></label><input type="text" name="addressDetail" className={styles.input} placeholder="상세 주소" onChange={handleChange} required/></div>
-                <div className={styles.row}><label className={styles.label}>이메일</label><input type="email" name="email" className={styles.input} onChange={handleChange} required/></div>
-                <div className={styles.row}><label className={styles.label}>내선번호</label><input type="number" name="extension" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" /></div>
-                <div className={styles.row}><label className={styles.label}>입사일</label><input type="date" name="hireDate" className={styles.input} onChange={handleChange} required/></div>
+                <div className={styles.row}>
+                    <label className={styles.label}></label>
+                    <input type="text" name="addressDetail" className={styles.input} placeholder="상세 주소" onChange={handleChange} required/>
+                </div>
+                <div className={styles.row}>
+                    <label className={styles.label}>이메일</label>
+                    <input type="email" name="email" className={styles.input} onChange={handleChange} required pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" />
+                </div>
+                <div className={styles.row}>
+                    <label className={styles.label}>내선번호</label>
+                    <input type="number" name="extension" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)"/>
+                </div>
+                <div className={styles.row}>
+                    <label className={styles.label}>입사일</label>
+                    <input type="date" name="hireDate" className={styles.input} onChange={handleChange} required/>
+                </div>
                 <div className={styles.buttonGroup}>
                     <button type="submit" className={styles.submitButton}>생성</button>
                     <button type="button" className={styles.cancleButton} onClick={() => navigate("/personnel")}>취소</button>

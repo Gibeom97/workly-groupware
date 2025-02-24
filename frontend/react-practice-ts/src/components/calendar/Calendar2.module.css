@@ -50,14 +50,24 @@
   transition: all 0.2s ease-in-out;
 }
 
-/* ✅ 일정(이벤트) 글씨 색상 */
+/* ✅ FullCalendar 일정 제목 중앙 정렬 */
 .calendarContainer .customEvent {
-  padding: 6px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: bold;
-  text-align: center;
-  color: white;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+/* ✅ FullCalendar 일정 제목 스타일 */
+.calendarContainer .customEventTitle {
+  font-weight: bold !important;
+  color: white !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* ✅ 일정 호버 효과 */

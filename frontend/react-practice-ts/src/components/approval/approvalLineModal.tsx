@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ApprovalFavoriteLineModal from "./approvalFavoriteLineModal";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import { groupBy } from "lodash";
 
 // ✅ 데이터 타입 정의 (TypeScript 적용)
 interface Employee {
@@ -11,8 +13,7 @@ interface Employee {
   USER_NAME: string;
   approvalType: string;
   type: '결재자';
-  level: number;
-
+  approvalLevel: number;
 }
 
 const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
@@ -22,6 +23,51 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
   const [showFavoriteModal, setShowFavoriteModal] = useState(false);
   const [favoriteName, setFavoriteName] = useState(""); // 즐겨찾기 명
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [refresh, setRefresh] = useState(false); //새로고침 트리거
+  const refreshFavoritList = () => {
+    setRefresh(prev => !prev);
+  }
+
+const selectFavoriteForApprovalLine = (favorite: { name: string; employees: Employee[] }) => {
+  const updatedEmployees = favorite.employees.map(emp => ({
+    ...emp,
+    USER_NO: emp.USER_NO,
+    approvalLineType: emp.approvalType// 해당 리스트 타입 유지
+  }));
+  setApprovalLine(updatedEmployees); // 선택한 즐겨찾기 내의 결재자 목록으로 결재라인 교체
+}
+
+// Redux에서 user 정보 가져오기
+const userNo = useSelector((state: any) => state.user.userNo);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8003/workly/api/approval/getFavoriteLines/${userNo}`)
+         .then((response) => {
+
+          // 데이터를 FAVORITE_NAME 기준으로 그룹화
+          const groupedFavorites = groupBy(response.data, "FAVORITE_NAME");
+
+          // 백엔드에서 받은 데이터를 적절한 형식으로 변환
+          const formattedFavorites = Object.keys(groupedFavorites).map((favName) => ({
+            name: favName, // 즐겨찾기 이름
+            employees: groupedFavorites[favName].map((emp) => ({
+              USER_NO : emp.USER_NO,
+              USER_NAME: emp.USER_NAME,
+              DEPT_NAME: emp.DEPT_NAME,
+              POSITION_NAME: emp.POSITION_NAME,
+              approvalType: emp.APPROVAL_TYPE,
+              type: '결재자',
+              approvalLevel: emp.LEVEL,
+              approvalLineType: emp.APPROVAL_TYPE,
+            })),
+          }));
+
+          console.log("즐겨찾기 선택 후 결재라인:", formattedFavorites); // ✅ 확인용 로그
+
+          setFavoriteLine(formattedFavorites); // 상태 업데이트
+         })
+         .catch((error) => console.error("즐겨찾기 가져오기 실패:", error));
+  }, [userNo, refresh]); // userNo가 변경될때마다 실행
 
   // ✅ 백엔드에서 직원 목록 가져오기 (axios 사용)
   useEffect(() => {
@@ -53,27 +99,34 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
   }
 
   // 즐겨찾기 삭제
-  const removeFavoriteLine = (index: number) => {
-    setFavoriteLine(favoriteLine.filter((_, i) => i !== index));
+  const removeFavoriteLine = (favoriteName: string) => {
+
+    axios.delete(`http://localhost:8003/workly/api/approval/deleteFavoriteLine`,{
+      params: {
+        userNo,
+        favoriteName: encodeURIComponent(favoriteName)
+      }
+    })
+    .then(() => {
+      console.log(`'${favoriteName}' 즐겨찾기 삭제 완료`);
+      alert("즐겨찾기 삭제 완료");
+      refreshFavoritList(); // 삭제 후 목록 새로고침
+    })
+    .catch((error) => {
+      console.log("즐겨찾기 삭제 실패:", error);
+      alert("삭제에 실패했습니다.");
+    });
   };
     
-
-  const addFavoriteToApprovalLine = (favorite: { name: string; employees: Employee[] }) => {
-    // 기존 결재자 리스트에 즐겨찾기 결재자 추가 (중복 방지)
-    const newApprovalLine = [...approvalLine];
-  
-    favorite.employees.forEach(emp => {
-      if (!newApprovalLine.some(existingEmp => existingEmp.USER_NAME === emp.USER_NAME)) {
-        newApprovalLine.push(emp);
-      }
-    });
-    setApprovalLine(newApprovalLine);
-  };
-
   const handleSaveApprovalLine = () => {
+    console.log("결재라인 저장 전 데이터:",  approvalLine);
     setApprovalData((prevData) => ({
       ...prevData,
-      approvalLine: approvalLine, // ✅ approvalData 내부에 approvalLine 속성 추가
+      approvalLine: approvalLine.map(person => ({
+        ...person,
+        USER_NO: person.USER_NO,
+        approvalLineType: person.approvalType
+      })), // ✅ approvalData 내부에 approvalLine 속성 추가
     }));
     onClose();
   };
@@ -194,7 +247,7 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
                 <tr>
                 <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>부서</th>
                 <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>사원</th>
-                <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>직위</th>
+                <th style={{ borderBottom: "2px solid #979797", padding: "6px", width: "50%" }}>직급</th>
                 </tr>
             </thead>
              <tbody>
@@ -211,7 +264,7 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
                         POSITION_NAME: emp.POSITION_NAME,
                         approvalType: "승인", // 기본 타입 설정
                         type: '결재자',
-                        level: approvalLine.length + 1, // ✅ 레벨값 자동 부여
+                        approvalLevel: approvalLine.length + 1, // ✅ 레벨값 자동 부여
                         USER_NO: emp.USER_NO,
                         }]);
                       }
@@ -253,25 +306,29 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
           >
             <ul style={{ listStyle: "none", padding: 0, fontSize: 11 }}>
               {favoriteLine.map((fav, index) => (
-                <li key={index} 
+                <li key={fav.name || index} 
                   style={{
                     display: "flex",
                     flexDirection: "column", // ✅ 세로 정렬
                     borderBottom: "1px solid #ddd",
                     paddingBottom: "6px",
                     marginBottom: "6px",
+                    cursor: "pointer",
                   }}
+
+                  onClick={() => selectFavoriteForApprovalLine(fav)} // 클릭 시 해당 즐겨찾기 리스트를 결재라인으로 교체 
+
                 >
                   <strong>{fav.name}</strong>
                   <ul style={{ paddingLeft: "10px", marginTop: "4px"}}>
-                    {fav.employees.map((emp, empIndex) => (
-                      <li key={empIndex}>
+                    {(fav.employees || []).map((emp, empIndex) => (
+                      <li key={emp.USER_NO || empIndex}>
                         {emp.USER_NAME} ({emp.DEPT_NAME} - {emp.POSITION_NAME})
                       </li>
                     ))}
                   </ul>
                   <button
-                    onClick={() => setFavoriteLine(favoriteLine.filter((_, i) => i !== index))}
+                    onClick={() => removeFavoriteLine(fav.name)} // 즐겨찾기 삭제 호출
                     style={{
                       border: "none",
                       background: "transparent",
@@ -397,17 +454,20 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
               {/* 즐겨찾기 추가 버튼 */}
               <button
               onClick={() => setShowFavoriteModal(true)}
+              disabled={approvalLine.length === 0} // 결재라인이 없으면 버튼 비활성화
               style={{
                 width: "79%",
                 padding: 5,
-                border: "2px solid #4880FF",
+                border: approvalLine.length === 0 ? "2px solid gray" : "2px solid #4880FF", // 비활성화 시 회색
                 borderRadius: 14,
-                background: "white",
+                background: approvalLine.length === 0 ? "#ccc" : "white", // 비활성화 시 배경색 변경
                 fontSize: 12,
                 fontWeight: 500,
-                cursor: "pointer",
+                cursor: approvalLine.length === 0 ? "not-allowed" : "pointer", // 비활성화 시 클릭 방지
                 marginLeft: "40px",
                 marginTop: "40px",
+                color: approvalLine.length === 0 ? "#888" : "black", // 비활성화 시 글씨색 변경
+                
               }}
             >
               즐겨찾기 추가
@@ -441,6 +501,9 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
         favoriteName={favoriteName}
         setFavoriteName={setFavoriteName}
         saveFavoriteLine={saveFavoriteLine}
+        approvalLines={approvalLine}
+        refreshFavoriteList={refreshFavoritList}
+        userNo={userNo}
         />
       )}
       </div>

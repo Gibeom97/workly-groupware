@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.workly.final_project.common.model.vo.PageInfo;
+import com.workly.final_project.common.model.vo.PageRow;
 
 public class Util {
 	
@@ -68,5 +69,16 @@ public class Util {
 		PageInfo pi = new PageInfo(listCount, currentPage, pageLimit, contentsLimit, startPage, endPage, maxPage);
 		
 		return pi;
+	}
+	
+	public static PageRow pagerow(PageInfo pi) {
+		int startRow = (pi.getCurrentPage() - 1) * pi.getContentsLimit() + 1;
+		int endRow = startRow + pi.getContentsLimit() - 1;
+		
+		PageRow pr = new PageRow();
+		pr.setStartRow(startRow);
+		pr.setEndRow(endRow);
+		
+		return pr;
 	}
 }

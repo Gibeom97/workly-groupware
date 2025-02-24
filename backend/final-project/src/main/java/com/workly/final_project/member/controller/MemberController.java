@@ -45,6 +45,7 @@ public class MemberController {
 	@PostMapping("/login")
 	public ResponseEntity<?> login( // 로그인 성공, 실패 시 반환타입 다르므로 제네릭 와일드카드로 설정 
 			@RequestBody Member m) {
+		log.debug("m : {}", m);
 		MemberDTO loginMember= service.loginMember(m);
 		log.debug("loginMember: {}", loginMember);
 		
@@ -55,7 +56,7 @@ public class MemberController {
 			error.put("msg", "계정 정보가 일치하지 않습니다.");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 		}
-	}
+	}	
 	
 	@CrossOrigin("http://localhost:5173")
 	@GetMapping("/personnel")
@@ -89,8 +90,6 @@ public class MemberController {
 			@RequestPart("member") Member m,
 			@RequestPart(value = "fileImg", required = false) MultipartFile fileImg
 			) {
-		log.debug("m : {}", m);
-		
 		String serverPath = System.getProperty("user.dir") + "/src/main/resources/static/uploads/profile/";
 		
 		ResponseEntity<Map<String, Object>> responseEntity = null;
@@ -201,5 +200,11 @@ public class MemberController {
 		return responseEntity;
 	}
 	
+	@CrossOrigin("http://localhost:5173")
+	@GetMapping("/memberSearch")
+	public List<MemberDTO> selectModalMemberList() {
+		return service.selectModalMemberList();
+	}
+
 }
 

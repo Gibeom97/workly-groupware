@@ -3,16 +3,21 @@ import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import { combineReducers } from "redux"
 import storage from "redux-persist/lib/storage";
 import userReducer from "./features/userSlice";
+import chatReducer from "./features/chatSlice";
 
 const persistConfig = {
     key: "root", // localStorage에 저장
     storage,
-    whitelist: ["user"], // rootReducer 중 user만 localStorage에 저장
+    whitelist: ["user","chat"], // rootReducer 중 user만 localStorage에 저장
 };
 
+
 const rootReducer = combineReducers({
-    user : persistReducer(persistConfig, userReducer),
+    user: persistReducer(persistConfig, userReducer),
+    chat: persistReducer(persistConfig, chatReducer), 
 });
+
+
 
 const store = configureStore({
     reducer : rootReducer,
@@ -25,6 +30,6 @@ const store = configureStore({
         }),
 });
 
-export const persistor = persistStore(store);
+export const persistor = persistStore(store); 
 export type RootState = ReturnType<typeof store.getState>;
 export default store;

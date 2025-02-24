@@ -3,14 +3,14 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="member">
-	<select id="loginMember" resultMap="memberDTOMap">
-		SELECT USER_NO, STATUS_TYPE, USER_NAME, DEPT_NAME, POSITION_NAME, CHANGE_NAME, FILE_PATH 
+	<select id="loginMember" resultMap="memberDTOMap" >
+		SELECT USER_NO, STATUS_TYPE, USER_NAME, DEPT_NAME, POSITION_NAME, CHANGE_NAME, FILE_PATH, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
 		FROM MEMBER
 		JOIN DEPARTMENT USING(DEPT_NO)
 		JOIN POSITION USING(POSITION_NO)
 		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO
-		WHERE USER_NO = #{userNo} 
-			AND USER_PWD = #{userPwd} 
+        LEFT JOIN ANNUAL_LEAVE USING(USER_NO)
+			WHERE USER_NO = #{userNo} AND USER_PWD = #{userPwd} AND YEAR = EXTRACT(YEAR FROM SYSDATE) AND MEMBER.STATUS ='Y'
 	</select>
 	
 	<select id="selectCategoryMemberCount" resultType="int" parameterType="CategoryFilter">
@@ -34,7 +34,7 @@
 	<select id="selectMemberList" resultMap="memberDTOListMap" parameterType="CategoryPrDTO">
 		SELECT *
 		FROM (SELECT ROWNUM RNUM, A.*
-		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS, ADDRESS_DETAIL
+		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, ADDRESS, ADDRESS_DETAIL
 		            FROM MEMBER
                     JOIN DEPARTMENT USING(DEPT_NO)
                     JOIN POSITION USING(POSITION_NO)
@@ -49,10 +49,10 @@
 	            AND STATUS = #{filter.status}
 	        </if>
 			<if test="filter.name != null and filter.name != ''">
-	        	AND USER_NAME LIKE CONCAT(#{filter.name}, '%')
+	        	AND USER_NAME LIKE '%'||#{filter.name}||'%'
 	        </if>
 	    </where>
-		            ORDER BY HIRE_DATE DESC, USER_NO DESC) A)
+		            ORDER BY DEPT_NO, HIRE_DATE DESC) A)
 		WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow} 
 	</select>
 	
@@ -67,7 +67,6 @@
 			<result property="phone" column="PHONE" />
 			<result property="hireDate" column="HIRE_DATE" />
 			<result property="updateDate" column="UPDATE_DATE" />
-			<result property="totalLeaveDays" column="TOTAL_LEAVE_DAYS" />
 			<result property="address" column="ADDRESS" />
 			<result property="addressDetail" column="ADDRESS_DETAIL" />
 		</association>
@@ -82,22 +81,35 @@
 	</resultMap>
 	
 	<insert id="insertMember" useGeneratedKeys="true">
-	
-	<selectKey keyProperty="userNo" resultType="int" order="BEFORE">
-		SELECT (TO_CHAR(SYSDATE, 'YYYY') || LPAD(USER_NO_SEQ.NEXTVAL, 2, '0')) FROM DUAL
-	</selectKey>
+		<selectKey keyProperty="userNo" resultType="int" order="BEFORE">
+			SELECT (TO_CHAR(SYSDATE, 'YYYY') || LPAD(USER_NO_SEQ.NEXTVAL, 2, '0')) FROM DUAL
+		</selectKey>
+		
 		INSERT INTO MEMBER
 		VALUES (
 			#{userNo},  
 			2, 
 			#{positionNo}, 
 			#{deptNo}, 
-			15, 
 			DEFAULT, 
 			#{userPwd}, #{userName}, #{phone}, #{extension}, #{email}, #{address}, #{hireDate}, 
 			'',
 			#{addressDetail}
 			)
+	</insert>
+	
+	<insert id="insertLeave" parameterType="Member">
+		INSERT INTO ANNUAL_LEAVE (USER_NO, YEAR, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE)
+		SELECT 
+    		USER_NO,
+    		EXTRACT(YEAR FROM SYSDATE),
+    		LEAVE_DAYS,
+    		0
+			FROM MEMBER
+			JOIN LEAVE_POLICY 
+  				ON TRUNC(MONTHS_BETWEEN(SYSDATE, HIRE_DATE) / 12) 
+     			BETWEEN MIN_YEAR AND MAX_YEAR
+     	WHERE USER_NO = #{userNo}
 	</insert>
 	
 	<insert id="insertAttachment" parameterType="Attachment">
@@ -114,7 +126,7 @@
 	</insert>
 	
 	<select id="selectMember" resultMap="memberDTOMap">
-		SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, STATUS, HIRE_DATE, UPDATE_DATE, TOTAL_LEAVE_DAYS, ADDRESS, ADDRESS_DETAIL, CHANGE_NAME, FILE_PATH 
+		SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, STATUS, HIRE_DATE, UPDATE_DATE, ADDRESS, ADDRESS_DETAIL, CHANGE_NAME, FILE_PATH 
 		FROM MEMBER
 		JOIN DEPARTMENT USING(DEPT_NO)
 		JOIN POSITION USING(POSITION_NO)
@@ -126,18 +138,17 @@
 	<resultMap id="memberDTOMap" type="MemberDTO">
 		<association property="member" javaType="Member">
 			<id property="userNo" column="USER_NO" />
-			<result property="userName" column="USER_NAME" />
 			<result property="statusType" column="STATUS_TYPE" />
-			<result property="email" column="EMAIL" />
-			<result property="deptNo" column="DEPT_NO"/>
 			<result property="positionNo" column="POSITION_NO"/>
-			<result property="extension" column="EXTENSION" />
-			<result property="phone" column="PHONE" />
+			<result property="deptNo" column="DEPT_NO"/>
 			<result property="status" column="STATUS" />
+			<result property="userName" column="USER_NAME" />
+			<result property="phone" column="PHONE" />
+			<result property="extension" column="EXTENSION" />
+			<result property="email" column="EMAIL" />
+			<result property="address" column="ADDRESS" />
 			<result property="hireDate" column="HIRE_DATE" />
 			<result property="updateDate" column="UPDATE_DATE" />
-			<result property="totalLeaveDays" column="TOTAL_LEAVE_DAYS" />
-			<result property="address" column="ADDRESS" />
 			<result property="addressDetail" column="ADDRESS_DETAIL" />
 		</association>
 		
@@ -152,6 +163,11 @@
 		<association property="attachment" javaType="Attachment">
 			<result property="filePath" column="FILE_PATH"/>
 			<result property="changeName" column="CHANGE_NAME"/>
+		</association>
+		
+		<association property="annualLeave" javaType="AnnualLeave">
+			<result property="totalAnnualLeave" column="TOTAL_ANNUAL_LEAVE"/>
+			<result property="usedAnnualLeave" column="USED_ANNUAL_LEAVE"/>
 		</association>
 	</resultMap>
 	
@@ -178,7 +194,6 @@
 		SET 
 			POSITION_NO = #{positionNo},
 			DEPT_NO = #{deptNo},
-			TOTAL_LEAVE_DAYS = #{totalLeaveDays},
 			STATUS = #{status},
 			USER_NAME = #{userName},
 			PHONE = #{phone},
@@ -190,6 +205,14 @@
 			UPDATE_DATE = #{updateDate}
 		WHERE USER_NO = #{userNo}
 	</update>
+	
+	<select id="selectModalMemberList" resultMap="memberDTOMap">
+		SELECT USER_NO, USER_NAME, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, STATUS, HIRE_DATE
+		FROM MEMBER
+		JOIN DEPARTMENT USING(DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		ORDER BY DEPT_NO, HIRE_DATE DESC
+	</select>
 </mapper>
 
 

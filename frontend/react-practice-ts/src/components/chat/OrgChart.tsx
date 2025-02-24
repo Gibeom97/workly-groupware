@@ -3,12 +3,14 @@ import profileIcon from "../../assets/Images/chat/profile.png";
 import dropdownIcon from "../../assets/Images/chat/dropdown2.png";
 import plusIcon from "../../assets/Images/chat/Plus circle.png";
 import SearchClick from "./SearchClick";
-import { Member } from "../../type/chatType"; // 멤버 타입이 별도로 있을 경우
+import { Member} from "../../type/chatType"; // 멤버 타입이 별도로 있을 경우
 
 interface OrgChartProps {
   departments: { deptName: string; members: Member[] }[];
   onOpenCreateOrg: () => void;
 }
+
+
 
 const OrgChart = ({ departments, onOpenCreateOrg }: OrgChartProps) => {
   const [openCompany, setOpenCompany] = useState<boolean>(true);
@@ -41,7 +43,7 @@ const OrgChart = ({ departments, onOpenCreateOrg }: OrgChartProps) => {
 
       {/* 검색창 */}
       <div>
-        <SearchClick />
+        <SearchClick onProfileClick={() => console.log("프로필 클릭됨")} />
       </div>
 
       {/* 그룹 추가 */}
@@ -90,7 +92,7 @@ const OrgChart = ({ departments, onOpenCreateOrg }: OrgChartProps) => {
                       <img src={profileIcon} alt="user" style={{ width: '22px', height: '22px', objectFit: 'cover' }} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 'bold' }}>{member.name} {member.position}</div>
+                      <div style={{ fontWeight: 'bold' }}>{member.userName} (member.positionName)</div>
                       <div style={{ color: '#4880FF', fontSize: '12px' }}>활성화</div>
                     </div>
                   </div>

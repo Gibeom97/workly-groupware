@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="leave">
+	<select id="selectLeaveHistory" resultMap="annualHistoryMap">
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		     FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, LEAVE_STATUS, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
+		           FROM LEAVE_HISTORY LH
+		           JOIN ANNUAL_LEAVE AL ON LH.USER_NO = AL.USER_NO
+		               AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
+		           WHERE LH.USER_NO = #{annualLeave.userNo} AND EXTRACT(YEAR FROM LH.START_DATE) = #{annualLeave.year} 
+		           ORDER BY LH.START_DATE)A)
+	    WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow}
+	</select>
+	
+	<resultMap id="annualHistoryMap" type="AnnualHistoryDTO">
+		<association property="leaveHistory" javaType="LeaveHistory">
+			<id property="leaveNo" column="LEAVE_NO"/>
+			<result property="startDate" column="START_DATE"/>
+			<result property="endDate" column="END_DATE"/>
+			<result property="leaveDays" column="LEAVE_DAYS"/>
+			<result property="leaveType" column="LEAVE_TYPE"/>
+			<result property="leaveStatus" column="LEAVE_STATUS"/>
+		</association>
+		
+		<association property="annualLeave" javaType="AnnualLeave">
+			<result property="totalAnnualLeave" column="TOTAL_ANNUAL_LEAVE"/>
+			<result property="usedAnnualLeave" column="USED_ANNUAL_LEAVE"/>
+		</association>
+	</resultMap>
+	
+	<select id="selectLeaveCount" resultType="int">
+		SELECT COUNT(*) FROM LEAVE_HISTORY
+		WHERE USER_NO = #{annualLeave.userNo} AND EXTRACT(YEAR FROM START_DATE) = #{annualLeave.year}
+	</select>
+	
+	<select id="selectLeaveDetail" resultMap="annualHistoryMap">
+		SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, LEAVE_STATUS, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
+		FROM ANNUAL_LEAVE AL
+		LEFT JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
+			AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
+		WHERE AL.USER_NO = #{annualLeave.userNo} AND AL.YEAR = #{annualLeave.year}
+		ORDER BY LH.START_DATE
+	</select>
+	
+	<update id="updateLeave">
+		UPDATE ANNUAL_LEAVE
+		SET TOTAL_ANNUAL_LEAVE = #{totalAnnualLeave}
+		WHERE YEAR = #{year} AND USER_NO = #{userNo}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+

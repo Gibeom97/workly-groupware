@@ -66,7 +66,7 @@ function Calendar4() {
           initialView="dayGridMonth"
           locales={allLocales}
           locale="ko"
-          firstDay={1}
+          firstDay={0}
           headerToolbar={{ left: "", center: "", right: "" }} // ✅ 기본 툴바 제거
           buttonText={{ today: "오늘" }}
           titleFormat={{ year: "numeric", month: "short" }}

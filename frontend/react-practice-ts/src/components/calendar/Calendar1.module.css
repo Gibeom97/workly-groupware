@@ -60,72 +60,28 @@
   transition: all 0.2s ease-in-out;
 }
 
-/* ✅ 일정(이벤트) 글씨 색상 흰색 */
+/* ✅ FullCalendar 일정 제목 중앙 정렬 */
 .calendarContainer .customEvent {
-  padding: 6px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: bold;
-  text-align: center;
-  color: white;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+/* ✅ FullCalendar 일정 제목 스타일 */
+.calendarContainer .customEventTitle {
+  font-weight: bold !important;
+  color: white !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* ✅ 마우스 오버 시 효과 */
 .calendarContainer .fc-event:hover {
   transform: scale(1.05);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* ✅ 빈 날짜 스타일 */
-.calendarContainer .fc-daygrid-day.fc-day-other {
-  background: #f4f4f4;
-}
-
-/* ✅ 색상 선택 UI 외부 클릭 시 닫히는 오버레이 */
-.calendarContainer .colorPickerOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* ✅ 색상 선택 UI */
-.calendarContainer .colorPicker {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  z-index: 1001;
-}
-
-/* ✅ 색상 선택 버튼 */
-.calendarContainer .colorOptions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-/* ✅ 색상 선택 버튼 (원형) */
-.calendarContainer .colorCircle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-}
-
-.calendarContainer .colorCircle:hover {
-  transform: scale(1.1);
 }

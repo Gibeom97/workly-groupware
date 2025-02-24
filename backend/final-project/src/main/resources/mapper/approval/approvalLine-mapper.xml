@@ -3,6 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ApprovalLine">
+
 		<insert id="saveApprovalLine">
 		    INSERT ALL
 		    <foreach collection="list" item="line">
@@ -11,7 +12,6 @@
 		    </foreach>
 		    SELECT 1 FROM DUAL
 		</insert>
-
 		
 		<!-- 진행 중 결재 문서 조회 쿼리 -->
 		<select id="getInProgressApprovals" resultType="ApprovalLine">
@@ -23,8 +23,48 @@
 		      AND al.TYPE = '결재자'
 		</select>
 
-
-
+		
+		<!--즐겨찾기 정보 저장(LINE_NO자동생성)-->
+		<insert id="saveFavoriteInfo" parameterType="ApprovalFavoriteLine" useGeneratedKeys="true" keyProperty="lineNo" keyColumn="LINE_NO">
+		    INSERT INTO APPROVAL_FAVORITE_LINE (LINE_NO, FAVORITE_NAME, USER_NO) 
+		    VALUES (APPROVAL_FAVORITE_LINE_SEQ.NEXTVAL, #{favoriteName}, #{userNo})
+		</insert>
+		
+		<!--즐겨찾기 결재라인 저장-->
+		<insert id="saveFavoriteLine" parameterType="java.util.List">
+		    INSERT ALL
+		    <foreach collection="list" item="line">
+		        INTO APPROVAL_ACTUAL_LINE ("LEVEL", LINE_NO, USER_NO, "TYPE", APPROVAL_TYPE)
+		        VALUES (#{line.level}, #{line.lineNo}, #{line.userNo}, #{line.type}, #{line.approvalType})
+		    </foreach>
+		    SELECT 1 FROM DUAL
+		</insert>	
+		
+		<select id="getFavoriteLinesByUserNo" resultType="map">
+			SELECT 
+			    P.POSITION_NAME,
+			    D.DEPT_NAME,
+			    M.USER_NAME,
+			    L.FAVORITE_NAME,
+			    A.APPROVAL_TYPE,
+			    A."LEVEL",
+			    A.USER_NO
+			FROM APPROVAL_ACTUAL_LINE A
+			JOIN MEMBER M ON A.USER_NO = M.USER_NO
+			JOIN DEPARTMENT D USING(DEPT_NO)
+			JOIN POSITION P USING(POSITION_NO)
+			JOIN (
+			    SELECT LINE_NO, FAVORITE_NAME
+			    FROM APPROVAL_FAVORITE_LINE
+			    WHERE USER_NO = #{userNo}
+			) L ON A.LINE_NO = L.LINE_NO
+			ORDER BY L.FAVORITE_NAME, D.DEPT_NAME, M.USER_NAME
+		</select>
+		
+		<delete id="deleteFavoriteLine" parameterType="map">
+			DELETE FROM APPROVAL_FAVORITE_LINE
+			WHERE USER_NO = #{userNo} AND FAVORITE_NAME = #{favoriteName}
+		</delete>
 </mapper>
 
 

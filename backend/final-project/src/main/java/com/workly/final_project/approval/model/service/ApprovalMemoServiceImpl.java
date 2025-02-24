@@ -27,6 +27,16 @@ public class ApprovalMemoServiceImpl implements ApprovalMemoService{
 		return approvalMemoDao.selectMemosByApprovalId(approvalNo);
 	}
 
+	@Transactional
+	@Override
+	public boolean deleteApproval(int memoNo) {
+		return approvalMemoDao.deleteApproval(memoNo);
+	}
 
+	@Transactional
+	@Override
+	public boolean updateApprovalReply(int memoNo, String memoContent) {
+		return approvalMemoDao.updateApprovalReply(memoNo, memoContent);
+	}
 
 }

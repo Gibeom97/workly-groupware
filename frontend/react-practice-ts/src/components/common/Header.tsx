@@ -34,6 +34,8 @@ function Header() {
     title = "캘린더";
   } else if (pathname.includes("form")) {
     title = "결재양식관리";
+  } else if (pathname.includes("leave")) {
+    title ="연차관리"
   } else {
     title = "";
   }
@@ -61,7 +63,10 @@ function Header() {
         {preview && <img src={url + preview} alt="preview" className={styles.profileImage} />}
           <div className={styles.profileInfo}>
             <div className={styles.profileName}>{user.userName}</div>
-            <div className={styles.profileRole}>{user.positionName}</div>
+            <div className={styles.infoSection}>
+              <div className={styles.profileRole}>{user.deptName}</div>
+              <div className={styles.profileRole}>{user.positionName}</div>
+            </div>
           </div>
           <button className={styles.dropdownButton}>
             <div>

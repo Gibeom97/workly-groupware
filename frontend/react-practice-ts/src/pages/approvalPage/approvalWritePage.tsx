@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // URL 파라미터를 가져오기 위해 추가
-import ApprovalWriteBody from "../../components/approval/approvalWriteBody";
-import { ApprovalWriteFooter } from "../../components/approval/approvalWriteFooter";
-import { ApprovalWriteHeader } from "../../components/approval/approvalWriteHeader";
-import Header from "../../components/common/Header";
-import Sidebar from "../../components/common/Sidebar";
-import axios from "axios";
+import { useEffect, useState } from "react"
+import ApprovalWriteBody from "../../components/approval/approvalWriteBody"
+import { ApprovalWriteFooter } from "../../components/approval/approvalWriteFooter"
+import { ApprovalWriteHeader } from "../../components/approval/approvalWriteHeader"
+import Header from "../../components/common/Header"
+import Sidebar from "../../components/common/Sidebar"
+import axios from "axios"
 
 export const ApprovalWritePage = () => {
-  const { approvalNo } = useParams(); // URL에서 approvalNo 가져오기
+  const [selectedCCUsers, setSelectedCCUsers] = useState([]); // ✅ 참조자 목록 상태 추가
+
+  useEffect(() => {
+    console.log("🚀 ApprovalWritePage에서 관리하는 selectedCCUsers:", selectedCCUsers);
+  }, [selectedCCUsers]);
 
   // 전자결재 데이터를 관리하는 상태 추가
   const [approvalData, setApprovalData] = useState({
@@ -88,32 +91,22 @@ export const ApprovalWritePage = () => {
     }
   };
 
-  return (
-    <div className="mainpageContainer">
-      <Sidebar />
-      <div className="componentContainer">
-        <Header />
-        <div style={scrollableContentStyle}>
-          {/* setApprovalData를 Header, Body에 전달하여 입력 데이터 업데이트 */}
-          <ApprovalWriteHeader
-            approvalData={approvalData}
-            setApprovalData={setApprovalData}
-          />
-          <ApprovalWriteBody
-            approvalData={approvalData}
-            setApprovalData={setApprovalData}
-          />
-          {/* submitApproval Footer에 전달하여 입력 데이터 업데이트 */}
-          <ApprovalWriteFooter
-            approvalData={approvalData}
-            submitApproval={submitApproval}
-            setApprovalMemoData={setApprovalMemoData}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+    return(
+        <div className="mainpageContainer">
+        <Sidebar />
+        <div className="componentContainer">
+            <Header/>
+            <div style={scrollableContentStyle}>
+            {/*setApprovalData를 Header, Body에 전달하여 입력 데이터 업데이트*/}
+            <ApprovalWriteHeader approvalData={approvalData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers}/>
+            <ApprovalWriteBody approvalData={approvalData} setApprovalData={setApprovalData}/>
+            {/*submitApproval Footer에 전달하여 입력 데이터 업데이트*/}
+            <ApprovalWriteFooter approvalData={approvalData} submitApproval={submitApproval}  setApprovalMemoData={setApprovalMemoData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers} />
+            </div>
+          </div>
+        </div>   
+    )
+}
 
 // ✅ **스타일 정의 (TSX 내부에서 적용)**
 const scrollableContentStyle = {

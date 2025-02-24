@@ -4,6 +4,109 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="chat">
 
+
+	<select id="getChatMembers" resultType="com.workly.final_project.member.model.dto.MemberDeptPositionDTO">
+	    SELECT 
+	        M.USER_NO AS userNo,
+	        M.USER_NAME AS userName,
+	        D.DEPT_NAME AS deptName,
+	        P.POSITION_NAME AS positionName
+	        
+	    FROM MEMBER M
+	    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
+	    JOIN POSITION P ON M.POSITION_NO = P.POSITION_NO
+	</select>
+
+	
+	<insert id="addFavorite" parameterType="com.workly.final_project.chat.model.dto.FavoriteDTO">
+	    MERGE INTO CHAT_FAVORITE_USER T
+	    USING (SELECT #{userNo} AS USER_NO, #{favoriteNo} AS FAVORITE_NO FROM DUAL) S
+	    ON (T.USER_NO = S.USER_NO AND T.FAVORITE_NO = S.FAVORITE_NO)
+	    WHEN NOT MATCHED THEN
+	        INSERT (USER_NO, FAVORITE_NO) VALUES (S.USER_NO, S.FAVORITE_NO)
+	</insert>
+
+	
+	<select id="getFavoriteList" parameterType="int" resultType="com.workly.final_project.member.model.dto.MemberDeptPositionDTO">
+	    SELECT 
+	        M.USER_NO AS userNo,
+	        M.USER_NAME AS userName,
+	        D.DEPT_NAME AS deptName,
+	        P.POSITION_NAME AS positionName
+	    FROM CHAT_FAVORITE_USER F
+	    JOIN MEMBER M ON F.FAVORITE_NO = M.USER_NO
+	    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
+	    JOIN POSITION P ON M.POSITION_NO = P.POSITION_NO
+	    WHERE F.USER_NO = #{userNo}
+	</select>
+
+	
+	<delete id="removeFavorite">
+	 	DELETE FROM CHAT_FAVORITE_USER 
+    	WHERE USER_NO = #{userNo} 
+      	AND FAVORITE_NO = #{favoriteNo}
+	</delete>
+
+
+	<select id="searchMember" resultType="com.workly.final_project.member.model.dto.MemberDeptPositionDTO">
+		SELECT 
+	        M.USER_NO AS userNo,
+	        M.USER_NAME AS userName,
+	        D.DEPT_NAME AS deptName,
+	        P.POSITION_NAME AS positionName
+	    FROM MEMBER M
+	    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
+	    JOIN POSITION P USING (POSITION_NO)
+	    WHERE M.USER_NAME LIKE '%' || #{userName} || '%'
+	</select>
+	
+	
+
+	<!-- 채팅방 생성 -->
+    <insert id="createChatRoom" parameterType="ChatRoom">
+        <selectKey keyProperty="chatRoomNo" order="BEFORE" resultType="int">
+            SELECT CHAT_ROOM_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        
+        INSERT INTO CHAT_ROOM (CHAT_ROOM_NO, ROOM_TITLE, CREATED_CHAT, CHAT_TYPE)
+        VALUES (#{chatRoomNo}, #{roomTitle}, SYSDATE, #{chatType})
+    </insert>
+
+    <!-- 채팅방 참여자 추가 -->
+    <insert id="insertChatParticipant">
+	    INSERT INTO CHAT_PARTICIPANT (CHAT_ROOM_NO, USER_NO, ENTER_DATE, BELL_SETTING)
+	    SELECT #{chatRoomNo}, userNo, SYSDATE, 'Y'
+	    FROM (
+	        <foreach collection="userNos" item="userNo" separator=" UNION ALL ">
+	            SELECT #{userNo} AS userNo FROM DUAL
+	        </foreach>
+	    )
+	</insert>
+
+	<select id="getChatList" resultType="ChatRoom">
+		SELECT 
+			CR.CHAT_ROOM_NO,
+			CR.ROOM_TITLE,
+			CR.CHAT_TYPE,
+			CR.CREATED_CHAT,
+			CP.BELL_SETTING,
+			C.RECEIVED_DATE AS LAST_MESSAGE_TIME,
+			(SELECT COUNT(*) FROM CHAT
+			WHERE CHAT_ROOM_NO = CR.CHATROOM_NO
+				AND CHAT_NO > NVL(UC.LAST_READ_CHAT_NO,0)) AS UNREAD_COUNT
+			FROM CHAT_ROOM CR
+			JOIN CHAT_PARTICIPANT CP ON CR.CHAT_ROOM_NO = CP.CHAT_ROOM_NO
+			LEFT JOIN USER_CHAT UC ON CR.CHATROOM_NO = UC.CHATROOM_NO AND UC.USER_NO = #{USERNO}
+		    LEFT JOIN CHAT C ON C.CHATROOM_NO = CR.CHATROOM_NO 
+		        AND C.RECEIVED_DATE = (SELECT MAX(RECEIVED_DATE) FROM CHAT WHERE CHATROOM_NO = CR.CHATROOM_NO)
+		    WHERE CP.USER_NO = #{USERNO}
+		    ORDER BY C.RECEIVED_DATE DESC NULLS LAST
+	</select>
+
+
+
+
+
 </mapper>
 
 

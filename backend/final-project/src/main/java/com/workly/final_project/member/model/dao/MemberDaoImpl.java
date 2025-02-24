@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class MemberDaoImpl implements MemberDao {
 	
 	private final SqlSession session;
-	private final PageRow pr;
+	
 	@Override
 	public MemberDTO loginMember(Member m) {
 		return session.selectOne("member.loginMember", m);
@@ -37,7 +37,8 @@ public class MemberDaoImpl implements MemberDao {
 	public List<Member> selectMemberList(PageInfo pi, CategoryFilter filter) {
 		int startRow = (pi.getCurrentPage() - 1) * pi.getContentsLimit() + 1;
 		int endRow = startRow + pi.getContentsLimit() - 1;
-	
+		
+		PageRow pr = new PageRow();
 		pr.setStartRow(startRow);
 		pr.setEndRow(endRow);
 		
@@ -49,6 +50,11 @@ public class MemberDaoImpl implements MemberDao {
 	@Override
 	public int insertMember(Member m) {
 		return session.insert("member.insertMember", m);
+	}
+	
+	@Override
+	public int insertLeave(Member m) {
+		return session.insert("member.insertLeave", m);
 	}
 
 	@Override
@@ -83,6 +89,11 @@ public class MemberDaoImpl implements MemberDao {
 
 	@Override
 	public int checkAttachment(Member m) {
-		return session.selectOne("member.checkAttachment", m);
+		return session.selectOne("member.heckAttachment", m);
+	}
+
+	@Override
+	public List<MemberDTO> selectModalMemberList() {
+		return session.selectList("member.selectModalMemberList");
 	}
 }

@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Member } from '../../type/chatType';
+//import { departments, Member, positions } from '../../type/chatType';
 import SearchClick from './SearchClick';
+import { useDispatch } from "react-redux";
+import { setMemberInvite } from "../../features/chatSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store"; // RootState 임포트 필요
+
 
 interface AddMemberPanelProps {
   allEmployees: Member[];
@@ -9,35 +15,62 @@ interface AddMemberPanelProps {
   onConfirm: (newMembers: Member[]) => void;
 }
 
+
+
 const AddMemberPanel = ({
   allEmployees,
   currentMembers,
   onClose,
   onConfirm,
 }: AddMemberPanelProps) => {
-  const currentMemberNos = currentMembers.map((m) => m.no);
+  const currentMemberuserNos = currentMembers.map((m) => m.userNo);
 
-  const [checkedMembers, setCheckedMembers] = useState<number[]>(currentMemberNos);
+  const [checkedMembers, setCheckedMembers] = useState<number[]>(currentMemberuserNos);
+
+  const memberInvite = useSelector((state: RootState) => state.chat.memberInvite);
+  // 나중에 없애기
+  useEffect(() => {
+    console.log("백엔드에서 받은 사원 목록:", allEmployees);
+  }, [allEmployees]);
+  
 
   // ✅ currentMembers가 바뀔 때마다 checkedMembers 초기화
   useEffect(() => {
-    setCheckedMembers(currentMembers.map((m) => m.no));
-  }, [currentMembers]);
+    // ✅ 현재 멤버와 Redux에서 가져온 초대 멤버 합치기 (중복 제거)
+    const invitedUserNos = allEmployees
+      .filter(member => memberInvite.includes(member.userName))
+      .map(member => member.userNo);
+  
+    setCheckedMembers([...new Set([...currentMemberuserNos, ...invitedUserNos])]);
+  }, [allEmployees, memberInvite, currentMembers]);
 
-  const handleToggle = (no: number) => {
-    if (currentMemberNos.includes(no)) return;
+
+  const handleToggle = (userNo: number) => {
+    if (currentMemberuserNos.includes(userNo)) return;
     setCheckedMembers((prev) =>
-      prev.includes(no) ? prev.filter((m) => m !== no) : [...prev, no]
+      prev.includes(userNo) ? prev.filter((m) => m !== userNo) : [...prev, userNo]
     );
   };
 
-  const handleConfirm = () => {
-    const selectedMembersObjects = allEmployees.filter((member) =>
-      checkedMembers.includes(member.no)
-    );
-    onConfirm(selectedMembersObjects);
-    onClose();
-  };
+
+const dispatch = useDispatch(); // Redux Dispatch 추가
+
+const handleConfirm = () => {
+  const selectedMembersObjects = allEmployees.filter((member) =>
+    checkedMembers.includes(member.userNo)
+  );
+
+  // ✅ 기존 멤버 제외하고 새로 초대된 멤버만 Redux에 저장
+  const newInvitedMembers = selectedMembersObjects
+    .map(member => member.userName)
+    .filter(name => !currentMembers.some(m => m.userName === name));
+
+  dispatch(setMemberInvite(newInvitedMembers));
+
+  onConfirm(selectedMembersObjects);
+  onClose();
+}
+
 
   return (
     <div
@@ -69,7 +102,7 @@ const AddMemberPanel = ({
       >
         {currentMembers.map((member) => (
           <span
-            key={member.no}
+            key={member.userNo}
             style={{
               backgroundColor: '#E9F3FF',
               color: '#4880FF',
@@ -78,7 +111,7 @@ const AddMemberPanel = ({
               fontSize: '12px',
             }}
           >
-            {member.name}
+            {member.userName}
           </span>
         ))}
         <button
@@ -97,7 +130,7 @@ const AddMemberPanel = ({
       </div>
 
       <div style={{ padding: '10px' }}>
-        <SearchClick />
+        <SearchClick onProfileClick={() => console.log("프로필 클릭됨")}/>
       </div>
 
       <div style={{ overflowY: 'auto', flex: 1, padding: '0 10px' }}>
@@ -110,21 +143,24 @@ const AddMemberPanel = ({
           </thead>
           <tbody>
             {allEmployees.map((member) => {
-              const isAlreadyAdded = currentMemberNos.includes(member.no);
-              const isSelected = checkedMembers.includes(member.no);
+              const isAlreadyAdded = currentMemberuserNos.includes(member.userNo);
+              const isSelected = checkedMembers.includes(member.userNo);
 
               return (
-                <tr key={member.no} style={{ borderBottom: '1px solid #E0E0E0' }}>
-                  <td style={{ padding: '8px' }}>{member.team}</td>
+                <tr key={member.userNo} style={{ borderBottom: '1px solid #E0E0E0' }}>
+                  <td style={{ padding: '8px', textDecoration:"bold" }}>
+                    {member.deptName || "알 수 없음"}
+                    </td>
                   <td style={{ padding: '8px', display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
                       checked={isSelected || isAlreadyAdded}
-                      onChange={() => handleToggle(member.no)}
+                      onChange={() => handleToggle(member.userNo)}
                       disabled={isAlreadyAdded}
                       style={{ marginRight: '8px', accentColor: '#4880FF' }}
                     />
-                    {member.name} ({member.position})
+                    {member.userName} 
+                    ({member.positionName})
                   </td>
                 </tr>
               );

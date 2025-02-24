@@ -1,4 +1,3 @@
-
 const ApprovalWriteBody = ({approvalData, setApprovalData}) => {
   const handleChange = (e:any) => {
     setApprovalData((prevData:any) => ({

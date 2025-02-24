@@ -3,13 +3,17 @@ import chatBig from "../../assets/Images/chat/chatBig.png";
 import edit from "../../assets/Images/chat/edit.png";
 
 type MyInfo = {
-  name: string;
-  dept: string;
-  position: string;
-  email: string;
-  phone: string;
-  extension: string;
-};
+  userNo: number;     // 고유번호
+  userName: string;       // 이름
+  positionNo?: number; // 직급번호
+  deptNo?: number;     // 부서번호
+  status?:string;// 상태값
+  deptName: string;
+  positionName: string;
+  email?: string;
+  phone?: string;
+  extension?: string;
+}
 
 type MyInfoProps = {
   myinfo: MyInfo;
@@ -64,9 +68,9 @@ const MyInfo = ({ myinfo, onClose }: MyInfoProps) => {
 
       <div style={{ marginTop: 35, paddingLeft: 0, paddingRight: 16}}>
         {[
-          { label: "이름", value: myinfo.name },
-          { label: "부서", value: myinfo.dept},
-          { label: "직급", value: myinfo.position },
+          { label: "이름", value: myinfo.userName },
+          { label: "부서", value: myinfo.deptName},
+          { label: "직급", value: myinfo.positionName },
           { label: "이메일", value: myinfo.email },
           { label: "연락처", value: myinfo.phone },
           { label: "내선번호", value: myinfo.extension },

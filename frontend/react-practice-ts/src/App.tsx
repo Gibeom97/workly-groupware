@@ -19,6 +19,11 @@ import CreateEmployee from "./components/personnel/CreateEmployee";
 import ManagePermission from "./components/personnel/ManagePermission";
 import PersonnelTable from "./components/personnel/PersonnelTable";
 import PersonnelDetail from "./components/personnel/PersonnelDetail";
+import LeaveMain from "./pages/LeaveMain";
+import MyLeave from "./components/leave/MyLeave";
+import LeavePolicy from "./components/leave/LeavePolicy";
+import ManageLeave from "./components/leave/ManageLeave";
+import ManageDetail from "./components/leave/ManageDetail";
 
 function App() {
   return (
@@ -31,7 +36,7 @@ function App() {
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
         <Route path="/ApprovalWritePage/:approvalNo" element={<ApprovalWritePage />} /> {/*임시저장 작성하기*/}
-        <Route path="/ApprovalCompletePage" element={<ApprovalCompletePage/>}/>
+        <Route path="/ApprovalCompletePage/:approvalNo" element={<ApprovalCompletePage/>}/>
 
         <Route path="/approvalTempPage" element={<ApprovalTempPage />} />
         <Route path="/approvalRejectPage" element={<ApprovalRejectPage />} />
@@ -47,6 +52,12 @@ function App() {
           <Route path="createEmployee" element={<CreateEmployee />} />
           <Route path="managePermissions" element={<ManagePermission />} />
           <Route path=":userNo" element={<PersonnelDetail />} />
+        </Route>
+
+        <Route path="/leave" element={<LeaveMain/>}>
+          <Route index element={<MyLeave/>}/>
+          <Route path="manage" element={<ManageLeave/>}/>
+          <Route path="policy" element={<LeavePolicy/>}/>
         </Route>
 
         <Route path="/form" element={<FormMain/>}>
