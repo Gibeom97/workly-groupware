@@ -8,7 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.ApprovalActualLine;
 import com.workly.final_project.approval.model.vo.ApprovalFavoriteLine;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
@@ -27,6 +27,7 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 	public void saveApprovalLine(List<ApprovalLine> approvalLines) {
 		sqlSession.insert("ApprovalLine.saveApprovalLine", approvalLines);
 	}
+
 
 	@Override
 	public int saveFavoriteInfo(ApprovalFavoriteLine favoriteLineInfo) {	

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.approval.model.dao.ApprovalDao;
+import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
@@ -50,6 +51,26 @@ public class ApprovalServiceImpl implements ApprovalService {
 	}
 
 	@Override
+	public List<Approval> getDraftApprovals() {
+		return approvalDao.getDraftApprovals();
+	}
+
+	@Override
+	public int deleteApprovals(List<Integer> approvalNos) {
+		return approvalDao.deleteApprovals(approvalNos);
+	}
+
+	@Override
+	public int tempSaveApproval(Approval approval) {
+	    return approvalDao.insertTempApproval(approval);
+	}
+
+	@Override
+	public Approval getApprovalByNo(int approvalNo) {
+	    return approvalDao.getApprovalByNo(approvalNo);
+	}
+  
+  @Override
 	public Approval getApprovalData(int approvalNo) {
 		return approvalDao.getApprovalData(approvalNo);
 	}
@@ -73,5 +94,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public Approval getApprovalWriteUser(int approvalNo) {
 		return approvalDao.getApprovalWriteUser(approvalNo);
 	}
+
 }
 

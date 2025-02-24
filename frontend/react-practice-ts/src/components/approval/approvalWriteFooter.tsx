@@ -26,16 +26,19 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
     const [outCheckModalOpen, setOutCheckModalOpen] = useState(false);
     
     const [approvalMemoData, setApprovalMemoData] = useState({
+
         userNo: userNo,
         approvalNo: approvalData.approvalNo || null, // 결재 문서 저장 후 업데이트 필요
         memoContent: "",
         memoDate: new Date().toISOString(),
     });
 
+
     // ✅ 📌 여기 추가: approvalNo가 변경될 때 approvalMemoData 업데이트
+
     useEffect(() => {
         if (approvalData?.approvalNo && approvalMemoData.approvalNo !== approvalData.approvalNo) {
-            setApprovalMemoData(prevMemoData => ({
+            setApprovalMemoData((prevMemoData) => ({
                 ...prevMemoData,
                 approvalNo: approvalData.approvalNo,
                 userNo: userNo
@@ -44,13 +47,49 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
     }, [approvalData.approvalNo, userNo]); 
 
     const navigate = useNavigate();
-    
+
     const handleExit = () => {
-        navigate('/approvalMain/ApprovalWriteDetailPage');
+        navigate("/approvalMain/ApprovalWriteDetailPage");
     };
 
-    // ✅ 결재 문서 + 결재 의견 + 결재라인 함께 저장
-    const submitApproval = async (memoContent:any) => {
+    // ✅ 임시저장 + 불러오기
+    const handleTempSave = async () => {
+
+        console.log("참조값 확인: ", selectedCCUsers);
+        console.log("approvalNo값 확인: ", approvalNo);
+
+        try {
+          const tempApprovalData = {
+            ...approvalData,
+            approvalStatus: "4", // 임시저장 상태
+            startDate: new Date().toISOString(), // 시작 날짜 자동 설정
+          };
+      
+          if (!tempApprovalData.approvalTitle || !tempApprovalData.approvalContent) {
+            alert("제목과 내용을 모두 입력해주세요.");
+            return;
+          }
+      
+          // 임시 저장 요청
+          await axios.post(
+            "http://localhost:8003/workly/api/approval/tempSave",
+            tempApprovalData,
+            {
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+      
+          alert("임시저장 완료!");
+      
+        } catch (error) {
+          console.error("임시저장 실패:", error);
+          alert("임시저장 실패!");
+        }
+      };
+      
+    
+
+   const submitApproval = async (memoContent:any) => {
 
         console.log("참조값 확인: ", selectedCCUsers);
         console.log("approvalNo값 확인: ", approvalNo);
@@ -175,11 +214,11 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
         <footer
             style={{
                 display: "flex",
-                justifyContent: "center", // ✅ 버튼들을 중앙으로 배치
+                justifyContent: "center",
                 alignItems: "center",
                 padding: "20px 20px",
                 width: "100%",
-                gap: "700px", // ✅ 그룹 사이 간격 조정
+                gap: "700px",
             }}
         >
             {/* 임시저장 버튼 */}
@@ -199,14 +238,14 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
                         alignItems: "center",
                         justifyContent: "center",
                     }}
-                    onClick={() => navigate('/approvalMain/ApprovalWriteDetailPage')}
+                    onClick={handleTempSave}
                 >
                     임시저장
                 </button>
             </div>
 
             {/* 결재 & 취소 버튼 그룹 */}
-            <div style={{ display: "flex", gap: "10px" }}> {/* ✅ 버튼 간격 유지 */}
+            <div style={{ display: "flex", gap: "10px" }}>
                 <button
                     style={{
                         width: 75,
@@ -224,7 +263,7 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
                     }}
                     onClick={() => {
                         if (!approvalData.approvalType || !approvalData.approvalTitle || !approvalData.approvalContent) {
-                            alert("필수 입력사항을 모두 입력해야 합니다."); // 🚨 경고 메시지
+                            alert("필수 입력사항을 모두 입력해야 합니다.");
                         } else {
                             submitApproval();
                             //setModalOpen(true);
@@ -234,7 +273,6 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
                     결재상신
                 </button>
 
-                {/* ✅ 모달 창 */}
                 {modalOpen && (
                     <ApprovalMemoModal
                         approvalNo={approvalNo}
@@ -253,6 +291,7 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
                                 console.error("🚨 메모 저장 실패:", error);
                             })};
                             setModalOpen(false);
+
                         }}
                     />
                 )}
@@ -277,9 +316,8 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
                     결재취소
                 </button>
 
-                {/* 결재취소 확인 모달 */}
                 {outCheckModalOpen && (
-                    <ApprovalOutcheckModal 
+                    <ApprovalOutcheckModal
                         onClose={() => setOutCheckModalOpen(false)}
                         onGoBack={() => setOutCheckModalOpen(false)}
                         onExit={handleExit}

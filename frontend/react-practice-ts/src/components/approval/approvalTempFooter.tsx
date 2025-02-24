@@ -1,198 +1,99 @@
 import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Pagination from "../common/Pagination";
 
-export const ApprovalTempFooter = () => {
+interface ApprovalTempProps {
+  pageInfo: {
+    listCount: number;
+    currentPage: number;
+    pageLimit: number;
+    contentsLimit: number;
+    startPage?: number;
+    endPage?: number;
+    maxPage: number;
+  };
+  setCurrentPage: (page: number) => void;
+  selectedPosts: number[];
+  setSelectedPosts: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
+export const ApprovalTempFooter: React.FC<ApprovalTempProps> = ({ 
+  pageInfo, 
+  setCurrentPage, 
+  selectedPosts, 
+  setSelectedPosts 
+}) => {
   const navigate = useNavigate();
 
-  const totalPages = 68; // 전체 페이지 수
-  const pagesPerGroup = 10; // 한 번에 보여줄 페이지 개수
-  const [currentPage, setCurrentPage] = useState(1);
+  // 선택한 게시글 삭제 함수
+  const handleDelete = async () => {
+    if (!selectedPosts || selectedPosts.length === 0) {
+      alert("삭제할 문서를 선택해주세요.");
+      return;
+    }
 
-  // 현재 페이지 그룹의 시작 번호
-  const startPage = Math.floor((currentPage - 1) / pagesPerGroup) * pagesPerGroup + 1;
-  const endPage = Math.min(startPage + pagesPerGroup - 1, totalPages);
+    try {
+      console.log("삭제 요청 보낼 데이터:", selectedPosts); // 🔥 디버깅용 콘솔 로그
 
-  // 이전 페이지 이동
-  const handlePrevious = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
+      await axios.post("http://localhost:8003/workly/api/approval/delete", {
+        approvalNos: selectedPosts // ✅ 배열로 전달
+      });
 
-  // 다음 페이지 이동
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+      alert("선택한 문서가 삭제되었습니다.");
+      setSelectedPosts([]); // 선택된 문서 초기화
+      window.location.reload(); // 페이지 새로고침
+    } catch (error: any) {
+      console.error("문서 삭제 실패:", error);
+      
+      // 🔥 서버에서 받은 에러 메시지를 확인
+      if (error.response) {
+        console.error("서버 응답 데이터:", error.response.data);
+        alert(`문서 삭제 중 오류 발생: ${error.response.data.message || "알 수 없는 오류"}`);
+      } else {
+        alert("문서 삭제 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   return (
-    <footer style={footerContainerStyle}>
-      {/* 페이지네이션 영역 */}
-      <div style={paginationContainerStyle}>
-        
-        {/* Previous 버튼 */}
-        <button onClick={handlePrevious} style={prevNextButtonStyle} disabled={currentPage === 1}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.6666 8.00004H3.33331M3.33331 8.00004L7.99998 12.6667M3.33331 8.00004L7.99998 3.33337" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={prevNextTextStyle}>Previous</span>
-        </button>
-
-        {/* 페이지 번호 버튼 */}
-        <div style={pageNumbersStyle}>
-          {/* 첫 페이지 표시 */}
-          {startPage > 1 && (
-            <>
-              <button onClick={() => setCurrentPage(1)} style={currentPage === 1 ? activePageStyle : pageButtonStyle}>1</button>
-              <span style={dotsStyle}>...</span>
-            </>
-          )}
-
-          {/* 현재 그룹 내 페이지 */}
-          {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              style={currentPage === page ? activePageStyle : pageButtonStyle}
-            >
-              {page}
-            </button>
-          ))}
-
-          {/* 마지막 페이지 표시 */}
-          {endPage < totalPages && (
-            <>
-              <span style={dotsStyle}>...</span>
-              <button onClick={() => setCurrentPage(totalPages)} style={currentPage === totalPages ? activePageStyle : pageButtonStyle}>
-                {totalPages}
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Next 버튼 */}
-        <button onClick={handleNext} style={prevNextButtonStyle} disabled={currentPage === totalPages}>
-          <span style={prevNextTextStyle}>Next</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.33331 8.00004H12.6666M12.6666 8.00004L7.99998 3.33337M12.6666 8.00004L7.99998 12.6667" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-
-      </div>
-
-      {/* 버튼 그룹 (작성하기 & 삭제) */}
-      <div style={buttonGroupStyle}>
-        <button style={writeButtonStyle} onClick={() => navigate('/ApprovalWritePage')}>
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center"}}>
+      <div style={{ width: "90%", margin: "auto", display: "flex", justifyContent: "flex-end", paddingTop: "20px" }}>
+        <button
+          onClick={() => navigate("/ApprovalWritePage")}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#4880FF",
+            color: "white",
+            border: "none",
+            borderRadius: "14px",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: 600,
+            marginRight: "10px"
+          }}
+        >
           작성하기
         </button>
-        <button style={deleteButtonStyle}>
+
+        <button
+          onClick={handleDelete}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#FF4848",
+            color: "white",
+            border: "none",
+            borderRadius: "14px",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: 600
+          }}
+        >
           삭제
         </button>
       </div>
-    </footer>
+
+      <Pagination pageInfo={pageInfo} setCurrentPage={setCurrentPage} />
+    </div>
   );
-};
-
-// ✅ 스타일 정의
-const footerContainerStyle = {
-  width: "100%",
-  paddingTop: "20px",
-  marginBottom: "60px",
-};
-
-const paginationContainerStyle = {
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: 8,
-  marginTop: "60px",
-};
-
-const prevNextButtonStyle = {
-  padding: "8px",
-  borderRadius: 8,
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  background: "transparent",
-  border: "none",
-  cursor: "pointer",
-};
-
-const prevNextTextStyle = {
-  color: "#1E1E1E",
-  fontSize: 10,
-  fontWeight: 400,
-};
-
-const pageNumbersStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: 8,
-};
-
-const pageButtonStyle = {
-  padding: "8px 12px",
-  borderRadius: 8,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "white",
-  color: "#1E1E1E",
-  fontSize: 10,
-  fontWeight: 400,
-  border: "0.3px solid #B9B9B9",
-  cursor: "pointer",
-};
-
-const activePageStyle = {
-  ...pageButtonStyle,
-  background: "#1E1E1E",
-  color: "#F5F5F5",
-};
-
-const dotsStyle = {
-  color: "#1E1E1E",
-  fontSize: 10,
-  fontWeight: 700,
-};
-
-// ✅ 버튼 그룹 스타일
-const buttonGroupStyle = {
-  display: "flex",
-  gap: 10,
-  marginRight: "90px",
-  marginTop: "-90px",
-  float: "right", // 오른쪽 정렬
-};
-
-// ✅ 작성하기 버튼 스타일
-const writeButtonStyle = {
-  width: 75,
-  height: 30,
-  background: "#4880FF",
-  borderRadius: 14,
-  border: "none",
-  color: "white",
-  fontSize: 12,
-  fontWeight: 600,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-// ✅ 삭제 버튼 스타일
-const deleteButtonStyle = {
-  width: 75,
-  height: 30,
-  background: "#FF5C5C",
-  borderRadius: 14,
-  border: "none",
-  color: "white",
-  fontSize: 12,
-  fontWeight: 600,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
 };

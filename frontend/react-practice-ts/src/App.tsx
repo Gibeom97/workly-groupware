@@ -35,6 +35,7 @@ function App() {
         {/*전자결재Route*/}
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
+        <Route path="/ApprovalWritePage/:approvalNo" element={<ApprovalWritePage />} /> {/*임시저장 작성하기*/}
         <Route path="/ApprovalCompletePage/:approvalNo" element={<ApprovalCompletePage/>}/>
 
         <Route path="/approvalTempPage" element={<ApprovalTempPage />} />

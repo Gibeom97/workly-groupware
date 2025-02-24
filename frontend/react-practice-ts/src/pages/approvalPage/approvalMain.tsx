@@ -34,20 +34,6 @@ export const ApprovalMain: React.FC = () => {
             setFilteredPosts={setFilteredPosts}
             currentPage={currentPage}
           />
-          {/* <div style={{ marginTop: '40px' }}>
-            <ApprovalFooter />
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center',
-              marginTop: '20px',
-              marginBottom: '40px'
-            }}>
-              <Pagination 
-                pageInfo={pageInfo}
-                setCurrentPage={setCurrentPage}
-              />
-            </div>
-          </div> */}
         </div>
       </div>
     </div>
