@@ -19,7 +19,6 @@ const PersonnelDetail = () => {
         extension: "",
         hireDate: "", // Date
         updateDate: "", // Date
-        totalLeaveDays: "",
         status: ""
     });
 
@@ -49,7 +48,6 @@ const PersonnelDetail = () => {
                     extension: r.extension,
                     hireDate: new Date(r.hireDate).toISOString().split("T")[0],
                     updateDate: r.updateDate === null ? "" : new Date(r.updateDate).toISOString().split("T")[0],
-                    totalLeaveDays: r.totalLeaveDays,
                     status: r.status
                 })
                 setAddressApi(r.address);
@@ -144,20 +142,43 @@ const PersonnelDetail = () => {
                             <option value="Z">휴직</option>
                         </select>
                     </div>
-                    <div className={styles.row}><label className={styles.label}>사번</label><input type="text" value={userNo} name="userNo" className={styles.input} onChange={handleChange} readOnly required /></div>
-                    <div className={styles.row}><label className={styles.label}>이름</label><input type="text" name="userName" value={member.userName} className={styles.input} onChange={handleChange} required /></div>
-                    <div className={styles.row}><label className={styles.label}>연락처</label><input type="number" name="phone" value={member.phone} className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" required /></div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>사번</label>
+                        <input type="text" value={userNo} name="userNo" className={styles.input} onChange={handleChange} readOnly required />
+                    </div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>이름</label>
+                        <input type="text" name="userName" value={member.userName} className={styles.input} onChange={handleChange} required />
+                    </div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>연락처</label>
+                        <input type="number" name="phone" value={member.phone} className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" required/>
+                    </div>
                     <div className={styles.row} >
                         <label className={styles.label}>주소</label>
                         <input type="text" name="address" value={addressApi} className={styles.input} onChange={handleChange} readOnly required />
                         <AddressForm setAddressApi={setAddressApi} />
                     </div>
-                    <div className={styles.row}><label className={styles.label}></label><input type="text" value={member.addressDetail} name="addressDetail" className={styles.input} placeholder="상세 주소" onChange={handleChange} required /></div>
-                    <div className={styles.row}><label className={styles.label}>이메일</label><input type="email" value={member.email} name="email" className={styles.input} onChange={handleChange} required /></div>
-                    <div className={styles.row}><label className={styles.label}>내선번호</label><input type="number" value={member.extension} name="extension" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" /></div>
-                    <div className={styles.row}><label className={styles.label}>연차</label><input type="number" value={member.totalLeaveDays} name="totalLeaveDays" className={styles.input} onChange={handleChange} /></div>
-                    <div className={styles.row}><label className={styles.label}>입사일</label><input type="date" value={member.hireDate} name="hireDate" className={styles.input} onChange={handleChange} required /></div>
-                    <div className={styles.row}><label className={styles.label}>퇴사일</label><input type="date" value={member.updateDate} name="updateDate" className={styles.input} onChange={handleChange} /></div>
+                    <div className={styles.row}>
+                        <label className={styles.label}></label>
+                        <input type="text" value={member.addressDetail} name="addressDetail" className={styles.input} placeholder="상세 주소" onChange={handleChange} required />
+                    </div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>이메일</label>
+                        <input type="email" value={member.email} name="email" className={styles.input} onChange={handleChange} required pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" />
+                    </div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>내선번호</label>
+                        <input type="number" value={member.extension} name="extension" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)"/>
+                    </div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>입사일</label>
+                        <input type="date" value={member.hireDate} name="hireDate" className={styles.input} onChange={handleChange} required />
+                    </div>
+                    <div className={styles.row}>
+                        <label className={styles.label}>상태변경일</label>
+                        <input type="date" value={member.updateDate} name="updateDate" className={styles.input} onChange={handleChange} />
+                    </div>
                     <div className={styles.buttonGroup}>
                         <button type="submit" className={styles.submitButton}>수정</button>
                         <button type="button" className={styles.cancleButton} onClick={() => navigate("/personnel")}>취소</button>

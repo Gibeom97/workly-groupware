@@ -3,12 +3,12 @@ import profile from "../../assets/Images/chat/profile.png";
 import bell from "../../assets/Images/chat/bell.png";
 
 interface ChatRoom {
-  no: number;
-  chatName: string;
+  chatRoomNo: number;
+  roomTitle: string;
   chatType: string;
   unreadCount?: number;
   isActive?: boolean;
-  isNotified: boolean; // 🔔 알림 설정 여부 추가
+  bellSetting: 'Y'|'N'; // 🔔 알림 설정 여부 추가
 }
 
 interface AlarmProps {
@@ -23,27 +23,29 @@ const Alarm = ({ chatRooms,
   const [filter, setFilter] = useState<"all" | "notified" | "muted">("all");
   
   // const [chatRooms, setChatRooms] = useState<ChatRoom[]>([
-  //   { no: 1, chatName: "김자수", chatType: "dm", isActive: true, unreadCount: 2, isNotified: true },
-  //   { no: 2, chatName: "채소염", chatType: "dm", isActive: false, isNotified: false },
-  //   { no: 3, chatName: "법무팀 채팅방", chatType: "group", unreadCount: 100, isNotified: true },
-  //   { no: 4, chatName: "인사팀 채팅방", chatType: "group", unreadCount: 15, isNotified: false },
-  //   { no: 5, chatName: "안관주", chatType: "dm", isActive: true, unreadCount: 6, isNotified: true },
-  //   { no: 6, chatName: "디자인팀 채팅방", chatType: "group", isNotified: true },
+  //   { no: 1, roomTitle: "김자수", chatType: "dm", isActive: true, unreadCount: 2, bellSetting: true },
+  //   { no: 2, roomTitle: "채소염", chatType: "dm", isActive: false, bellSetting: false },
+  //   { no: 3, roomTitle: "법무팀 채팅방", chatType: "group", unreadCount: 100, bellSetting: true },
+  //   { no: 4, roomTitle: "인사팀 채팅방", chatType: "group", unreadCount: 15, bellSetting: false },
+  //   { no: 5, roomTitle: "안관주", chatType: "dm", isActive: true, unreadCount: 6, bellSetting: true },
+  //   { no: 6, roomTitle: "디자인팀 채팅방", chatType: "group", bellSetting: true },
   // ]);
 
   // 알림 상태 토글 함수
   const toggleNotification = (no: number) => {
     setChatList((prev) =>
       prev.map((room) =>
-        room.no === no ? { ...room, isNotified: !room.isNotified } : room
+        room.chatRoomNo === no
+          ? { ...room, bellSetting: room.bellSetting === 'Y' ? 'N' : 'Y' }
+          : room
       )
     );
   };
 
   // 필터링 적용된 채팅방 목록
   const filteredRooms = chatRooms.filter((room) => {
-    if (filter === "notified") return room.isNotified;
-    if (filter === "muted") return !room.isNotified;
+    if (filter === "notified") return room.bellSetting === 'Y';
+    if (filter === "muted") return room.bellSetting === 'N';
     return true;
   });
 
@@ -120,7 +122,7 @@ const Alarm = ({ chatRooms,
       {/* 채팅방 목록 */}
       {filteredRooms.map((room) => (
         <div
-          key={room.no}
+          key={room.chatRoomNo}
           style={{
             display: "flex",
             alignItems: "center",
@@ -147,7 +149,7 @@ const Alarm = ({ chatRooms,
 
           {/* 채팅방 이름 */}
           <div style={{ flexGrow: 1 }}>
-            <div style={{ fontWeight: 600 }}>{room.chatName}</div>
+            <div style={{ fontWeight: 600 }}>{room.roomTitle}</div>
             <div style={{ fontSize: "12px", color: room.isActive ? "#4880FF" : "#999999" }}>
               {room.isActive ? "활성화" : "비활성화"}
             </div>
@@ -177,9 +179,9 @@ const Alarm = ({ chatRooms,
               width: "20px",
               height: "20px",
               cursor: "pointer",
-              opacity: room.isNotified ? 1 : 0.3,
+              opacity: room.bellSetting === 'Y' ? 1 : 0.3,
             }}
-            onClick={() => toggleNotification(room.no)}
+            onClick={() => toggleNotification(room.chatRoomNo)}
           />
         </div>
       ))}

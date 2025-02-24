@@ -3,23 +3,21 @@ import { ApprovalMemoModal } from "./approvalMemoModal";
 import ApprovalOutcheckModal from "./approvalOutcheckModal";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
+    // Redux에서 user 정보 가져오기
+    const userNo = useSelector((state: any) => state.user.userNo);
 
     const [modalOpen, setModalOpen] = useState(false);
     const [outCheckModalOpen, setOutCheckModalOpen] = useState(false);
 
     const [approvalMemoData, setApprovalMemoData] = useState({
-        userNo: approvalData?.userNo ?? 1, // null이나 undefined가 오면 1로 설정
+        userNo: userNo,
         approvalNo: approvalData.approvalNo || null, // 결재 문서 저장 후 업데이트 필요
         memoContent: "",
         memoDate: new Date().toISOString(),
     });
-
-    // 데이터 확인용 로그 추가
-    useEffect(() => {
-        console.log("footer에서 받은 approvalData:", approvalData);
-    }, [approvalData]);
 
     // ✅ 📌 여기 추가: approvalNo가 변경될 때 approvalMemoData 업데이트
     useEffect(() => {
@@ -27,14 +25,10 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
             setApprovalMemoData(prevMemoData => ({
                 ...prevMemoData,
                 approvalNo: approvalData.approvalNo,
-                userNo: prevMemoData.userNo
+                userNo: userNo
             }));
         }
-    }, [approvalData.approvalNo]); 
-
-    useEffect(() => {
-        console.log("현재 approvalData.userNo 값:", approvalData.userNo);
-    }, [approvalData]);
+    }, [approvalData.approvalNo, userNo]); 
 
     const navigate = useNavigate();
     
@@ -47,12 +41,18 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
 
         try {
 
-            console.log("결재 문서 저장 요청 데이터:", approvalData);
+            // Redux의 userNo를 명시적으로 설정
+            const finalAPprovalData = {
+                ...approvalData,
+                userNo: userNo
+            };
+
+            console.log("결재 문서 저장 요청 데이터:", finalAPprovalData);
 
             // 1️⃣ 결재 문서 저장 요청
             const approvalResponse = await axios.post(
                 "http://localhost:8003/workly/api/approval/submit",
-                approvalData, 
+                finalAPprovalData, 
                 {
                     headers: {"Content-Type": "application/json"}, //JSON명시
                 }
@@ -69,7 +69,9 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
 
             setApprovalMemoData(prevState => ({
                 ...prevState,
-                approvalNo: approvalNo
+                approvalNo: approvalNo,
+                userNo: userNo
+
             }));
 
             console.log("approvalNo값:", approvalNo);
@@ -82,7 +84,7 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
             const finalApprovalMemoData = {
                 ...approvalMemoData,
                 approvalNo: approvalNo, // ✅ 방금 저장된 approvalNo 설정
-                userNo: approvalData.userNo,
+                userNo: userNo,
                 memoContent: memoContent, // ✅ 최신 결재 의견 반영
             };
             await axios.post("http://localhost:8003/workly/api/approvalMemos/create", finalApprovalMemoData);
@@ -93,7 +95,7 @@ export const ApprovalWriteFooter = ({ approvalData, approvalLine}) => {
                     approvalNo: approvalNo, // 방금 저장된 결재 문서의 approvalNo
                     approvalLineType: emp.approvalType,
                     type: emp.type,
-                    approvalLevel: emp.level,
+                    approvalLevel: emp.approvalLevel,
                     userNo: emp.USER_NO,
                 }));
 

@@ -44,6 +44,7 @@ useEffect(() => {
 
   // 🌟 일정 저장 (새로운 일정 추가 & 기존 일정 수정)
   const handleSaveClick = () => {
+    console.log(endDate);
     if (!eventTitle || !startDate || !endDate) {
       alert("제목과 날짜를 입력해주세요.");
       return;

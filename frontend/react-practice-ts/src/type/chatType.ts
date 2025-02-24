@@ -3,14 +3,37 @@ export interface ChatDropdownProps {
     toggleDropdown: () => void; // 드롭다운 토글 함수 추가
   }
 
-export interface Member {
-  no: number;
-  name: string;
-  position: string;
-  team: string;
-}
+  export interface Member {
+    userNo: number;     // 고유번호
+    userName: string;       // 이름
+    positionNo: number; // 직급번호
+    deptNo: number;     // 부서번호
+  }
+  
 
 export interface Department {
   deptName: string;
   members: Member[];
 }
+
+export const departments = [
+  { deptNo: 1, deptName: '경영지원부' },
+  { deptNo: 2, deptName: '인사부' },
+  { deptNo: 3, deptName: '개발부' },
+  { deptNo: 4, deptName: '영업부' },
+  { deptNo: 5, deptName: '마케팅부' },
+  { deptNo: 6, deptName: '고객지원부' },
+];
+
+export const positions = [
+  { positionNo: 1, positionName: '사장' },
+  { positionNo: 2, positionName: '부사장' },
+  { positionNo: 3, positionName: '이사' },
+  { positionNo: 4, positionName: '부장' },
+  { positionNo: 5, positionName: '차장' },
+  { positionNo: 6, positionName: '과장' },
+  { positionNo: 7, positionName: '대리' },
+  { positionNo: 8, positionName: '주임' },
+  { positionNo: 9, positionName: '사원' },
+];
+

@@ -8,12 +8,12 @@
 .thStyle {
     padding: 12px;
     border-bottom: 2px solid #202224;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .tdStyle {
     padding: 14px 5px;
-    font-size: 15px;
+    font-size: 14px;
     color: #202224;
     white-space: nowrap;
     overflow: hidden;
@@ -29,14 +29,13 @@
     background-color: #f9fafb;
 }
 
-.thStyle:nth-child(1), .tdStyle:nth-child(1) { width: 6%; }  /* 사번 */
-.thStyle:nth-child(2), .tdStyle:nth-child(2) { width: 5%; } /* 이름 */
+.thStyle:nth-child(1), .tdStyle:nth-child(1) { width: 7%; }  /* 사번 */
+.thStyle:nth-child(2), .tdStyle:nth-child(2) { width: 7%; } /* 이름 */
 .thStyle:nth-child(3), .tdStyle:nth-child(3) { width: 15%; } /* 이메일 */
 .thStyle:nth-child(4), .tdStyle:nth-child(4) { width: 8%; }  /* 내선번호 */
 .thStyle:nth-child(5), .tdStyle:nth-child(5) { width: 9%; } /* 연락처 */
 .thStyle:nth-child(6), .tdStyle:nth-child(6) { width: 9%; } /* 부서 */
 .thStyle:nth-child(7), .tdStyle:nth-child(7) { width: 6%; } /* 직급 */
-.thStyle:nth-child(8), .tdStyle:nth-child(8) { width: 10%; } /* 입사일 */
-.thStyle:nth-child(9), .tdStyle:nth-child(9) { width: 10%; } /* 퇴사일 */
-.thStyle:nth-child(10), .tdStyle:nth-child(10) { width: 4%; } /* 연차 */
-.thStyle:nth-child(11), .tdStyle:nth-child(11) { width: 15%; } /* 주소 */
+.thStyle:nth-child(8), .tdStyle:nth-child(8) { width: 8%; } /* 입사일 */
+.thStyle:nth-child(9), .tdStyle:nth-child(9) { width: 8%; } /* 퇴사일 */
+.thStyle:nth-child(10), .tdStyle:nth-child(10) { width: 15%; } /* 주소 */

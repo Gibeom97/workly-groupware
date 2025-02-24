@@ -7,11 +7,11 @@ const ChatCreate = ({
   invitePeople,
   onClose,
 }: {
-  invitePeople: (chatType: string, chatName: string) => void;
+  invitePeople: (chatType: string, roomTitle: string) => void;
   onClose: () => void;
 }) => {
   const [chatType, setChatType] = useState<'1:1' | '그룹' | ''>('');
-  const [chatName, setChatName] = useState('');
+  const [roomTitle, setRoomTitle] = useState('');
   
 
   const handleInviteClick = () => {
@@ -19,8 +19,8 @@ const ChatCreate = ({
       alert('채팅 종류를 선택해주세요!');
       return;
     }
-    console.log("ChatCreate - handleInviteClick 실행됨!", chatType, chatName); // ✅ 확인용 로그 추가
-    invitePeople(chatType, chatName);
+    console.log("ChatCreate - handleInviteClick 실행됨!", chatType, roomTitle); // ✅ 확인용 로그 추가
+    invitePeople(chatType, roomTitle);
   };
 
   return (
@@ -230,8 +230,8 @@ const ChatCreate = ({
       <input
         type="text"
         placeholder="방 이름을 입력하세요"
-        value={chatName}
-        onChange={(e) => setChatName(e.target.value)}
+        value={roomTitle}
+        onChange={(e) => setRoomTitle(e.target.value)}
         style={{
           position: "absolute",
           left: 73,

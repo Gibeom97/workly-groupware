@@ -22,10 +22,10 @@ const DeptPositionSelect = ({positionNo, deptNo, handleChange}) => {
         setSelectedDept(deptNo);
         setSelectedPosition(positionNo);
     }, [deptNo, positionNo]);
-
+    // value={selectedDept}
     return (
         <>
-            <select name="deptNo"  value={selectedDept} className={styles.input} onChange={handleChange} required>
+            <select name="deptNo" value={selectedDept} className={styles.input} onChange={handleChange} required>
                 <option value="0" disabled >부서명</option>
                 { 
                     dept.map(function(e, i){

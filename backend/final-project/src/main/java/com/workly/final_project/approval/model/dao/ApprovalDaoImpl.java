@@ -23,6 +23,7 @@ public class ApprovalDaoImpl implements ApprovalDao{
 	public int insertApproval(Approval approval) {
 		int result = sqlSession.insert("Approval.insertApproval", approval);
 		System.out.println("✅ Approval 저장 완료, ApprovalNo: " + approval.getApprovalNo());
+		System.out.println("받아온 userNo값:" + approval.getUserNo());
 		return result;
 	}
 

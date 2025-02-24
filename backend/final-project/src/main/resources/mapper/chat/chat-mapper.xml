@@ -2,7 +2,20 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="chat">
+<mapper namespace="com.workly.final_project.chat.model.dao.ChatDao">
+
+
+	<select id="getChatMembers" resultType="com.workly.final_project.member.model.dto.MemberDeptPositionDTO">
+	    SELECT 
+	        M.USER_NO AS userNo,
+	        M.USER_NAME AS userName,
+	        D.DEPT_NAME AS deptName,
+	        P.POSITION_NAME AS positionName
+	    FROM MEMBER M
+	    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
+	    JOIN POSITION P ON M.POSITION_NO = P.POSITION_NO
+	</select>
+
 
 </mapper>
 
