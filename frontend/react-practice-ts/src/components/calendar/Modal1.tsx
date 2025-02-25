@@ -25,14 +25,32 @@ const Modal1: React.FC<Modal1Props> = ({ isOpen, onClose, onSave, onDelete, sele
       setMeetingDate(selectedEvent.start ? selectedEvent.start.split("T")[0] : "");
       
       // ✅ 기존 예약의 시간 값을 유지하면서 "HH:MM" 형식으로 설정
-      setStartTime(selectedEvent.start ? selectedEvent.start.split("T")[1].slice(0, 5) : "");
-      setEndTime(selectedEvent.end ? selectedEvent.end.split("T")[1].slice(0, 5) : "");
+      const startDateTime = selectedEvent.start ? selectedEvent.start.split("T") : ["", ""];
+      const endDateTime = selectedEvent.end ? selectedEvent.end.split("T") : ["", ""];
+  
+      setStartTime(startDateTime[1] ? startDateTime[1].slice(0, 5) : "");
       
+      // ✅ 종료 시간이 존재하지 않을 경우, 기본적으로 시작 시간 +1시간을 기본값으로 설정
+      if (selectedEvent.end) {
+        setEndTime(endDateTime[1] ? endDateTime[1].slice(0, 5) : "");
+      } else {
+        const defaultEndTime = startDateTime[1] ? getOneHourLater(startDateTime[1]) : "";
+        setEndTime(defaultEndTime);
+      }
+  
       setSelectedColor(selectedEvent.backgroundColor || "");
     } else {
       resetForm();
     }
   }, [selectedEvent, isOpen]);
+  
+  // ✅ 시작 시간에서 +1시간을 계산하는 함수 추가
+  const getOneHourLater = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    const newHours = (hours + 1) % 24; // 24시간제 처리
+    return `${newHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  };
+  
 
   // 🌟 입력값 초기화
   const resetForm = () => {
