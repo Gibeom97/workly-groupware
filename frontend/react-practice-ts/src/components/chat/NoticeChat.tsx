@@ -1,35 +1,42 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { setMemberInvite } from "../../features/chatSlice";
+import { Member } from "../../type/chatType";
+import AddMemberPanel from "./AddMemberPanel";
+import axios from "axios";
 import speaker from "../../assets/Images/chat/loud-speaker 11.png";
 import profile from "../../assets/Images/chat/profile.png";
 import bell from "../../assets/Images/chat/bell.png";
 import personplus from "../../assets/Images/chat/personPlus.png";
 import exit from "../../assets/Images/chat/exit.png";
-import { useState } from "react";
-import { Member } from "../../type/chatType";
-import AddMemberPanel from "./AddMemberPanel";
 
-const members: Member[] = [
-  { userNo: 1, userName: '박솜이', positionNo: 3, deptNo: 1 },
-  { userNo: 2, userName: '안관주', positionNo: 3, deptNo: 1 },
-  { userNo: 3, userName: '임사윤', positionNo: 4, deptNo: 1 },
-  { userNo: 4, userName: '김자수', positionNo: 7, deptNo: 1 },
-  { userNo: 5, userName: '김예삐', positionNo: 8, deptNo: 2 },
-  { userNo: 6, userName: '채소염', positionNo: 8, deptNo: 2 },
-  { userNo: 7, userName: '최웡카', positionNo: 4, deptNo: 2 },
-  { userNo: 8, userName: '김기밤', positionNo: 7, deptNo: 2 },
-  { userNo: 9, userName: '김젤리', positionNo: 9, deptNo: 2 },
-  { userNo: 10, userName: '이용휘', positionNo: 8, deptNo: 2 },
-];
 
 interface NoticeChatProps {
   onClose: () => void;
-  // currentMembers: Member[]; // 백엔드 연결시 
-  // onAddMembers: (newMembers: Member[]) => void;
 }
 
 const NoticeChat = ({ onClose }: NoticeChatProps) => {
+  const dispatch = useDispatch();
   const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
   const [chatMembers, setChatMembers] = useState<Member[]>([]);
-  const [allEmployees] = useState<Member[]>(members);
+  const [allEmployees, setAllEmployees] = useState<Member[]>([]);
+
+  // 🔹 Redux에서 초대된 멤버 목록 가져오기
+  const memberInvite = useSelector((state: RootState) => state.chat.memberInvite);
+
+  // 🔹 DB에서 전체 사원 목록 가져오기
+  useEffect(() => {
+    axios.get("http://localhost:8003/workly/api/chat/members")
+      .then((res) => setAllEmployees(res.data))
+      .catch((err) => console.error("멤버 목록 불러오기 실패", err));
+  }, []);
+
+  // 🔹 Redux의 초대 멤버와 현재 채팅 멤버 동기화
+  useEffect(() => {
+    const invitedMembers = allEmployees.filter(member => memberInvite.includes(member.userName));
+    setChatMembers([...invitedMembers]);
+  }, [memberInvite, allEmployees]);
 
   const handlePersonPlusClick = () => {
     setIsAddMemberPanelOpen(true);
@@ -46,17 +53,14 @@ const NoticeChat = ({ onClose }: NoticeChatProps) => {
       return;
     }
 
-    const updatedMembers = [...chatMembers, ...filteredNewMembers];
-    setChatMembers(updatedMembers);
-
-    alert(
-      `새 멤버 초대 완료: ${filteredNewMembers.map((m) => m.userName).join(", ")}`
-    );
+    // 🔹 Redux 상태 업데이트 (초대된 멤버 Redux에 저장)
+    dispatch(setMemberInvite([...memberInvite, ...filteredNewMembers.map(m => m.userName)]));
 
     setIsAddMemberPanelOpen(false);
   };
 
   return (
+    
     <div
       className="noticechat-container"
       style={{
@@ -145,6 +149,7 @@ const NoticeChat = ({ onClose }: NoticeChatProps) => {
         />
       </div>
 
+      {/* 🔹 공지 내용 */}
       <div
         className="noticechat-content-group"
         style={{
@@ -195,7 +200,7 @@ const NoticeChat = ({ onClose }: NoticeChatProps) => {
         <div>공지 내용 출력 부분</div>
       </div>
 
-      {/* 멤버 초대 아이콘 */}
+      {/* 🔹 멤버 초대 아이콘 */}
       <img
         className="personplus"
         onClick={handlePersonPlusClick}
@@ -234,31 +239,9 @@ const NoticeChat = ({ onClose }: NoticeChatProps) => {
         </div>
       )}
 
-      {/* 나머지 아이콘들 */}
-      <img
-        className="bell"
-        style={{
-          width: 30,
-          height: 30,
-          left: 31,
-          top: 545,
-          position: "absolute",
-        }}
-        src={bell}
-        alt="icon"
-      />
-      <img
-        className="exit"
-        style={{
-          width: 30,
-          height: 30,
-          left: 131,
-          top: 545,
-          position: "absolute",
-        }}
-        src={exit}
-        alt="icon"
-      />
+      {/* 🔹 나머지 아이콘들 */}
+      <img className="bell" style={{ width: 30, height: 30, left: 31, top: 545, position: "absolute" }} src={bell} alt="icon" />
+      <img className="exit" style={{ width: 30, height: 30, left: 131, top: 545, position: "absolute" }} src={exit} alt="icon" />
     </div>
   );
 };

@@ -13,6 +13,17 @@
 		    SELECT 1 FROM DUAL
 		</insert>
 		
+		<!-- 진행 중 결재 문서 조회 쿼리 -->
+		<select id="getInProgressApprovals" resultType="ApprovalLine">
+		    SELECT al.APPROVAL_NO, al.USER_NO, al.TYPE, al.APPROVAL_LEVEL, a.APPROVAL_TITLE, a.APPROVAL_DATE, al.STATUS
+		    FROM APPROVAL_LINE al
+		    JOIN APPROVAL a ON al.APPROVAL_NO = a.APPROVAL_NO
+		    WHERE al.USER_NO = #{userNo}
+		      AND al.STATUS = 1
+		      AND al.TYPE = '결재자'
+		</select>
+
+		
 		<!--즐겨찾기 정보 저장(LINE_NO자동생성)-->
 		<insert id="saveFavoriteInfo" parameterType="ApprovalFavoriteLine" useGeneratedKeys="true" keyProperty="lineNo" keyColumn="LINE_NO">
 		    INSERT INTO APPROVAL_FAVORITE_LINE (LINE_NO, FAVORITE_NAME, USER_NO) 
@@ -36,7 +47,8 @@
 			    M.USER_NAME,
 			    L.FAVORITE_NAME,
 			    A.APPROVAL_TYPE,
-			    A."LEVEL"
+			    A."LEVEL",
+			    A.USER_NO
 			FROM APPROVAL_ACTUAL_LINE A
 			JOIN MEMBER M ON A.USER_NO = M.USER_NO
 			JOIN DEPARTMENT D USING(DEPT_NO)

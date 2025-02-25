@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.approval.model.dao.ApprovalLineDao;
+import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.ApprovalActualLine;
 import com.workly.final_project.approval.model.vo.ApprovalFavoriteLine;
 import com.workly.final_project.approval.model.vo.ApprovalLine;

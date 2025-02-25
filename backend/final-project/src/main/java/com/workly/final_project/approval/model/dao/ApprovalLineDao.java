@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.ApprovalActualLine;
 import com.workly.final_project.approval.model.vo.ApprovalFavoriteLine;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
@@ -13,6 +14,8 @@ import com.workly.final_project.approval.model.vo.ApprovalLine;
 public interface ApprovalLineDao {
 
 	void saveApprovalLine(List<ApprovalLine> approvalLines);
+	
+//	List<ApprovalLine> findInProgressApprovalsByUserNo(int userNo);
 
 	int saveFavoriteInfo(ApprovalFavoriteLine favoriteLineInfo);
 

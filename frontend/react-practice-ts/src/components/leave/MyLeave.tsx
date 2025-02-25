@@ -19,7 +19,7 @@ const MyLeave = () => {
         setYear(new Date().getFullYear());
     }
 
-    const handleChange = (e) => {
+    const handleChange = (e: { target: { name: string; }; }) => {
         e.target.name === 'minus' ? setYear(year - 1) : setYear(year + 1);
         setCurrentPage(1);
     }
@@ -37,7 +37,7 @@ const MyLeave = () => {
                 setAnnualLeave(response.data.list[0].annualLeave);
                 setPageInfo(response.data.pi);
             })
-            .catch(error => {
+            .catch((error) => {
                 setHistory([]);
                 setAnnualLeave({
                     totalAnnualLeave : 0,

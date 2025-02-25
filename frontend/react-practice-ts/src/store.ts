@@ -14,7 +14,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
     user: persistReducer(persistConfig, userReducer),
-    chat: persistReducer(persistConfig, chatReducer), // chatReducer를 별도 persist 설정
+    chat: persistReducer(persistConfig, chatReducer), 
 });
 
 

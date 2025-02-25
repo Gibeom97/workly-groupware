@@ -3,6 +3,7 @@ package com.workly.final_project.approval.model.service;
 import java.util.List;
 import java.util.Map;
 
+import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.ApprovalActualLine;
 import com.workly.final_project.approval.model.vo.ApprovalFavoriteLine;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
@@ -19,4 +20,5 @@ public interface ApprovalLineService {
 
 	void deleteFavoriteLine(int userNo, String favoriteName);
 	
+//	List<ApprovalLine> getInProgressApprovals(int userNo);
 }

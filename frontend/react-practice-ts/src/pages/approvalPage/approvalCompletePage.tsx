@@ -7,13 +7,14 @@ import Header from "../../components/common/Header";
 import Sidebar from "../../components/common/Sidebar";
 
 export const ApprovalCompletePage = () => {
+
   return (
     <div className="mainpageContainer">
       <Sidebar />
       <div className="componentContainer">
         <Header />
         <div style={scrollableContentStyle}>
-          <ApprovalCompleteHeader />
+          <ApprovalCompleteHeader />                         
           <ApprovalCompleteDocument />
           <ApprovalCompleteReply />
           <ApprovalCompleteFooter/>

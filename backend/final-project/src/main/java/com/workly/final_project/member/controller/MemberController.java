@@ -56,7 +56,7 @@ public class MemberController {
 			error.put("msg", "계정 정보가 일치하지 않습니다.");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 		}
-	}
+	}	
 	
 	@CrossOrigin("http://localhost:5173")
 	@GetMapping("/personnel")
@@ -200,5 +200,11 @@ public class MemberController {
 		return responseEntity;
 	}
 	
+	@CrossOrigin("http://localhost:5173")
+	@GetMapping("/memberSearch")
+	public List<MemberDTO> selectModalMemberList() {
+		return service.selectModalMemberList();
+	}
+
 }
 
