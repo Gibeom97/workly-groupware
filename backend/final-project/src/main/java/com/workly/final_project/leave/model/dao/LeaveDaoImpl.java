@@ -10,6 +10,7 @@ import com.workly.final_project.common.model.vo.PageRow;
 import com.workly.final_project.common.utils.Util;
 import com.workly.final_project.leave.model.dto.AnnualHistoryDTO;
 import com.workly.final_project.leave.model.vo.AnnualLeave;
+import com.workly.final_project.leave.model.vo.LeavePolicy;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,5 +44,15 @@ public class LeaveDaoImpl implements LeaveDao {
 	@Override
 	public int updateLeave(AnnualLeave leave) {
 		return session.update("leave.updateLeave", leave);
+	}
+
+	@Override
+	public List<LeavePolicy> selectLeavePolicy() {
+		return session.selectList("leave.selectLeavePolicy");
+	}
+
+	@Override
+	public int updatePolicy(LeavePolicy policy) {
+		return session.update("leave.updatePolicy", policy);
 	}
 }

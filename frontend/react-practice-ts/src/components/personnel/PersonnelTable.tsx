@@ -42,13 +42,13 @@ const PersonnelTable = () => {
     useEffect(() => {
         fetchPesonnel();
     }, [currentPage, category, searchMember]);
-
+``
     const phoneFormat = (phone) => {
         return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
     };
 
     return (
-        <div>
+        <div className={styles.container}>
             <SearchBar 
                 category={category} 
                 setCategory={setCategory} 

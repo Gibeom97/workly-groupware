@@ -53,16 +53,20 @@
 }
 
 /* 아이디 저장 체크박스 */
-.saveId {
+
+.saveContainer {
     display: flex;
-    align-items: center;
-    margin: 1rem 0;
-    font-size: 0.9rem;
-    color: #555;
+    font-size: 12px;
+    margin: 15px 0px;
+}
+.saveId {
+    width: 15px;
+    margin-right: 8px;
+    border: 1px solid #555;
 }
 
-.saveId input {
-    margin-right: 0.4rem;
+.saveLabel {
+    color:#555;
 }
 
 /* 로그인 버튼 */

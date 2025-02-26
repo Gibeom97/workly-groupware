@@ -1,0 +1,40 @@
+.policyContainer {
+    margin-top: 51px;
+}
+
+.table {
+    width: 60%;
+    border-collapse: collapse;
+    text-align: center;
+    table-layout: fixed;
+    margin: 0 auto;
+}
+
+.thStyle {
+    padding: 12px;
+    background: #eeeeee;
+    border-bottom: 2px solid #202224;
+    font-size: 16px;
+}
+
+.tdStyle {
+    padding: 14px 5px;
+    font-size: 14px;
+    color: #202224;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rowStyle {
+    border-bottom: 1px solid #E0E0E0;
+    cursor: pointer;
+}
+
+.rowStyle:hover {
+    background-color: #f9fafb;
+}
+
+.thStyle:nth-child(1), .tdStyle:nth-child(1) { width: 20%; }
+.thStyle:nth-child(2), .tdStyle:nth-child(2) { width: 40%; }
+.thStyle:nth-child(3), .tdStyle:nth-child(3) { width: 40%; }
