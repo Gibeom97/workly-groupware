@@ -57,3 +57,14 @@ export const positions = [
   { positionNo: 9, positionName: '사원' },
 ];
 
+export interface ChatMessage {
+  chatNo: number;
+  userNo: number;
+  userName: string;
+  chatRoomNo: number;
+  message: string;
+  receivedDate: string;
+  isMine: boolean;
+};
+
+

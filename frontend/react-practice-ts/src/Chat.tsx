@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChatContainer from "./components/chat/ChatContainer";
 import ChatIconSearch from "./components/chat/ChatIconSearch";
 import ChatMain from "./components/chat/ChatMain";
@@ -17,8 +17,10 @@ import OrgChart from "./components/chat/OrgChart";
 import CreateOrg from "./components/chat/CreateOrg";
 import { Department,  Member, defaultMember  } from "./type/chatType";
 import Alarm from "./components/chat/Alarm";
-import { useSelector } from "react-redux";
-import { RootState } from "./store"; //
+//import { useSelector } from "react-redux";
+//import { RootState } from "./store"; 
+import { ChatMessage } from "./type/chatType"; 
+
 
 
 interface ChatRoom {
@@ -31,9 +33,35 @@ interface ChatRoom {
   createdChat?: string;
 }
 
+interface CurrentUser{
+  userNo : number;
+  userName : string;
+  statusType : string;
+  totalAnnualLeave : number;
+  usedAnnualLeave : number;
+  deptName : string;
+  positionName : string;
+}
 
-const Chat = () => {
-  const loggedInUser = useSelector((state: RootState) => state.user);
+interface ChatProps {
+  currentUser: CurrentUser;
+  onClose: () => void;
+}
+
+
+const Chat = ({ currentUser, onClose }: ChatProps) => {
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]); // ✅ 초기값 빈 배열 설정
+
+  useEffect(() => {
+    console.log("📌 유저 변경 감지:", currentUser.userNo);
+
+    setChatMessages((prevMessages = []) =>  // ✅ prevMessages가 undefined일 경우 빈 배열 처리
+      prevMessages.map(msg => ({
+        ...msg,
+        isMine: Number(msg.userNo) === Number(currentUser.userNo),
+      }))
+    );
+  }, [currentUser.userNo]);
 
   const [isOpen, setIsOpen] = useState(true);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -43,10 +71,6 @@ const Chat = () => {
   const [isMyInfoModalOpen, setIsMyInfoModalOpen] = useState(false);
   const [isFirstChatOpen, setIsFirstChatOpen] = useState(false);
   const [isChatListOpen, setIsChatListOpen] = useState(false);
-  // const [chatList, setChatList] = useState<ChatRoom[]>([
-  //   { chatRoomNo : 1, roomTitle: '개발팀 회의', chatType: 'group', unreadCount: 0, isActive: true, bellSetting: 'Y' },
-  //   { chatRoomNo : 2, roomTitle: '디자인팀 회의', chatType: 'group', unreadCount: 2, isActive: false, bellSetting: 'Y' },
-  // ]);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSearchMemberOpen, setIsSearchMemberOpen] = useState(false);
   const [searchChatType, setSearchChatType] = useState<string>("");
@@ -59,12 +83,13 @@ const Chat = () => {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [chatList, setChatList] = useState<ChatRoom[]>([]);
 
+
   const toggleSearch = () => {
     setIsSearchVisible((prev) => !prev);
   };
 
   const handleProfileClick = (member: Member) => {  
-    if (member.userNo === loggedInUser.userNo) {
+    if (member.userNo === currentUser.userNo) {
       setIsMyInfoModalOpen(true); // 로그인한 사용자 (나) myinfo열기
     } else {
       setSelectedMember(member);
@@ -76,6 +101,7 @@ const Chat = () => {
     setIsInfoModalOpen(false);
     setSelectedMember(null); // 모달 닫을 때 초기화
   };
+
 
   const closeMyInfoModal = () => setIsMyInfoModalOpen(false);
   const closeNoticeChat = () => setIsNoticeOpen(false);
@@ -115,6 +141,7 @@ const Chat = () => {
       
     }, 0);
   };
+  
 
   const handleChatRoomComplete = (newChatRoom: {
     roomTitle: string;
@@ -176,7 +203,34 @@ const Chat = () => {
     setIsOrgOpen(false);
     setIsCreateOrgOpen(false);
     setIsAlarmListOpen(true);
-  }
+  };
+
+  const onToggleAlarm = (chatRoomNo: number, bellSetting: string) => {
+    const validBellSetting = (bellSetting === 'Y' || bellSetting === 'N') ? bellSetting : 'N';
+  
+    setChatList((prev) =>
+      prev.map((room): ChatRoom =>
+        room.chatRoomNo === chatRoomNo ? { ...room, bellSetting: validBellSetting } : room
+      )
+    );
+  };
+  
+  
+
+  
+
+  // ✅ 1. LocalStorage에서 chatList 불러오기
+  useEffect(() => {
+    const savedChatList = localStorage.getItem("chatList");
+    if (savedChatList) {
+      setChatList(JSON.parse(savedChatList));
+    }
+  }, []);
+
+  // ✅ 2. chatList가 변경될 때마다 LocalStorage에 저장
+  useEffect(() => {
+    localStorage.setItem("chatList", JSON.stringify(chatList));
+  }, [chatList]);
 
   if (!isOpen) return null;
 
@@ -194,34 +248,21 @@ const Chat = () => {
           </>
         ) : isMyInfoModalOpen ? (
          <InfoContainer> 
-             <MyInfo myinfo={loggedInUser}  onClose={closeMyInfoModal} />
+             <MyInfo myinfo={currentUser}  onClose={closeMyInfoModal} />
           </InfoContainer>
         ) : selectedChatRoom ? (
-          <GroupChat
+            <GroupChat
             room={selectedChatRoom!}
-            messages={[
-              { userName: '홍길동', message: '안녕하세요!', chatNo: 1, lastReadChatNo: 0, receivedDate: '9:41 AM', isMine: false, chatRoomNo: 1 },
-              { userName: '김철수', message: '회의 시간 변경되었어요.', chatNo: 2, lastReadChatNo: 1, receivedDate: '9:41 AM', isMine: false, chatRoomNo: 1 },
-              { userName: '나(본인)', message: '넵 확인했습니다.', chatNo: 3, lastReadChatNo: 2, receivedDate: '9:41 AM', isMine: true, chatRoomNo: 1 }
-            ]}
-            
+            currentUser={currentUser}  
+            messages={chatMessages}
             onClose={() => {
               setSelectedChatRoom(null);
               setIsChatListOpen(true);
             }}
-            onToggleAlarm={(chatRoomNo, bellSetting) => {
-              setChatList((prev) =>
-                prev.map((room) =>
-                  room.chatRoomNo === chatRoomNo ? { ...room, bellSetting } : room
-                )
-              );
-            }}
-            currentMembers={[  // ⬅️ 이런 식으로 실제 멤버들 내려주는 상태도 필요
-              // { userNo: 1, userName: '홍길동', positionNo: 9, deptName: 3 },
-              // { userNo: 2, userName: '김철수', positionNo: 7, deptNo: 3 },
-              // { userNo: 3, userName: '나(본인)',positionNo: 8,deptNo: 3 },
-            ]}
+            onToggleAlarm={onToggleAlarm} 
+            currentMembers={[]}
           />
+
 
           ) : isInfoModalOpen ? (
           <InfoContainer>

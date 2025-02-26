@@ -7,7 +7,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
 import com.workly.final_project.chat.model.dto.FavoriteDTO;
+import com.workly.final_project.chat.model.vo.Chat;
 import com.workly.final_project.chat.model.vo.ChatRoom;
+import com.workly.final_project.chat.model.vo.UserChat;
 import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -58,10 +60,43 @@ public class ChatDao {
 
 	
 	public List<ChatRoom> getChatList(int userNo) {
-		return sqlSession.selectList("chat.getChatList");
+		return sqlSession.selectList("chat.getChatList", userNo);
+	}
+
+	public int saveChatMessage(Chat chat) {
+		return sqlSession.insert("chat.saveChatMessage", chat);
+	}
+
+	public List<Chat> getChatMessages(int chatRoomNo){
+		return sqlSession.selectList("chat.getChatMessages", chatRoomNo);
+	}
+	
+	public List<Integer> getUserNosByChatRoom(int chatRoomNo) {
+	    List<Integer> userNos = sqlSession.selectList("chat.getUserNosByChatRoom", chatRoomNo);
+	    System.out.println("✅ [ChatDao] 채팅방 참여자 userNos: " + userNos);
+	    return userNos;
 	}
 
 
+	
+//	// 채팅방 참여 시 UserChat에 추가
+//	public int insertUserChat(UserChat userChat) {
+//		return sqlSession.insert("chat.insertUserChat", userChat);
+//	}
+//	
+//	public void updateLastReadChatNo(UserChat userChat) {
+//		sqlSession.update("chat.updateLastReadChatNo", userChat);
+//	}
+//
+//	public int getLastReadChatNo(int userNo, int chatRoomNo) {
+//		return sqlSession.selectOne("chat.getLastReadChatNo", Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));
+//	}
+	
+	
+	
+	
+	
+	
 	
 
 }

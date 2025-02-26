@@ -16,4 +16,6 @@ public class Chat {
 	private int chatRoomNo;
 	private String message;
 	private Timestamp receviedDate;
+	private int userNo;
+	private String userName;
 }

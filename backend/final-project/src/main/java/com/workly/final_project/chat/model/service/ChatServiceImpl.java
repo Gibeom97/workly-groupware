@@ -9,11 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.chat.model.dao.ChatDao;
 import com.workly.final_project.chat.model.dto.FavoriteDTO;
+import com.workly.final_project.chat.model.vo.Chat;
 import com.workly.final_project.chat.model.vo.ChatRoom;
+import com.workly.final_project.chat.model.vo.UserChat;
 import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService{
@@ -96,6 +100,60 @@ public class ChatServiceImpl implements ChatService{
 	public List<ChatRoom> getChatList(int userNo) {
 		return chatDao.getChatList(userNo);
 	}
+
+	@Override
+	@Transactional
+	public int saveChatMessage(Chat chat) {
+	    log.info("채팅 저장 요청: {}", chat);
+
+	    // 🔥 userNo가 없는 경우 ChatParticipant에서 가져오기
+	    if (chat.getUserNo() == 0) {
+	        List<Integer> userNos = chatDao.getUserNosByChatRoom(chat.getChatRoomNo());
+	        if (!userNos.isEmpty()) {
+	            chat.setUserNo(userNos.get(0)); // 첫 번째 유저를 임시로 할당
+	            log.info("⚠️ userNo가 없어서 ChatParticipant에서 가져옴: {}", chat.getUserNo());
+	        } else {
+	            log.error("❌ 해당 채팅방에 참여자가 없음! chatRoomNo: {}", chat.getChatRoomNo());
+	            return 0;
+	        }
+	    }
+
+	    return chatDao.saveChatMessage(chat);
+	}
+
+
+	@Override
+	public List<Chat> getChatMessages(int chatRoomNo) {
+		return chatDao.getChatMessages(chatRoomNo);
+	
+	}
+
+	@Override
+	public List<Integer> getUserNosByChatRoom(int chatRoomNo) {
+		return chatDao.getUserNosByChatRoom(chatRoomNo);
+	}
+
+//	@Override
+//	public int insertUserChat(UserChat userChat) {
+//		int result = chatDao.insertUserChat(userChat);
+//		
+//		if (result > 0) {
+//            return result; // 성공적으로 추가됨
+//        } else {
+//            throw new RuntimeException("❌ 즐겨찾기 추가 실패: DB에서 삽입되지 않음");
+//        }
+//	}
+//
+//	@Override
+//	public void updateLastReadChatNo(UserChat userChat) {
+//		chatDao.updateLastReadChatNo(userChat);
+//	}
+//
+//	@Override
+//	public int getLastReadChatNo(int userNo, int chatRoomNo) {
+//		return chatDao.getLastReadChatNo(userNo, chatRoomNo);
+//	}
+
 
 
 

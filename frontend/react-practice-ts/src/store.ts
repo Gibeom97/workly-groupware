@@ -31,5 +31,15 @@ const store = configureStore({
 });
 
 export const persistor = persistStore(store); 
+
+//
+let isPersisted = false;
+persistor.subscribe(() => {
+    if (persistor.getState().bootstrapped && !isPersisted) {
+        isPersisted = true;
+    }
+});
+
 export type RootState = ReturnType<typeof store.getState>;
+export { isPersisted }; //
 export default store;
