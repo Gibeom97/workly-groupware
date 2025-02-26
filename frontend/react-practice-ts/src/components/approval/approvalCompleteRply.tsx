@@ -35,7 +35,9 @@ const ApprovalCompleteReply: React.FC<ApprovalCompleteReplyProps> = () => {
     })
     .then((response) => {
       if(response.data && Array.isArray(response.data)){
-        setApprovalComments(response.data);
+        setApprovalComments(
+          response.data.sort((a, b) => a.MEMO_NO - b.MEMO_NO)
+        );
       }else {
         setApprovalComments([]);
       }
@@ -53,7 +55,7 @@ const ApprovalCompleteReply: React.FC<ApprovalCompleteReplyProps> = () => {
       .delete(`http://localhost:8003/workly/api/approvalMemos/deleteApprovalReply`, {
         data: {memoNo},
       })
-      .then(() => {
+      .then((response) => {
         setApprovalComments(approvalComments.filter((c) => c.MEMO_NO !== memoNo));
       })
       .catch((err) => {

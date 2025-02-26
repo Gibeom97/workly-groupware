@@ -16,7 +16,7 @@ export const ApprovalRequestPage = () => {
           <ApprovalHeader />
           <ApprovalSearchBar />
           <ApprovalRequestePost />
-          <ApprovalFooter />
+          <ApprovalFooter/>
         </div>
       </div>
     </div>

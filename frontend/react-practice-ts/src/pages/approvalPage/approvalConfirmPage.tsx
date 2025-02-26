@@ -1,4 +1,5 @@
 import ApprovalCompleteDocument from "../../components/approval/approvalCompleteDocument";
+import { ApprovalConfirmFooter } from "../../components/approval/approvalConfirmFooter";
 import { ApprovalCompleteHeader } from "../../components/approval/approvalCompleteHeader";
 import ApprovalCompleteReply from "../../components/approval/approvalCompleteRply";
 
@@ -15,7 +16,7 @@ export const ApprovalConfirmPage = () => {
           <ApprovalCompleteHeader />
           <ApprovalCompleteDocument />
           <ApprovalCompleteReply />
-          <ApprovalConfirmPage/>
+          <ApprovalConfirmFooter />
         </div>
       </div>
     </div>

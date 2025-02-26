@@ -2,6 +2,7 @@ package com.workly.final_project.approval.controller;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -79,4 +79,51 @@ public class ApprovalLineController {
 			 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("즐겨찾기 삭제 실패");
 		 }
 	 }
+	 
+	 // 팀원 추가
+	 // 전자결재 승인 시 다음 사람에게 결재 토스
+	 @PostMapping("/approve")
+	 public ResponseEntity<?> approveDocument(@RequestBody ApprovalLine approvalLine){
+		 boolean isSuccess = service.approveDocument(approvalLine);
+		 
+		 System.out.println("approvalLine 확인:" + approvalLine);
+		 
+		 if(isSuccess) {
+			 return ResponseEntity.ok("승인 성공");
+		 }else {
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("승인 실패");
+		 }
+	 }
+	 
+	 // 현재 사용자가 마지막 결재자인지 확인하는 API
+	 @GetMapping("/checkFinalApprover")
+	 public ResponseEntity<Map<String, Integer>> checkFinalApprover(@RequestParam int approvalNo){
+		 int isFinalApprover = service.isFinalApprover(approvalNo) ? 1 : 0;
+		 Map<String, Integer> response = new HashMap<>();
+		 response.put("isFinalApprover", isFinalApprover);
+		 return ResponseEntity.ok(response);
+	 }
+	 
+	 // 마지막 결재자인 경우 'APPROVAL' 테이블 상태 변경
+	 @PostMapping("/updateFinalApproval")
+	 public ResponseEntity<String> updateFinalApproval(@RequestBody Map<String, Integer> request){
+		 int approvalNo = request.get("approvalNo");
+		 service.updateFinalApproval(approvalNo);
+		 return ResponseEntity.ok("결재 문서 최종 승인 완료");
+	 }
+	 // 팀원 추가 끝
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

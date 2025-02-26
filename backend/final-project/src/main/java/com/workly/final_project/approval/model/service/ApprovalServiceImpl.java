@@ -1,15 +1,14 @@
 package com.workly.final_project.approval.model.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.approval.model.dao.ApprovalDao;
-import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
@@ -94,6 +93,40 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public Approval getApprovalWriteUser(int approvalNo) {
 		return approvalDao.getApprovalWriteUser(approvalNo);
 	}
+
+	// 팀원 추가
+	@Override
+	public List<Approval> getApprovalRequests(int userNo) {
+		return approvalDao.getApprovalRequests(userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalFinishList(int userNo) {
+		return approvalDao.getApprovalFinishList(userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalReference(int userNo) {
+		return approvalDao.getApprovalReference(userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalSendList(int userNo) {
+		return approvalDao.getApprovalSendList(userNo);
+	}
+
+	@Override
+	public Map<String, Integer> getApprovalCounts(int userNo) {
+		Map<String, Integer> counts = new HashMap<>();
+		counts.put("approvalComplete", approvalDao.countApprovalComplete(userNo));
+		counts.put("approvalRequest", approvalDao.countApprovalRequest(userNo));
+		counts.put("approvalReference", approvalDao.countApprovalReference(userNo));
+		counts.put("approvalReceive", approvalDao.countApprovalReceive(userNo));
+		counts.put("approvalReject", approvalDao.countApprovalReject(userNo));
+		return counts;
+	}
+	
+	// 팀원 추가 끝
 
 }
 

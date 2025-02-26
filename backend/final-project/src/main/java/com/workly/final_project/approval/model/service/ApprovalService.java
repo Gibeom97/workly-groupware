@@ -38,4 +38,17 @@ public interface ApprovalService {
 
 	Approval getApprovalWriteUser(int userNo);
 
+	// 팀원 추가
+	List<Approval> getApprovalRequests(int userNo);
+
+	List<Approval> getApprovalFinishList(int userNo);
+
+	List<Approval> getApprovalReference(int userNo);
+
+	List<Approval> getApprovalSendList(int userNo);
+
+	Map<String, Integer> getApprovalCounts(int userNo);
+	
+	// 팀원 추가 끝
+
 }

@@ -7,8 +7,20 @@
 		<insert id="saveApprovalLine">
 		    INSERT ALL
 		    <foreach collection="list" item="line">
-		        INTO APPROVAL_LINE (APPROVAL_LEVEL, APPROVAL_NO, USER_NO, TYPE, STATUS, CONFIRM_STATUS, APPROVAL_DATE, APPROVAL_LINE_TYPE)
-		        VALUES (#{line.approvalLevel}, #{line.approvalNo}, #{line.userNo}, #{line.type}, DEFAULT, DEFAULT, SYSDATE, #{line.approvalLineType})
+		        INTO APPROVAL_LINE 
+		        (APPROVAL_LEVEL, APPROVAL_NO, USER_NO, TYPE, STATUS, CONFIRM_STATUS, APPROVAL_DATE, APPROVAL_LINE_TYPE)
+		        VALUES 
+		        (
+		            #{line.approvalLevel}, 
+		            #{line.approvalNo}, 
+		            #{line.userNo}, 
+		            #{line.type}, 
+		            <if test="line.approvalLevel == 1">1</if>  <!-- APPROVAL_LEVEL이 1일 경우 STATUS = 1 -->
+		            <if test="line.approvalLevel != 1">DEFAULT</if>,  <!-- 나머지는 기본값 -->
+		            DEFAULT, 
+		            SYSDATE, 
+		            #{line.approvalLineType}
+		        )
 		    </foreach>
 		    SELECT 1 FROM DUAL
 		</insert>
@@ -65,6 +77,47 @@
 			DELETE FROM APPROVAL_FAVORITE_LINE
 			WHERE USER_NO = #{userNo} AND FAVORITE_NAME = #{favoriteName}
 		</delete>
+		
+		<!-- 팀원 추가 -->
+		<!-- 현재 사용자의 결재 순서 조회 -->
+		<select id="findApprovalLevel" resultType="int">
+			SELECT APPROVAL_LEVEL
+			FROM APPROVAL_LINE
+			WHERE APPROVAL_NO = #{approvalNo} AND USER_NO = #{userNo} AND TYPE = '결재자'
+		</select>
+		
+		<!-- 결재 상태 업데이트 -->
+		<update id="updateApprovalStatus">
+			UPDATE APPROVAL_LINE
+				SET STATUS = #{status}, 
+        		APPROVAL_DATE = SYSTIMESTAMP
+			WHERE APPROVAL_NO = #{approvalNo} AND USER_NO = #{userNo} AND TYPE = '결재자'
+		</update>
+		
+		<!-- 다음 결재자의 USER_NO 조회 -->
+		<select id="findNextApprover" resultType="map">
+			SELECT USER_NO, APPROVAL_LINE_TYPE
+			FROM APPROVAL_LINE
+			WHERE APPROVAL_NO = #{approvalNo} AND APPROVAL_LEVEL = #{nextLevel} AND TYPE = '결재자'
+		</select>
+		
+		<!-- 결재해야 할 남은 결재자 수 확인 -->
+		<select id="isFinalApprover" resultType="int">
+			SELECT COUNT(*)
+			FROM APPROVAL_LINE
+			WHERE APPROVAL_NO = #{approvalNo}
+			AND STATUS != 2 AND TYPE = '결재자'
+		</select>
+		
+		<!-- 최종 승인된 경우 'APPROVAL' 테이블 상태 변경 -->
+		<update id="updateFinalApproval">
+			UPDATE APPROVAL
+			SET APPROVAL_STATUS = 2,
+				END_DATE = SYSDATE
+			WHERE APPROVAL_NO = #{approvalNo}
+		</update>
+		
+		<!-- 팀원 추가 끝 -->
 </mapper>
 
 
