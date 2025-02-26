@@ -56,7 +56,6 @@ export const ApprovalCompleteDocument: React.FC<ApprovalCompleteDocumentProps> =
           const docDefinition = {
             content: [{text: response.data.approvalContent, font: "NotoSansKR", fontSize: 14}],
           };
-
           
           // PDF Blob 생성
           const pdfDocGenerator  = pdfMake.createPdf(docDefinition);

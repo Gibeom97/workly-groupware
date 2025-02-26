@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react';
 import styles from './MemberSearchModal.module.css'
 
 const MemberSearchModal = ({setUser, setYear, memberList, setOpenModal }) => {
+    const [searchUser, setSearchUser] = useState("");
+    const [filteredUser, setFilterdUser] = useState(memberList);
 
     const handleDetail = (userNo, userName, deptName, positionName, status, hireDate) => {
         setUser({userNo, userName, deptName, positionName, status, hireDate});
@@ -8,12 +11,20 @@ const MemberSearchModal = ({setUser, setYear, memberList, setOpenModal }) => {
         setOpenModal(false);
     }
 
+    useEffect(() => {
+        setFilterdUser(
+            memberList.filter(user =>
+                user.member.userName.includes(searchUser)
+            )
+        );
+    }, [searchUser, memberList])
+
     return (
         <div className={styles.modalContainer}>
             <div className={styles.sectionContainer}>
                 <button className={styles.closeButton} onClick={() => setOpenModal(false)}>&times;</button>
                 <div className={styles.searchContainer}>
-                    <input type="text" placeholder="이름 입력" className={styles.nameInput} />
+                    <input type="text" placeholder="이름 입력" className={styles.nameInput} onChange={(e) => setSearchUser(e.target.value)} />
                 </div>
                 <div className={styles.listContainer}>
                     <table className={styles.tableStyle}>
@@ -27,7 +38,7 @@ const MemberSearchModal = ({setUser, setYear, memberList, setOpenModal }) => {
                             </tr>
                         </thead>
                         {<tbody>
-                            { memberList.map((e, i) => (
+                            { filteredUser.map((e, i) => (
                                     <tr key={i} className={styles.rowStyle}
                                     onClick={() => handleDetail(
                                         e.member.userNo,

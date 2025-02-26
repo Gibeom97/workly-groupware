@@ -23,7 +23,6 @@ import LeaveMain from "./pages/LeaveMain";
 import MyLeave from "./components/leave/MyLeave";
 import LeavePolicy from "./components/leave/LeavePolicy";
 import ManageLeave from "./components/leave/ManageLeave";
-import ManageDetail from "./components/leave/ManageDetail";
 
 function App() {
   return (

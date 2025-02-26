@@ -15,9 +15,10 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/userSlice";
+import { useState } from "react";
 
 const Sidebar = () => {
-
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate(); 
   const dispatch = useDispatch();
 
@@ -33,7 +34,8 @@ const Sidebar = () => {
   }
 
   return (
-    <div className={styles.sidebar}>
+    <>
+      <div className={styles.sidebar}>
       <div className={styles.title}>Wonk</div>
       <div className={styles.sidebarNav}>
       <nav>
@@ -60,7 +62,7 @@ const Sidebar = () => {
             <span>캘린더</span>
           </li>
           </Link>
-          <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
+          <li onClick={() => navigate('/approvalMain')}>
             <span>
               <img src={icon4} alt="전자결재" />
             </span>
@@ -131,6 +133,7 @@ const Sidebar = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

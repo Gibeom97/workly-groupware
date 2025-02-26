@@ -8,7 +8,7 @@ let initialState;
 
 if (storedUser) {
     const parsed = JSON.parse(storedUser);
-    const { member, department, annualLeave, position, attachment } = parsed;
+    const { member, department, annualLeave, position, attachment, hireDate } = parsed;
 
     initialState = {
         userNo: member?.userNo || 0,
@@ -16,10 +16,13 @@ if (storedUser) {
         statusType: member?.statusType || "",
         totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
         usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
+        deptNo: member?.deptNo || 0,
         deptName: department?.deptName || "",
+        positionNo: member.positionNo || 0, 
         positionName: position?.positionName || "",
         changeName: attachment?.changeName || "",
-        filePath: attachment?.filePath || ""
+        filePath: attachment?.filePath || "",
+        hireDate: member?.hireDate || ""
     }
 } else {
     // 3) 없으면 기본값
@@ -29,10 +32,13 @@ if (storedUser) {
         statusType: "",
         totalAnnualLeave: 0,
         usedAnnualLeave: 0,
+        deptNo: 0,
         deptName: "",
+        positionNo: 0, 
         positionName: "",
         changeName: "",
-        filePath: ""
+        filePath: "",
+        hireDate: ""
     };
 }
 const userSlice = createSlice({
@@ -40,7 +46,7 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         loginUser(state, data) {
-            const { member, department, annualLeave, position, attachment } = data.payload;
+            const { member, department, annualLeave, position, attachment, hireDate } = data.payload;
             localStorage.setItem("user", JSON.stringify(data.payload));
 
             return {
@@ -49,10 +55,13 @@ const userSlice = createSlice({
                 statusType: member?.statusType || "",
                 totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
                 usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
+                deptNo: member?.deptNo || 0,
                 deptName: department?.deptName || "",
+                positionNo: member.positionNo || 0, 
                 positionName: position?.positionName || "",
                 changeName: attachment?.changeName || "",
                 filePath: attachment?.filePath || "",
+                hireDate: member?.hireDate || ""
             }
 
         },
@@ -65,10 +74,13 @@ const userSlice = createSlice({
                 statusType: "",
                 totalAnnualLeave : 0,
                 usedAnnualLeave : 0,
+                deptNo: 0,
                 deptName: "",
+                positionNo: 0, 
                 positionName: "",
                 changeName: "",
-                filePath: ""
+                filePath: "",
+                hireDate: ""
             }
         }
     }
