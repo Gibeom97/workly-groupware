@@ -1,5 +1,6 @@
 package com.workly.final_project.approval.model.vo;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -16,5 +17,6 @@ public class ApprovalMemo {
 	private int userNo;
 	private int approvalNo;
 	private String memoContent;
+
 	private Date memoDate;
 }

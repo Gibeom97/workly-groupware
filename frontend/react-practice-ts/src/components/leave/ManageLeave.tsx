@@ -41,7 +41,6 @@ const ManageLeave = () => {
                 setMemberList(response.data);
             })
             .catch(() => {
-                alert('사원 정보 검색에 실패하였습니다.')
                 setMemberList([]);
             })
         setOpenModal(true);
@@ -75,8 +74,7 @@ const ManageLeave = () => {
                 userNo: user.userNo,
                 year,
                 updateLeave
-            }
-        })
+            }})
              .then((response) => {
                 handleLeaveDetail();
                 alert(response.data.msg);

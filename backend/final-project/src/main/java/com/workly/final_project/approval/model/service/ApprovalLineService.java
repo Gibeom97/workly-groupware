@@ -19,6 +19,12 @@ public interface ApprovalLineService {
 	List<Map<String, Object>> getFavoriteLinesByUserNo(int userNo);
 
 	void deleteFavoriteLine(int userNo, String favoriteName);
+
+	boolean approveDocument(ApprovalLine approvalLine);
+
+	boolean isFinalApprover(int approvalNo);
+
+	void updateFinalApproval(int approvalNo);
 	
 //	List<ApprovalLine> getInProgressApprovals(int userNo);
 }

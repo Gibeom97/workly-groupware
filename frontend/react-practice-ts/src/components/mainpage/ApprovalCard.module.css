@@ -1,0 +1,40 @@
+.card {
+    padding: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    border-top: 1px solid rgb(243, 242, 242);
+}
+
+.header {
+    font-size: 18px;
+    color: #00135d;
+    margin-bottom: 15px;
+    padding: 15px 10px;
+    border-bottom: 1px solid rgb(228, 228, 228);
+}
+
+.location {
+    font-size: 12px;
+    margin: 10px;
+    cursor: pointer;
+    color: rgb(193, 193, 193);
+}
+
+.location:hover {
+    color: #00135d;
+    transition: 0.2s;
+}
+
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    padding: 10px 10px;
+    gap: 15px;
+}
+
+.strong {
+    font-size: 20px;
+    color: #0029cb;
+    margin: 0px 7px;
+}

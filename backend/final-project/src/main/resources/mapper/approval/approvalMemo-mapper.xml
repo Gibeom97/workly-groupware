@@ -14,8 +14,11 @@
 
 
     <!-- 특정 결재 문서에 대한 결재 의견 조회 -->
-    <select id="selectMemosByApprovalId" parameterType="int" resultType="com.workly.final_project.approval.model.vo.ApprovalMemo">
-        SELECT * FROM APPROVAL_MEMO WHERE APPROVAL_NO = #{approvalNo} ORDER BY MEMO_DATE ASC
+    <select id="selectMemosByApprovalId" resultType="ApprovalMemo">
+        SELECT *
+        FROM APPROVAL_MEMO 
+        WHERE APPROVAL_NO = #{approvalNo} 
+        ORDER BY MEMO_NO ASC
     </select>
     
     <!-- 본인 결재 의견 삭제 -->

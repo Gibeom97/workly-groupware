@@ -7,10 +7,10 @@
 		SELECT *
 		FROM(SELECT ROWNUM RNUM, A.*
 		     FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, LEAVE_STATUS, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
-		           FROM LEAVE_HISTORY LH
-		           JOIN ANNUAL_LEAVE AL ON LH.USER_NO = AL.USER_NO
-		               AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
-		           WHERE LH.USER_NO = #{annualLeave.userNo} AND EXTRACT(YEAR FROM LH.START_DATE) = #{annualLeave.year} 
+        		   FROM ANNUAL_LEAVE AL
+        		   LEFT JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
+            	       AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
+        		   WHERE AL.USER_NO = #{annualLeave.userNo} AND  AL.YEAR = #{annualLeave.year}
 		           ORDER BY LH.START_DATE)A)
 	    WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow}
 	</select>
@@ -49,6 +49,17 @@
 		UPDATE ANNUAL_LEAVE
 		SET TOTAL_ANNUAL_LEAVE = #{totalAnnualLeave}
 		WHERE YEAR = #{year} AND USER_NO = #{userNo}
+	</update>
+	
+	<select id="selectLeavePolicy" resultType="leavePolicy">
+		SELECT *
+		FROM LEAVE_POLICY
+	</select>
+	
+	<update id="updatePolicy">
+		UPDATE LEAVE_POLICY
+		SET LEAVE_DAYS = #{leaveDays}
+		WHERE POLICY_NO = #{policyNo}
 	</update>
 </mapper>
 

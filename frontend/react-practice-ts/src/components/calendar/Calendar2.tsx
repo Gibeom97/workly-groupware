@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux"; // ✅ Redux에서 로그인 정보 가져오기
+import axios from "axios";
 import FullCalendar from "@fullcalendar/react";
 import { EventClickArg, EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -5,7 +8,6 @@ import allLocales from "@fullcalendar/core/locales-all";
 import interactionPlugin from "@fullcalendar/interaction";
 import styles from "./Calendar2.module.css";
 
-// ✅ Props 타입 정의
 interface Calendar2Props {
   events: EventInput[];
   setSelectedEvent: (event: EventInput | null) => void;
@@ -13,6 +15,22 @@ interface Calendar2Props {
 }
 
 function Calendar2({ events, setSelectedEvent, setModalOpen }: Calendar2Props) {
+  const [calendarEvents, setCalendarEvents] = useState<EventInput[]>(events);
+
+  // ✅ Redux에서 로그인한 사용자 정보 가져오기
+  const user = useSelector((state) => state.user);
+  const deptNo = user?.deptNo; // 현재 로그인한 사용자의 부서 번호
+
+  // ✅ 팀 일정 데이터 가져오기 (GET 요청)
+  useEffect(() => {
+    if (deptNo) {
+      axios
+        .get(`http://localhost:8003/workly/schedule/team/${deptNo}`)
+        .then((response) => setCalendarEvents(response.data))
+        .catch((error) => console.error("팀 일정 불러오기 오류:", error));
+    }
+  }, [deptNo]);
+
   // ✅ 일정 클릭 시 수정 모달 오픈
   const handleEventClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
@@ -22,7 +40,7 @@ function Calendar2({ events, setSelectedEvent, setModalOpen }: Calendar2Props) {
       end: clickInfo.event.endStr || clickInfo.event.startStr,
       description: clickInfo.event.extendedProps.description || "", // ✅ description 추가
       backgroundColor: clickInfo.event.backgroundColor,
-      type: clickInfo.event.extendedProps.type || "팀 일정", // ✅ 수정: 기존 일정의 유형 유지 (기본값: 팀 일정)
+      type: clickInfo.event.extendedProps.type || "팀 일정", // ✅ 기존 일정 유형 유지 (기본값: 팀 일정)
     });
     setModalOpen(true);
   };
@@ -33,7 +51,7 @@ function Calendar2({ events, setSelectedEvent, setModalOpen }: Calendar2Props) {
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         editable={true}
-        events={events}
+        events={calendarEvents}
         eventClick={handleEventClick}
         locales={allLocales}
         locale="ko"
