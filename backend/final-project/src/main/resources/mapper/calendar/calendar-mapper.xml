@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="calendarMapper">
 
-    <!-- ✅ 내 일정 조회 -->
+    <!-- ✅ 내 일정 조회 (추가된 부분) -->
     <select id="selectMyEvents" resultType="Calendar">
         SELECT * FROM CALENDAR WHERE USER_NO = #{userNo}
     </select>
 
-    <!-- ✅ 팀 일정 조회 -->
+    <!-- ✅ 팀 일정 조회 (추가된 부분) -->
     <select id="selectTeamEvents" resultType="Calendar">
         SELECT * FROM CALENDAR WHERE DEPT_NO = #{deptNo}
     </select>
@@ -19,13 +19,10 @@
     </select>
 
     <!-- ✅ 일정 추가 -->
-    <insert id="insertEvent" useGeneratedKeys="true" keyProperty="calNo">
-        INSERT INTO CALENDAR (CATEGORY, TITLE, CONTENT, START_DATE, END_DATE, COLOR, USER_NO, DEPT_NO, MR_RES_NO)
-        VALUES (#{category}, #{title}, #{content}, #{startDate}, #{endDate}, #{color}, #{userNo}, 
-            <if test="deptNo != null">#{deptNo}</if><if test="deptNo == null">NULL</if>, 
-            <if test="mrResNo != null">#{mrResNo}</if><if test="mrResNo == null">NULL</if>
-        )
-    </insert>
+   	<insert id="insertEvent">
+	    INSERT INTO CALENDAR (CAL_NO, CATEGORY, TITLE, START_DATE, END_DATE, USER_NO, DEPT_NO, COLOR)
+	    VALUES (CALENDER_SEQ.NEXTVAL, #{category}, #{title}, #{startDate, jdbcType=DATE}, #{endDate, jdbcType=DATE}, #{userNo}, #{deptNo}, #{color})
+	</insert>
 
     <!-- ✅ 일정 수정 -->
     <update id="updateEvent">
@@ -36,8 +33,8 @@
             START_DATE = #{startDate},
             END_DATE = #{endDate},
             COLOR = #{color},
-            DEPT_NO = <if test="deptNo != null">#{deptNo}</if><if test="deptNo == null">NULL</if>,
-            MR_RES_NO = <if test="mrResNo != null">#{mrResNo}</if><if test="mrResNo == null">NULL</if>
+            DEPT_NO = #{deptNo, jdbcType=INTEGER},
+            MR_RES_NO = #{mrResNo, jdbcType=INTEGER}
         WHERE CAL_NO = #{calNo}
     </update>
 
@@ -52,22 +49,27 @@
     </select>
 
     <!-- ✅ 회의실 예약 추가 -->
-    <insert id="insertMeetingReservation" useGeneratedKeys="true" keyProperty="resNo">
-        INSERT INTO MR_RESERVATION (ROOM_NO, USER_NO, START_TIME, END_TIME, TITLE, DESCRIPTION)
-        VALUES (#{roomNo}, #{userNo}, #{startTime}, #{endTime}, #{title}, #{description})
-    </insert>
+    <insert id="insertMeetingReservation">
+	    INSERT INTO MR_RESERVATION (MR_RES_NO, MR_NO, USER_NO, START_TIME, END_TIME, MR_RES_TITLE, REASON, MR_STATUS, MR_RES_DATE)
+	    VALUES (MR_RESERVATION_SEQ.NEXTVAL, NVL(#{roomNo}, 1), #{userNo}, #{startTime}, #{endTime}, #{title}, #{reason}, NULL, #{resDate})
+	</insert>
 
     <!-- ✅ 회의실 예약 수정 -->
     <update id="updateMeetingReservation">
-        UPDATE MR_RESERVATION
-        SET ROOM_NO = #{roomNo}, START_TIME = #{startTime}, END_TIME = #{endTime}, TITLE = #{title}, DESCRIPTION = #{description}
-        WHERE RES_NO = #{resNo}
-    </update>
+	    UPDATE MR_RESERVATION
+	    SET ROOM_NO = NVL(#{roomNo}, 1), 
+	        START_TIME = #{startTime}, 
+	        END_TIME = #{endTime}, 
+	        MR_RES_TITLE = #{title}, 
+	        REASON = #{reason}
+	    WHERE MR_RES_NO = #{mrResNo}
+	</update>
+
 
     <!-- ✅ 회의실 예약 삭제 -->
     <delete id="deleteMeetingReservation">
-        DELETE FROM MR_RESERVATION WHERE RES_NO = #{resNo}
-    </delete>
+	    DELETE FROM MR_RESERVATION WHERE MR_RES_NO = #{mrResNo}
+	</delete>
 
     <!-- ✅ 사용자 메모 조회 -->
     <select id="selectMemo" resultType="CalendarMemo">
@@ -80,11 +82,11 @@
         VALUES (#{userNo}, #{content})
     </insert>
 
-    <!-- ✅ 메모 수정 -->
+    <!-- ✅ 메모 수정 (USER_NO 기준으로 수정하도록 변경) -->
     <update id="updateMemo">
         UPDATE CALENDAR_MEMO
         SET CONTENT = #{content}
-        WHERE MEMO_NO = #{memoNo}
+        WHERE USER_NO = #{userNo} 
     </update>
 
 </mapper>

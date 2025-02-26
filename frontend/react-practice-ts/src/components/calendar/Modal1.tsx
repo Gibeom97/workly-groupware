@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import styles from "./Modal1.module.css"; // ✅ CSS를 모듈로 가져옴
+import axios from "axios";
+import styles from "./Modal1.module.css";
 
 interface Modal1Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (event: any) => void; // ✅ 회의 예약 추가 & 수정
-  onDelete?: (eventId: string) => void; // ✅ 삭제 기능 추가
-  selectedEvent?: any; // ✅ 선택된 이벤트 정보
+  onSave: (event: any) => void;
+  onDelete?: (eventId: string) => void;
+  selectedEvent?: any;
 }
 
 const Modal1: React.FC<Modal1Props> = ({ isOpen, onClose, onSave, onDelete, selectedEvent }) => {
@@ -15,61 +16,44 @@ const Modal1: React.FC<Modal1Props> = ({ isOpen, onClose, onSave, onDelete, sele
   const [meetingDate, setMeetingDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedColor, setSelectedColor] = useState(""); // ✅ 원래 초기값 유지
+  const [selectedColor, setSelectedColor] = useState("");
 
-  // ✅ 선택된 일정이 있을 경우 기존 데이터 반영 (수정 모드)
+  // ✅ 기존 데이터 불러와서 설정 (수정 모드)
   useEffect(() => {
     if (selectedEvent) {
       setMeetingTitle(selectedEvent.title || "");
       setMeetingDescription(selectedEvent.description || "");
       setMeetingDate(selectedEvent.start ? selectedEvent.start.split("T")[0] : "");
-      
-      // ✅ 기존 예약의 시간 값을 유지하면서 "HH:MM" 형식으로 설정
+
       const startDateTime = selectedEvent.start ? selectedEvent.start.split("T") : ["", ""];
       const endDateTime = selectedEvent.end ? selectedEvent.end.split("T") : ["", ""];
-  
+
       setStartTime(startDateTime[1] ? startDateTime[1].slice(0, 5) : "");
-      
-      // ✅ 종료 시간이 존재하지 않을 경우, 기본적으로 시작 시간 +1시간을 기본값으로 설정
-      if (selectedEvent.end) {
-        setEndTime(endDateTime[1] ? endDateTime[1].slice(0, 5) : "");
-      } else {
-        const defaultEndTime = startDateTime[1] ? getOneHourLater(startDateTime[1]) : "";
-        setEndTime(defaultEndTime);
-      }
-  
+      setEndTime(endDateTime[1] ? endDateTime[1].slice(0, 5) : "");
       setSelectedColor(selectedEvent.backgroundColor || "");
     } else {
       resetForm();
     }
   }, [selectedEvent, isOpen]);
-  
-  // ✅ 시작 시간에서 +1시간을 계산하는 함수 추가
-  const getOneHourLater = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    const newHours = (hours + 1) % 24; // 24시간제 처리
-    return `${newHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-  };
-  
 
-  // 🌟 입력값 초기화
+  // ✅ 입력값 초기화
   const resetForm = () => {
     setMeetingTitle("");
     setMeetingDescription("");
     setMeetingDate("");
     setStartTime("");
     setEndTime("");
-    setSelectedColor(""); // ✅ 초기값 원래대로 유지
+    setSelectedColor("");
   };
 
-  // 🌟 저장 (새로운 예약 추가 & 기존 예약 수정)
-  const handleSaveClick = () => {
+  // ✅ 회의실 예약 추가 및 수정
+  const handleSaveClick = async () => {
     if (!meetingTitle || !meetingDate || !startTime || !endTime) {
       alert("필수 항목을 입력해주세요.");
       return;
     }
 
-    const updatedMeeting = {
+    const meetingData = {
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       title: meetingTitle,
       start: `${meetingDate}T${startTime}`,
@@ -79,18 +63,40 @@ const Modal1: React.FC<Modal1Props> = ({ isOpen, onClose, onSave, onDelete, sele
       borderColor: selectedColor,
     };
 
-    onSave(updatedMeeting);
-    onClose();
+    // ✅ 콘솔에서 데이터 확인
+    console.log("📌 [Modal1.tsx] 회의실 예약 추가/수정 요청 데이터:", meetingData);
+
+    try {
+      if (selectedEvent) {
+        // ✅ 회의실 예약 수정 (PUT 요청)
+        console.log("📌 [Modal1.tsx] 회의실 예약 수정 요청 보냄:", selectedEvent.id);
+        await axios.put(`http://localhost:8003/workly/meeting/update/${selectedEvent.id}`, meetingData);
+      } else {
+        // ✅ 새로운 회의실 예약 추가 (POST 요청)
+        console.log("📌 [Modal1.tsx] 회의실 예약 추가 요청 보냄");
+        await axios.post("http://localhost:8003/workly/meeting/add", meetingData);
+      }
+      onSave(meetingData);
+      onClose();
+    } catch (error) {
+      console.error("📌 [Modal1.tsx] 회의실 예약 저장 오류:", error);
+    }
   };
 
-  // 🌟 삭제
-  const handleDeleteClick = () => {
-    if (selectedEvent && onDelete) {
-      if (window.confirm(`정말 "${selectedEvent.title}" 회의 예약을 삭제하시겠습니까?`)) {
+  // ✅ 회의실 예약 삭제
+  const handleDeleteClick = async () => {
+    if (!selectedEvent || !onDelete) return;
+
+    if (window.confirm(`정말 "${selectedEvent.title}" 회의 예약을 삭제하시겠습니까?`)) {
+      try {
+        await axios.delete(`http://localhost:8003/workly/meeting/delete/${selectedEvent.id}`);
         onDelete(selectedEvent.id);
+        console.log("회의실 예약 삭제 성공");
+        onClose();
+      } catch (error) {
+        console.error("회의실 예약 삭제 오류:", error);
       }
     }
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -116,7 +122,7 @@ const Modal1: React.FC<Modal1Props> = ({ isOpen, onClose, onSave, onDelete, sele
         </div>
 
         <div className={styles.formGroup}>
-          <label>시간 지정</label>
+          <label>시간 지정 *</label>
           <div className={styles.timeGroup}>
             <span>시작</span>
             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
@@ -139,13 +145,13 @@ const Modal1: React.FC<Modal1Props> = ({ isOpen, onClose, onSave, onDelete, sele
           </div>
         </div>
 
-        {/* ✅ 버튼 정렬: 삭제, 수정, 취소 (수정 & 삭제 모드) */}
+        {/* ✅ 버튼 정렬: 삭제, 수정, 취소 */}
         <div className={styles.buttonGroup}>
           {selectedEvent && onDelete && (
             <button className={styles.deleteButton} onClick={handleDeleteClick}>예약 삭제</button>
           )}
           <button className={styles.saveButton} onClick={handleSaveClick}>
-            {selectedEvent ? "예약 수정" : "예약"}
+            {selectedEvent ? "예약 수정" : "예약 추가"}
           </button>
           <button className={styles.cancelButton} onClick={onClose}>취소</button>
         </div>

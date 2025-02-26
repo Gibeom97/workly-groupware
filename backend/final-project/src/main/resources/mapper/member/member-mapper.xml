@@ -12,7 +12,7 @@
         LEFT JOIN ANNUAL_LEAVE USING(USER_NO)
 			WHERE USER_NO = #{userNo} AND USER_PWD = #{userPwd} AND YEAR = EXTRACT(YEAR FROM SYSDATE) AND MEMBER.STATUS ='Y'
 	</select>
-	
+
 	<select id="selectCategoryMemberCount" resultType="int" parameterType="CategoryFilter">
 	    SELECT COUNT(*) FROM MEMBER
 	    <where>

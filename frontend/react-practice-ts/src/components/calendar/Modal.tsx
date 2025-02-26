@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import styles from "./Modal.module.css";
 
 interface ModalProps {
@@ -10,27 +11,26 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onSave, onDelete, selectedEvent }) => {
-  const [selectedTab, setSelectedTab] = useState<"내 일정" | "팀 일정">("내 일정"); // ✅ 수정: 선택된 일정의 타입 반영
+  const [selectedTab, setSelectedTab] = useState<"내 일정" | "팀 일정">("내 일정"); // ✅ 일정 유형 (내 일정 or 팀 일정)
   const [eventTitle, setEventTitle] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedColor, setSelectedColor] = useState("#000000");
 
-  // 🌟 수정 모드인지 확인 (선택한 이벤트가 있으면 수정 모드)
-useEffect(() => {
-  if (selectedEvent) {
-    setEventTitle(selectedEvent.title || "");
-    setEventDescription(selectedEvent.description !== undefined ? selectedEvent.description : "");
-    setStartDate(selectedEvent.start || "");
-    setEndDate(selectedEvent.end || "");
-    setSelectedColor(selectedEvent.backgroundColor || "#000000");
-    setSelectedTab(selectedEvent.type === "팀 일정" ? "팀 일정" : "내 일정");
-  } else {
-    resetForm(); // ✅ selectedEvent가 null이면 입력값 초기화
-  }
-}, [selectedEvent, isOpen]);
-
+  // 🌟 선택한 일정이 있으면 기존 데이터 적용 (수정 모드)
+  useEffect(() => {
+    if (selectedEvent) {
+      setEventTitle(selectedEvent.title || "");
+      setEventDescription(selectedEvent.description || "");
+      setStartDate(selectedEvent.start || "");
+      setEndDate(selectedEvent.end || "");
+      setSelectedColor(selectedEvent.backgroundColor || "#000000");
+      setSelectedTab(selectedEvent.type === "팀 일정" ? "팀 일정" : "내 일정");
+    } else {
+      resetForm(); // ✅ 새로운 일정 추가 시 입력값 초기화
+    }
+  }, [selectedEvent, isOpen]);
 
   // 🌟 입력값 초기화
   const resetForm = () => {
@@ -39,48 +39,62 @@ useEffect(() => {
     setStartDate("");
     setEndDate("");
     setSelectedColor("#000000");
-    setSelectedTab("내 일정"); // 기본값: '내 일정'
+    setSelectedTab("내 일정");
   };
 
-  // 🌟 일정 저장 (새로운 일정 추가 & 기존 일정 수정)
-  const handleSaveClick = () => {
-    console.log(endDate);
+  // 🌟 일정 저장 (새 일정 추가 & 기존 일정 수정)
+  const handleSaveClick = async () => {
     if (!eventTitle || !startDate || !endDate) {
       alert("제목과 날짜를 입력해주세요.");
       return;
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    // ✅ 종료 날짜가 시작 날짜와 다를 때만 +1을 추가
-    if (start.getTime() !== end.getTime()) {
-      end.setDate(end.getDate() + 1);
-    }
-
     const newEvent = {
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       title: eventTitle,
-      start: startDate,
-      end: end.toISOString().split("T")[0], // YYYY-MM-DD 형식으로 변환
+      startDate: new Date(startDate).toISOString().split("T")[0],  // ✅ "yyyy-MM-dd" 변환
+      endDate: new Date(endDate).toISOString().split("T")[0],
       description: eventDescription,
-      backgroundColor: selectedColor,
+      backgroundColor: selectedColor,  // 🚨 기존 코드 (백엔드에서 받지 않음)
       borderColor: selectedColor,
-      type: selectedTab, // ✅ 수정: 기존 일정의 type 유지
+      color: selectedColor,  // ✅ 이걸 추가해야 백엔드에서 제대로 받을 수 있음!
+      type: selectedTab,
+      category: selectedTab === "내 일정" ? "P" : "T",
     };
+    
 
-    onSave(newEvent, selectedTab);
-    onClose();
+    console.log("📌 [Modal.tsx] 일정 추가 요청 데이터:", newEvent); // 🔥 콘솔 로그 추가
+
+    try {
+      if (selectedEvent) {
+        // ✅ 일정 수정 (PUT 요청)
+        console.log("📌 [Modal.tsx] 일정 수정 요청 보냄:", selectedEvent.id);
+        await axios.put(`http://localhost:8003/workly/schedule/update/${selectedEvent.id}`, newEvent);
+      } else {
+        // ✅ 새로운 일정 추가 (POST 요청)
+        console.log("📌 [Modal.tsx] 일정 추가 요청 보냄");
+        await axios.post("http://localhost:8003/workly/schedule/add", newEvent);
+      }
+      onSave(newEvent, selectedTab);
+      onClose();
+    } catch (error) {
+      console.error("📌 [Modal.tsx] 일정 저장 중 오류 발생:", error);
+    }
   };
 
   // 🌟 일정 삭제
-  const handleDeleteClick = () => {
+  const handleDeleteClick = async () => {
     if (selectedEvent && onDelete) {
       if (window.confirm(`정말 "${selectedEvent.title}" 일정을 삭제하시겠습니까?`)) {
-        onDelete(selectedEvent.id);
+        try {
+          await axios.delete(`http://localhost:8003/workly/schedule/delete/${selectedEvent.id}`);
+          onDelete(selectedEvent.id);
+          onClose();
+        } catch (error) {
+          console.error("일정 삭제 중 오류 발생:", error);
+        }
       }
     }
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -90,16 +104,10 @@ useEffect(() => {
       <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
         {/* 일정 구분 탭 */}
         <div className={styles.tabContainer}>
-          <button
-            className={`${styles.tabButton} ${selectedTab === "내 일정" ? styles.active : ""}`}
-            onClick={() => setSelectedTab("내 일정")}
-          >
+          <button className={`${styles.tabButton} ${selectedTab === "내 일정" ? styles.active : ""}`} onClick={() => setSelectedTab("내 일정")}>
             내 일정
           </button>
-          <button
-            className={`${styles.tabButton} ${selectedTab === "팀 일정" ? styles.active : ""}`}
-            onClick={() => setSelectedTab("팀 일정")}
-          >
+          <button className={`${styles.tabButton} ${selectedTab === "팀 일정" ? styles.active : ""}`} onClick={() => setSelectedTab("팀 일정")}>
             팀 일정
           </button>
         </div>
@@ -124,11 +132,7 @@ useEffect(() => {
         {/* 내용 입력 */}
         <div className={styles.formGroup}>
           <label>일정 내용</label>
-          <textarea 
-            placeholder="일정 내용을 입력하세요" 
-            value={eventDescription} 
-            onChange={(e) => setEventDescription(e.target.value)} 
-          />
+          <textarea placeholder="일정 내용을 입력하세요" value={eventDescription} onChange={(e) => setEventDescription(e.target.value)} />
         </div>
 
         {/* 색상 선택 */}
@@ -150,13 +154,21 @@ useEffect(() => {
         <div className={styles.buttonGroup}>
           {selectedEvent ? (
             <>
-              <button className={styles.deleteButton} onClick={handleDeleteClick}>일정 삭제</button>
-              <button className={styles.saveButton} onClick={handleSaveClick}>일정 수정</button>
+              <button className={styles.deleteButton} onClick={handleDeleteClick}>
+                일정 삭제
+              </button>
+              <button className={styles.saveButton} onClick={handleSaveClick}>
+                일정 수정
+              </button>
             </>
           ) : (
-            <button className={styles.saveButton} onClick={handleSaveClick}>일정 등록</button>
+            <button className={styles.saveButton} onClick={handleSaveClick}>
+              일정 등록
+            </button>
           )}
-          <button className={styles.cancelButton} onClick={onClose}>취소</button>
+          <button className={styles.cancelButton} onClick={onClose}>
+            취소
+          </button>
         </div>
       </div>
     </div>

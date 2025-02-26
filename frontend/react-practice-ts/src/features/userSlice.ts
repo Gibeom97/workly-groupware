@@ -1,15 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-
 // 1) localStorage에서 "user" 가져옴
 const storedUser = localStorage.getItem("user");
-
 // 2) 만약 있다면, 원하는 구조로 변환
 let initialState;
-
 if (storedUser) {
     const parsed = JSON.parse(storedUser);
     const { member, department, annualLeave, position, attachment, hireDate } = parsed;
-
+  
     initialState = {
         userNo: member?.userNo || 0,
         userName: member?.userName || "",
@@ -48,7 +45,6 @@ const userSlice = createSlice({
         loginUser(state, data) {
             const { member, department, annualLeave, position, attachment, hireDate } = data.payload;
             localStorage.setItem("user", JSON.stringify(data.payload));
-
             return {
                 userNo: member.userNo || 0,
                 userName: member?.userName || "",
@@ -63,11 +59,9 @@ const userSlice = createSlice({
                 filePath: attachment?.filePath || "",
                 hireDate: member?.hireDate || ""
             }
-
         },
         logoutUser(state) {
             localStorage.removeItem("user");
-
             return {
                 userNo: 0,
                 userName: "",
@@ -85,6 +79,5 @@ const userSlice = createSlice({
         }
     }
 })
-
 export const { loginUser, logoutUser } = userSlice.actions;
 export default userSlice.reducer;
