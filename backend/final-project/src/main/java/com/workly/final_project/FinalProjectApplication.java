@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @MapperScan({
     "com.workly.final_project.mapper",
     "com.workly.final_project.chat.model.dao"
+   // "com.workly.final_project.chat.model.dao"
 })
 @SpringBootApplication
 @ComponentScan(basePackages = {

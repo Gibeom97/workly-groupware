@@ -25,7 +25,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 }) => {
   // ✅ Redux에서 현재 로그인한 유저 정보 가져오기
   const user = useSelector((state: RootState) => state.user);
-
+  
   // ✅ Redux에서 즐겨찾기 목록 가져오기 (한 번만 선언)
   const favorites = useSelector((state: RootState) => state.chat.favorites as { userNo: number; userName: string; deptName: string; positionName: string }[]);
 
@@ -40,7 +40,6 @@ const ChatMain: React.FC<ChatMainProps> = ({
     const fetchMembers = async () => {
       try {
         const response = await axios.get("http://localhost:8003/workly/api/chat/members");
-        console.log("📌 백엔드에서 받은 데이터:", response.data);
         setMembers(response.data);
       } catch (err) {
         console.error("❌ 멤버 목록 불러오기 실패", err);
@@ -64,8 +63,6 @@ const ChatMain: React.FC<ChatMainProps> = ({
         const response = await axios.get(`http://localhost:8003/workly/api/chat/favorite/${user.userNo}`);
         const dbFavorites = response.data.favorites ?? [];
   
-        console.log("🎯 백엔드에서 받은 즐겨찾기 목록:", dbFavorites);
-  
         // 3️⃣ Redux 및 LocalStorage 동기화
         dispatch(setFavorites(dbFavorites));
         localStorage.setItem("favorites", JSON.stringify(dbFavorites));
@@ -81,7 +78,6 @@ const ChatMain: React.FC<ChatMainProps> = ({
 
   // ✅ Redux 상태가 변경될 때마다 console.log로 확인
   useEffect(() => {
-    console.log("🔥 Redux 상태 업데이트 후 favorites:", favorites);
   }, [favorites]);
 
   // ✅ 3️⃣ 즐겨찾기 추가/삭제
@@ -282,4 +278,4 @@ const ChatMain: React.FC<ChatMainProps> = ({
   );
 };
 
-export default ChatMain;
+export default ChatMain; 

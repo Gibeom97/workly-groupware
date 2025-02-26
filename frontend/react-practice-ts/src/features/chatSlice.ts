@@ -33,8 +33,7 @@ const chatSlice = createSlice({
     name: "chat",
     initialState,
     reducers: {
-      setFavorites: (state, action: PayloadAction<{ userNo: number; userName: string; deptName: string; positionName: string }[]>) => {
-            console.log("💡 Redux 상태 업데이트: setFavorites 실행됨!", action.payload);
+      setFavorites: (state, action: PayloadAction<{ userNo: number; userName: string; deptName: string; positionName: string }[]>) => {        
             state.favorites = action.payload;  // ✅ 이제 객체 배열을 Redux에 저장
         },
           addFavorite: (state, action: PayloadAction<{ userNo: number; userName: string; deptName: string; positionName: string }>) => {
@@ -61,7 +60,7 @@ const chatSlice = createSlice({
         },
 
         setChatRooms: (state, action: PayloadAction<ChatRoom[]>) => {
-            console.log("💬 Redux 상태 업데이트: 채팅방 목록 저장됨!", action.payload);
+           // console.log("💬 Redux 상태 업데이트: 채팅방 목록 저장됨!", action.payload);
             state.chatRooms = action.payload; // ✅ 채팅방 목록 업데이트
         },
 

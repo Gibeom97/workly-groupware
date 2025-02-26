@@ -129,6 +129,8 @@ public class ChatController {
 			List<ChatRoom> chatRooms = chatService.getChatList(userNo);
 			return ResponseEntity.ok(chatRooms);
 		}
+		
+		
 	    	
 		
 

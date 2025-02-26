@@ -83,28 +83,59 @@
 	    )
 	</insert>
 
-	<select id="getChatList" resultType="ChatRoom">
-		SELECT 
-			CR.CHAT_ROOM_NO,
-			CR.ROOM_TITLE,
-			CR.CHAT_TYPE,
-			CR.CREATED_CHAT,
-			CP.BELL_SETTING,
-			C.RECEIVED_DATE AS LAST_MESSAGE_TIME,
-			(SELECT COUNT(*) FROM CHAT
-			WHERE CHAT_ROOM_NO = CR.CHATROOM_NO
-				AND CHAT_NO > NVL(UC.LAST_READ_CHAT_NO,0)) AS UNREAD_COUNT
-			FROM CHAT_ROOM CR
-			JOIN CHAT_PARTICIPANT CP ON CR.CHAT_ROOM_NO = CP.CHAT_ROOM_NO
-			LEFT JOIN USER_CHAT UC ON CR.CHATROOM_NO = UC.CHATROOM_NO AND UC.USER_NO = #{USERNO}
-		    LEFT JOIN CHAT C ON C.CHATROOM_NO = CR.CHATROOM_NO 
-		        AND C.RECEIVED_DATE = (SELECT MAX(RECEIVED_DATE) FROM CHAT WHERE CHATROOM_NO = CR.CHATROOM_NO)
-		    WHERE CP.USER_NO = #{USERNO}
-		    ORDER BY C.RECEIVED_DATE DESC NULLS LAST
+	<!-- 채팅방 목록-->
+	<select id="getChatList" resultType="chatDTO">
+	    SELECT CR.CHAT_ROOM_NO,  
+		       CR.ROOM_TITLE,
+		       CR.CHAT_TYPE,
+		       CR.CREATED_CHAT,
+		       CP.BELL_SETTING,
+		       C.RECEIVED_DATE AS LAST_MESSAGE_TIME,
+		       (SELECT COUNT(*) 
+		        FROM CHAT 
+		        WHERE CHAT_ROOM_NO = CR.CHAT_ROOM_NO 
+		          AND CHAT_NO > NVL(UC.LAST_READ_CHAT_NO, 0)
+		       ) AS UNREAD_COUNT
+		FROM CHAT_ROOM CR
+		JOIN CHAT_PARTICIPANT CP ON CR.CHAT_ROOM_NO = CP.CHAT_ROOM_NO
+		LEFT JOIN USER_CHAT UC ON CR.CHAT_ROOM_NO = UC.CHAT_ROOM_NO -- 컬럼명 확인 필수
+		                      AND UC.USER_NO = #{userNo}
+		LEFT JOIN CHAT C ON C.CHAT_ROOM_NO = CR.CHAT_ROOM_NO
+		                AND C.RECEIVED_DATE = (SELECT MAX(RECEIVED_DATE) 
+		                                       FROM CHAT 
+		                                       WHERE CHAT_ROOM_NO = CR.CHAT_ROOM_NO)
+		WHERE CP.USER_NO = #{userNo}
+		ORDER BY CR.CREATED_CHAT DESC
 	</select>
 
+	<!--채팅 메세지 저장-->
+	<insert id="saveChatMessage">
+		<selectKey keyProperty="chatNo" order="BEFORE" resultType="int">
+			SELECT CHAT_SEQ.NEXTVAL FROM DUAL
+		</selectKey>	
+		INSERT INTO CHAT (CHAT_NO, CHAT_ROOM_NO, MESSAGE, RECEIVED_DATE, USER_NO, USER_NAME)
+		VALUES (#{chatNo}, #{chatRoomNo}, #{message}, SYSTIMESTAMP, #{userNo}, #{userName})
+	</insert>
+	
+	<select id="getChatMessages" resultType="chat">
+	    SELECT 
+	        CHAT_NO AS chatNo,
+	        CHAT_ROOM_NO AS chatRoomNo,
+	        MESSAGE AS message,
+	        RECEIVED_DATE AS receivedDate,
+	        USER_NO AS userNo,  
+	        USER_NAME AS userName  
+	    FROM CHAT 
+	    WHERE CHAT_ROOM_NO = #{chatRoomNo}
+	    ORDER BY RECEIVED_DATE ASC
+	</select>
 
+	<!-- 채팅 참가자 쪽에서 userno 가져오기-->
+	<select id="getUserNosByChatRoom" parameterType="int" resultType="int">
+	    SELECT USER_NO FROM CHAT_PARTICIPANT WHERE CHAT_ROOM_NO = #{chatRoomNo}
+	</select>
 
+	
 
 
 </mapper>
