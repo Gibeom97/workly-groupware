@@ -23,6 +23,9 @@ import LeaveMain from "./pages/LeaveMain";
 import MyLeave from "./components/leave/MyLeave";
 import LeavePolicy from "./components/leave/LeavePolicy";
 import ManageLeave from "./components/leave/ManageLeave";
+import ApprovalConfirmPage from "./pages/approvalPage/approvalConfirmPage";
+import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
+import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
 
 function App() {
   return (
@@ -34,7 +37,7 @@ function App() {
         {/*전자결재Route*/}
         <Route path="/approvalMain" element={<ApprovalMain />}/>
         <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
-        <Route path="/ApprovalWritePage/:approvalNo" element={<ApprovalWritePage />} /> {/*임시저장 작성하기*/}
+        {/*<Route path="/ApprovalWritePage/:approvalNo" element={<ApprovalWritePage />} /> 임시저장 작성하기 */}
         <Route path="/ApprovalCompletePage/:approvalNo" element={<ApprovalCompletePage/>}/>
 
         <Route path="/approvalTempPage" element={<ApprovalTempPage />} />
@@ -44,6 +47,10 @@ function App() {
         <Route path="/ApprovalFinishPage" element={<ApprovalFinishPage/>}/>
         <Route path="/ApprovalRequestPage" element={<ApprovalRequestPage/>}/>
         <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage/>}/>
+
+        <Route path="/ApprovalConfirmPage/:approvalNo" element={<ApprovalConfirmPage/>}/>
+        <Route path="/ApprovalCompletepage2/:approvalNo" element={<ApprovalCompletePage2/>}/>
+        <Route path="/ApprovalSendPage" element={<ApprovalSendPage/>}/>
         {/*전자결재Route*/}
 
         <Route path="/personnel" element={<PersonnelMain />}>

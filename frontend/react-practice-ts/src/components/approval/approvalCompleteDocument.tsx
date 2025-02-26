@@ -4,14 +4,13 @@ import { useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import fontBase64 from "../../fonts/fontBase64.json"; // ✅ 변환된 파일을 가져오기
+import fontBase64 from "../../fonts/fontBase64.json"; // :흰색_확인_표시: 변환된 파일을 가져오기
 
 // ✅ 한글 폰트 등록
 pdfMake.vfs = {
   ...pdfFonts.pdfMake.vfs,
   ...fontBase64, // Base64 인코딩된 폰트 추가
 };
-
 pdfMake.fonts = {
   NotoSansKR: {
     normal: "NotoSansKR-Regular.ttf",
@@ -20,6 +19,8 @@ pdfMake.fonts = {
     bolditalics: "NotoSansKR-Bold.ttf"
   }
 };
+
+
 
 interface ApprovalCompleteDocumentProps {
   fileName?: string; // 저장된 파일 이름 (선택적)

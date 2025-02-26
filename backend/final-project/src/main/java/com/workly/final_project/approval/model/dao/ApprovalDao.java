@@ -29,6 +29,19 @@ public interface ApprovalDao {
 	List<ApprovalAttachment> getApprovalAttachmentByApprovalNo(int approvalNo);
 	List<ApprovalMemo> getApprovalMemo(int approvalNo, int userNo);
 	Approval getApprovalWriteUser(int userNo);
+	
+	// 팀원 추가 시작
+	List<Approval> getApprovalRequests(int userNo);
+	List<Approval> getApprovalFinishList(int userNo);
+	List<Approval> getApprovalReference(int userNo);
+	List<Approval> getApprovalSendList(int userNo);
+	Integer countApprovalComplete(int userNo);
+	Integer countApprovalRequest(int userNo);
+	Integer countApprovalReference(int userNo);
+	Integer countApprovalReceive(int userNo);
+	Integer countApprovalReject(int userNo);
+	
+	// 팀원 추가 끝
 
 	
 }

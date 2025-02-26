@@ -24,21 +24,21 @@ export const ApprovalWritePage = () => {
   });
 
   // 게시글 데이터 자동 불러오기
-  useEffect(() => {
-    if (approvalNo) {
-      const fetchApprovalData = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:8003/workly/api/approval/getApproval/${approvalNo}`
-          );
-          setApprovalData(response.data); // 기존 approvalData에 저장된 값 업데이트
-        } catch (error) {
-          console.error("게시글 데이터를 불러오는 데 실패했습니다.", error);
-        }
-      };
-      fetchApprovalData();
-    }
-  }, [approvalNo]);
+  // useEffect(() => {
+  //   if (approvalNo) {
+  //     const fetchApprovalData = async () => {
+  //       try {
+  //         const response = await axios.get(
+  //           `http://localhost:8003/workly/api/approval/getApproval/${approvalNo}`
+  //         );
+  //         setApprovalData(response.data); // 기존 approvalData에 저장된 값 업데이트
+  //       } catch (error) {
+  //         console.error("게시글 데이터를 불러오는 데 실패했습니다.", error);
+  //       }
+  //     };
+  //     fetchApprovalData();
+  //   }
+  // }, [approvalNo]);
 
   useEffect(() => {
     setApprovalMemoData((prevMemoData) => ({
