@@ -169,12 +169,12 @@ const handleRemoveFile = (index: number) => {
 
         {/* 첨부 */}
         <div style={rowStyle}>
-          <label style={labelStyle}>첨부</label>
+          <span style={labelStyle}>첨부</span>
           <button style={actionButtonStyle} onClick={handleFileUploadClick} >
             + 첨부
           </button>
           {/* 숨겨진 파일 입력 필드 */}
-          <input type="file" multiple ref={fileInputRef} style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} onChange={handleFileChange} />
+          <input type="file" multiple ref={fileInputRef} style={{ position: "absolute", width: 0, height: 0, overflow: "hidden", opacity: 0, pointerEvents: "none"}} onChange={handleFileChange} />
         
           {/* 선택된 파일 이름 표시 (클릭 시 다운로드 가능) */}
           <div style={fileListContainerStyle}>

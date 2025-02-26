@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { format, addHours } from "date-fns";
+import { format, addHours, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ApprovalSearchBar } from "../../components/approval/approvalSearchBar";
 import { ApprovalFooter2 } from "./approvalFooter2";
@@ -26,105 +26,85 @@ interface SearchParams {
 
 interface ApprovalTempBodyProps {
   selectedPosts: number[];
-  setSelectedPosts: React.Dispatch<React.SetStateAction<number[]>>;
+  setSelectedPosts: (posts: number[]) => void;
+  filteredPosts: any[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
   postsPerPage: number;
+  isLoading: boolean;
 }
 
-export const ApprovalTempBody: React.FC<ApprovalTempBodyProps> = ({
+export const ApprovalTempBody = ({
   selectedPosts,
   setSelectedPosts,
+  filteredPosts,
   currentPage,
   setCurrentPage,
   postsPerPage,
-}) => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const navigate = useNavigate(); // ✅ 페이지 이동을 위한 훅 사용
+  isLoading
+}: ApprovalTempBodyProps) => {
+  
+  if (isLoading) {
+    return <div>데이터를 불러오는 중입니다...</div>;
+  }
 
-  useEffect(() => {
-    const fetchDrafts = async () => {
-      try {
-        const response = await axios.get<Post[]>("http://localhost:8003/workly/api/approval/drafts");
-        setPosts(response.data);
-        setFilteredPosts(response.data);
-      } catch (error) {
-        console.error("임시저장된 결재 문서를 불러오는데 실패했습니다:", error);
-      }
-    };
-    fetchDrafts();
-  }, []);
-
-  // 체크박스 상태 변경 함수
-  const handleCheckboxChange = (approvalNo: number) => {
-    setSelectedPosts((prev) =>
-      prev.includes(approvalNo) ? prev.filter((id) => id !== approvalNo) : [...prev, approvalNo]
-    );
-  };
-
-  // 게시글 클릭 시 작성 페이지로 이동
-  const handlePostClick = (approvalNo: number) => {
-    navigate(`/ApprovalWritePage/${approvalNo}`);
-  };
-
-  // 검색 필터링
-  const handleSearch = (searchParams: SearchParams) => {
-    let result = [...posts];
-
-    if (searchParams.approvalType) {
-      result = result.filter((post) => post.approvalType === searchParams.approvalType);
-    }
-
-    if (searchParams.year) {
-      result = result.filter((post) => {
-        const postDate = new Date(parseInt(post.startDate));
-        return postDate.getFullYear().toString() === searchParams.year;
-      });
-    }
-
-    if (searchParams.searchText) {
-      const searchLower = searchParams.searchText.toLowerCase().trim();
-      result = result.filter((post) => {
-        return (
-          post.approvalTitle?.toLowerCase().includes(searchLower) ||
-          post.approvalNo.toString().includes(searchLower) ||
-          post.approvalUser?.toLowerCase().includes(searchLower)
-        );
-      });
-    }
-
-    setFilteredPosts(result);
-  };
-
-  // 날짜 포맷
-  const formatDate = (timestamp: string) => {
-    try {
-      const date = new Date(parseInt(timestamp));
-      const kstDate = addHours(date, 9);
-      return format(kstDate, "yyyy. MM. dd a hh:mm", { locale: ko });
-    } catch (error) {
-      console.error("날짜 포맷 오류:", error);
-      return "-";
-    }
-  };
-
-  // 페이지네이션 처리
+  // 현재 페이지의 게시글만 표시
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
+  // 체크박스 처리
+  const handleCheckboxChange = (tempNo: number) => {
+    setSelectedPosts(prev => {
+      if (prev.includes(tempNo)) {
+        return prev.filter(item => item !== tempNo);
+      } else {
+        return [...prev, tempNo];
+      }
+    });
+  };
+
+  const formatDate = (timestamp: number | null) => {
+    try {
+        if (!timestamp) {
+            return '-';
+        }
+        
+        const date = new Date(timestamp);
+        
+        // 'aa'를 사용하여 오전/오후 표시
+        return format(date, 'yyyy. MM. dd aa hh:mm', {
+            locale: ko
+        });
+    } catch (error) {
+        console.error('날짜 포맷팅 오류:', error);
+        return '-';
+    }
+  };
+
   return (
-    <>
-      <ApprovalSearchBar onSearch={handleSearch} />
-      <div style={{ width: "100%", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <table style={{ width: "90%", borderCollapse: "collapse", textAlign: "center" }}>
+    <div style={containerStyle}>
+      {currentPosts.length === 0 ? (
+        <div>문서가 없습니다.</div>
+      ) : (
+        <table style={tableStyle}>
           <thead>
             <tr>
-              <th style={thStyle}></th>
+              <th style={thStyle}>
+                <input
+                  type="checkbox"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedPosts(currentPosts.map(post => post.tempNo));
+                    } else {
+                      setSelectedPosts([]);
+                    }
+                  }}
+                  checked={currentPosts.length > 0 && selectedPosts.length === currentPosts.length}
+                />
+              </th>
               <th style={thStyle}>구분</th>
               <th style={thStyle}>기안번호</th>
-              <th style={thStyle}>기안자</th>
               <th style={thStyle}>제목</th>
               <th style={thStyle}>기안일</th>
               <th style={thStyle}>상태</th>
@@ -132,53 +112,76 @@ export const ApprovalTempBody: React.FC<ApprovalTempBodyProps> = ({
           </thead>
           <tbody>
             {currentPosts.map((post) => (
-              <tr
-                key={post.approvalNo}
-                style={clickableRowStyle}
-                onClick={() => handlePostClick(post.approvalNo)}
-              >
-                <td>
+              <tr key={post.tempNo} style={rowStyle}>
+                <td style={tdStyle}>
                   <input
                     type="checkbox"
-                    checked={selectedPosts.includes(post.approvalNo)}
-                    onChange={() => handleCheckboxChange(post.approvalNo)}
+                    checked={selectedPosts.includes(post.tempNo)}
+                    onChange={() => handleCheckboxChange(post.tempNo)}
                   />
                 </td>
                 <td style={tdStyle}>{post.approvalType}</td>
-                <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
-                <td style={tdStyle}>{post.approvalUser || "-"}</td>
+                <td style={tdStyle}>{`임시저장-${post.tempNo}`}</td>
                 <td style={tdTitleStyle}>{post.approvalTitle}</td>
-                <td style={tdStyle}>{formatDate(post.startDate)}</td>
-                <td style={tdStyle}>-</td>
+                <td style={tdStyle}>
+                  {post.createdAt ? formatDate(post.createdAt) : '-'}
+                </td>
+                <td style={tdStyle}>
+                  <span style={statusStyle}>임시저장</span>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 
-// ✅ 스타일 정의
+const containerStyle = {
+  width: "100%",
+  padding: "20px",
+  backgroundColor: "#fff",
+};
+
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse" as const,
+  marginTop: "10px",
+};
+
 const thStyle = {
   padding: "12px",
   borderBottom: "2px solid #202224",
   fontSize: "13px",
-  fontWeight: 700,
+  fontWeight: "bold",
+  textAlign: "center" as const,
 };
 
-const clickableRowStyle = {
+const rowStyle = {
   borderBottom: "1px solid #E0E0E0",
-  cursor: "pointer", // ✅ 커서 포인터
-  transition: "background-color 0.2s",
+  "&:hover": {
+    backgroundColor: "#F8F9FA",
+  },
 };
 
 const tdStyle = {
-  padding: "10px",
+  padding: "12px",
   fontSize: "12px",
+  color: "#202224",
+  textAlign: "center" as const,
 };
 
 const tdTitleStyle = {
   ...tdStyle,
-  textAlign: "left",
+  textAlign: "left" as const,
+};
+
+const statusStyle = {
+  padding: "5px 10px",
+  borderRadius: "4px",
+  backgroundColor: "#E0E0E0",
+  color: "#202224",
+  fontSize: "12px",
+  fontWeight: "bold",
 };

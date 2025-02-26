@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +19,7 @@ import com.workly.final_project.common.utils.Util;
 import com.workly.final_project.leave.model.dto.AnnualHistoryDTO;
 import com.workly.final_project.leave.model.service.LeaveService;
 import com.workly.final_project.leave.model.vo.AnnualLeave;
+import com.workly.final_project.leave.model.vo.LeavePolicy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,7 @@ public class LeaveController {
 																		   .year(year)
 																		   .build())
 												   .build();
+		log.debug("history : {}", history);
 		
 		int listCount = service.selectLeaveCount(history);
 		log.debug("history: {}", history);
@@ -120,4 +123,59 @@ public class LeaveController {
 		}
 		return responseEntity;
 	}
+	
+	@CrossOrigin("http://localhost:5173")
+	@GetMapping("/leavePolicy")
+	public List<LeavePolicy> selectLeavePolicy() {
+		List<LeavePolicy> list = service.selectLeavePolicy();
+		log.debug("list: {}", list);
+		
+		return list;
+	}
+	
+	@CrossOrigin("http://localhost:5173")
+	@PutMapping("/updatePolicy")
+	public ResponseEntity<Map<String, String>> updatePolicy(
+			@RequestBody LeavePolicy policy
+			) {
+		log.debug("policy: {}", policy);
+		
+		int result = service.updatePolicy(policy); 
+		
+		ResponseEntity<Map<String, String>> responseEntity = null;
+		
+		if(result > 0) {
+			Map<String, String> map = new HashMap<>();
+			if(policy.getMaxYear() == 0) {
+				map.put("msg", policy.getMinYear() + "년차의 기본 연차 일수를 " + policy.getLeaveDays() + "일로 변경하였습니다.");
+				responseEntity = ResponseEntity.ok().body(map);
+			} else if(policy.getMaxYear() == 100) {
+				map.put("msg", policy.getMinYear() + "년차 이상의 기본 연차 일수를 " + policy.getLeaveDays() + "일로 변경하였습니다.");
+				responseEntity = ResponseEntity.ok().body(map);
+			} else {
+				map.put("msg", policy.getMinYear() + "~" + policy.getMaxYear() + "년차의 기본 연차 일수를 " + policy.getLeaveDays() + "일로 변경하였습니다.");
+				responseEntity = ResponseEntity.ok().body(map);
+			}
+		} else {
+			Map<String, String> error = new HashMap<>();
+			error.put("msg", "기본 연차 일수 변경에 실패하였습니다.");
+			responseEntity =  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+		}
+		return responseEntity;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

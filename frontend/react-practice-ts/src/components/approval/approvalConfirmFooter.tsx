@@ -1,11 +1,18 @@
-import { useNavigate } from "react-router-dom";
-import { ApprovalMemoModal } from "./approvalMemoModal";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
+import { ApprovalConfirmMemoModal } from "./approvalConfirmMemoModal";
 
-export const ApprovalComfirmFooter = () => {
+export const ApprovalConfirmFooter = () => {
 
     const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
+    const {approvalNo} = useParams();
+
+    const handleSave = (memoContent) => {
+        console.log("Memo Content:", memoContent);
+
+        setModalOpen(false);
+    }
     
     return (
         <footer
@@ -64,7 +71,13 @@ export const ApprovalComfirmFooter = () => {
                 </button>
 
                 {/*모달 창*/}
-                {modalOpen && <ApprovalMemoModal onClose={() => setModalOpen(false)} />}
+                {modalOpen && (
+                    <ApprovalConfirmMemoModal
+                    approvalNo={approvalNo}
+                     onClose={() => setModalOpen(false)} 
+                     onSave={handleSave}
+                    />
+                )}
 
 
                 <button

@@ -28,33 +28,32 @@ export const ApprovalTempFooter: React.FC<ApprovalTempProps> = ({
 
   // 선택한 게시글 삭제 함수
   const handleDelete = async () => {
-    if (!selectedPosts || selectedPosts.length === 0) {
-      alert("삭제할 문서를 선택해주세요.");
+    if (selectedPosts.length === 0) {
+      alert("삭제할 항목을 선택해주세요.");
       return;
     }
-
+  
     try {
-      console.log("삭제 요청 보낼 데이터:", selectedPosts); // 🔥 디버깅용 콘솔 로그
+      const response = await axios.delete(
+        "http://localhost:8003/workly/api/approvalTemp/delete",
+        {
+          data: selectedPosts,  // 배열을 data 속성으로 전달
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      await axios.post("http://localhost:8003/workly/api/approval/delete", {
-        approvalNos: selectedPosts // ✅ 배열로 전달
-      });
-
-      alert("선택한 문서가 삭제되었습니다.");
-      setSelectedPosts([]); // 선택된 문서 초기화
-      window.location.reload(); // 페이지 새로고침
-    } catch (error: any) {
-      console.error("문서 삭제 실패:", error);
-      
-      // 🔥 서버에서 받은 에러 메시지를 확인
-      if (error.response) {
-        console.error("서버 응답 데이터:", error.response.data);
-        alert(`문서 삭제 중 오류 발생: ${error.response.data.message || "알 수 없는 오류"}`);
-      } else {
-        alert("문서 삭제 중 오류가 발생했습니다.");
-      }
+      console.log("✅ 삭제 완료:", response.data);
+      alert("선택한 항목이 삭제되었습니다.");
+      // 삭제 후 목록 새로고침
+      window.location.reload();
+    } catch (error) {
+      console.error("삭제 실패:", error);
+      alert("삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
+  
 
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center"}}>

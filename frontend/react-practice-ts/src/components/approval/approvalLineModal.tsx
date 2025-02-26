@@ -57,8 +57,8 @@ const userNo = useSelector((state: any) => state.user.userNo);
               POSITION_NAME: emp.POSITION_NAME,
               approvalType: emp.APPROVAL_TYPE,
               type: '결재자',
-              approvalLevel: emp.LEVEL,
-              approvalLineType: emp.APPROVAL_TYPE,
+              approvalLevel: emp.LEVEL,  
+              approvalLineType: emp.APPROVAL_LINE_TYPE,
             })),
           }));
 
@@ -125,7 +125,7 @@ const userNo = useSelector((state: any) => state.user.userNo);
       approvalLine: approvalLine.map(person => ({
         ...person,
         USER_NO: person.USER_NO,
-        approvalLineType: person.approvalType
+        APPROVAL_LINE_TYPE: person.approvalType
       })), // ✅ approvalData 내부에 approvalLine 속성 추가
     }));
     onClose();
@@ -399,10 +399,10 @@ const userNo = useSelector((state: any) => state.user.userNo);
                     }}
                 >
                     <select
-                    value={person.type}
+                    value={person.approvalType}
                     onChange={(e) => {
                       setApprovalLine(approvalLine.map((item) =>
-                        item.id === person.id ? { ...item, type: e.target.value } : item
+                        item.id === person.id ? { ...item, approvalType: e.target.value } : item
                       ));
                     }}
                     style={{
@@ -411,7 +411,7 @@ const userNo = useSelector((state: any) => state.user.userNo);
                         borderRadius: 3,
                         border: "1px solid black",
                     }}
-                    >
+                    > 
                     <option value="승인">승인</option>
                     <option value="수신">수신</option>
                     </select>
