@@ -15,7 +15,7 @@ public class Approval {
 	private int approvalNo;
 	private int userNo;//기안자
 	private String approvalType;
-	private String approvalStatus;
+	private int approvalStatus;
 	private String approvalTitle;
 	private String approvalContent;
 	private Date startDate;//요청 날짜
@@ -23,5 +23,7 @@ public class Approval {
 	private String approvalUser;//결재해주는사람
 	
 	private String userName;
+	private int status;
+	private String type;
 	
 }

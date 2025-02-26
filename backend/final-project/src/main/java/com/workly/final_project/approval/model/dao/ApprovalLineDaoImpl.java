@@ -55,4 +55,68 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 		System.out.println("paramMap: " + paramMap);
 	    System.out.println("삭제된 행 수: " + deletedCount);	
 	}
+
+	@Override
+	public void updateApprovalStatus(int approvalNo, int userNo, int status) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("approvalNo", approvalNo);
+		params.put("userNo", userNo);
+		params.put("status", status);
+		
+		sqlSession.update("ApprovalLine.updateApprovalStatus", params);
+	}
+
+	@Override
+	public Map<String, Object> findNextApprover(int approvalNo, int nextLevel) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("approvalNo", approvalNo);
+        params.put("nextLevel", nextLevel);
+		return sqlSession.selectOne("ApprovalLine.findNextApprover", params);
+	}
+
+	@Override
+	public int findApprovalLevel(int approvalNo, int userNo) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("approvalNo", approvalNo);
+		params.put("usreNo", userNo);
+		params.put("userNo", userNo);
+		
+		return sqlSession.selectOne("ApprovalLine.findApprovalLevel", params);
+	}
+
+	@Override
+	public int isFinalApprover(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.isFinalApprover", approvalNo);
+	}
+
+	@Override
+	public void updateFinalApproval(int approvalNo) {
+		sqlSession.update("ApprovalLine.updateFinalApproval", approvalNo);
+	}
+
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

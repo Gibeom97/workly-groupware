@@ -190,6 +190,41 @@ public class ApprovalController {
 		 return ResponseEntity.ok(approvalMemo);
 		 
 	 }
+	 
+	 // 팀원 추가 시작
+	 
+	 // 유저에게 요청된 결재 리스트 가져오기
+	 @GetMapping("/requests/{userNo}")
+	 public List<Approval> getApprovalRequests(@PathVariable int userNo){
+		 return approvalService.getApprovalRequests(userNo);
+	 }
+	 
+	 // 승인 완료된 결재문서 리스트 가져오기
+	 @GetMapping("/finishList/{userNo}")
+	 public List<Approval> getApprovalFinishList(@PathVariable int userNo){
+		 return approvalService.getApprovalFinishList(userNo);
+	 }
+	 
+	 // 유저가 참조된 결재문서 리스트 가져오기
+	 @GetMapping("/referenceList/{userNo}")
+	 public List<Approval> getApprovalReference(@PathVariable int userNo){
+		 return approvalService.getApprovalReference(userNo);
+	 }
+	 
+	 // 유저가 수신자로 있는 결재문서 리스트 가졍괴
+	 @GetMapping("/sendList/{userNo}")
+	 public List<Approval> getApprovalSendList(@PathVariable int userNo){
+		 return approvalService.getApprovalSendList(userNo);
+	 }
+	 
+	 // 알림기능 위해 각각의 approval개수 가져오기
+	 @GetMapping("/counts")
+	 public ResponseEntity<Map<String, Integer>> getApprovalCounts(@RequestParam("userNo") int userNo){
+		 Map<String, Integer> counts = approvalService.getApprovalCounts(userNo);
+		 return ResponseEntity.ok(counts);
+	 }
+	 
+	 // 팀원 추가 끝
 
 }
 
