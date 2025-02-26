@@ -6,6 +6,7 @@ let initialState;
 if (storedUser) {
     const parsed = JSON.parse(storedUser);
     const { member, department, annualLeave, position, attachment, hireDate } = parsed;
+  
     initialState = {
         userNo: member?.userNo || 0,
         userName: member?.userName || "",
@@ -14,7 +15,7 @@ if (storedUser) {
         usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
         deptNo: member?.deptNo || 0,
         deptName: department?.deptName || "",
-        positionNo: member.positionNo || 0,
+        positionNo: member.positionNo || 0, 
         positionName: position?.positionName || "",
         changeName: attachment?.changeName || "",
         filePath: attachment?.filePath || "",
@@ -30,7 +31,7 @@ if (storedUser) {
         usedAnnualLeave: 0,
         deptNo: 0,
         deptName: "",
-        positionNo: 0,
+        positionNo: 0, 
         positionName: "",
         changeName: "",
         filePath: "",
@@ -52,7 +53,7 @@ const userSlice = createSlice({
                 usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
                 deptNo: member?.deptNo || 0,
                 deptName: department?.deptName || "",
-                positionNo: member.positionNo || 0,
+                positionNo: member.positionNo || 0, 
                 positionName: position?.positionName || "",
                 changeName: attachment?.changeName || "",
                 filePath: attachment?.filePath || "",
@@ -69,7 +70,7 @@ const userSlice = createSlice({
                 usedAnnualLeave : 0,
                 deptNo: 0,
                 deptName: "",
-                positionNo: 0,
+                positionNo: 0, 
                 positionName: "",
                 changeName: "",
                 filePath: "",

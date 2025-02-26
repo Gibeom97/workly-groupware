@@ -1,0 +1,116 @@
+.miniCalendar1 {
+  padding: 35px 20px 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  border-top: 1px solid rgb(243, 242, 242);
+  width: 100%;
+  /* ✅ 스크롤 제거 */
+  display: flex;
+  flex-direction: column;
+  /* ✅ 캘린더 비율 유지 */
+}
+
+/* ✅ 툴바 */
+.customToolbar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  gap: 30px;
+}
+
+.customTitle {
+  font-size: 18px !important;
+  text-align: center;
+  color : #00135d;
+  cursor: pointer;
+}
+
+.customTitle:hover {
+  color:#838383;
+  transition: 0.2s
+}
+
+/* ✅ 툴바 버튼 */
+.toolbarButton {
+  font-size: 12px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a6a6a6;
+}
+
+.toolbarButton:hover {
+  color: #00135d;
+}
+
+/* ✅ 캘린더 크기 및 스타일 복구 */
+.calendarWrapper {
+  width: 100%;
+  flex-grow: 1;
+  /* ✅ 캘린더가 툴바 아래에서 자연스럽게 채워지도록 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* ✅ 스크롤 제거 */
+}
+
+/* ✅ 날짜 칸 크기 줄이기 (🔥 중요 수정) */
+.miniCalendar1 .fc-daygrid-day {
+  min-height: 18px !important;
+  /* 🔥 기존 25px → 18px 로 줄이기 */
+  height: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ FullCalendar 내부 구조 조정 */
+.miniCalendar1 .fc-daygrid-day-frame {
+  min-height: 18px !important;
+  /* 🔥 기존 25px → 18px 로 줄이기 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ 날짜 텍스트 크기 조정 */
+.miniCalendar1 .fc-daygrid-day-number {
+  font-size: 8px !important;
+  /* 🔥 기존보다 더 작은 크기 */
+  font-weight: bold;
+  color: #333;
+  text-align: center !important;
+}
+
+/* ✅ 요일 헤더 크기 강제 조정 (월,화,수,목,금,토,일) */
+.miniCalendar1 :global(.fc-col-header-cell) {
+  min-width: 22px !important;
+  text-align: center !important;
+  font-size: 8px !important;
+  /* 🔥 글씨 크기 줄이기 */
+  white-space: nowrap !important;
+  font-weight: bold;
+}
+
+
+/* ✅ 이벤트 크기 및 텍스트 크기 조정 */
+.miniCalendar1 .fc-daygrid-event {
+  font-size: 8px !important;
+  /* 🔥 이벤트 텍스트 크기 줄이기 */
+  padding: 2px 3px !important;
+  border-radius: 4px !important;
+}
+
+/* ✅ 빈 날짜 스타일 */
+.miniCalendar1 .fc-daygrid-day.fc-day-other {
+  background: #f4f4f4;
+}
+
+/* ✅ 이벤트 클릭 시 스타일 */
+.miniCalendar1 .fc-event:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}

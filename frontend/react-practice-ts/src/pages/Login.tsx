@@ -11,6 +11,7 @@ const Login = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault();
@@ -69,13 +70,13 @@ const Login = () => {
                                 setUserPwd(e.target.value)
                             }}
                         />
-                        <div className={styles.saveId}>
-                            <input type="checkbox" id="saveId" />
-                            <label htmlFor="saveId">아이디 저장</label>
+                        <div className={styles.saveContainer}>
+                            <input type="checkbox" id="saveId" className={styles.saveId} />
+                            <label htmlFor="saveId"  className={styles.saveLabel}>아이디 저장</label>
                         </div>
                         <button type="submit" className={styles.loginBtn}>로그인</button>
                         <p className={styles.notice}>
-                            비밀번호 분실 시 인사팀에 문의하세요
+                            비밀번호 분실 시 인사팀에 문의해주세요
                         </p>
                     </form>
                 </div>

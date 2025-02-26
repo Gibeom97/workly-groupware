@@ -104,4 +104,53 @@ public class ApprovalDaoImpl implements ApprovalDao{
 		return sqlSession.selectOne("Approval.getApprovalWriteUser", approvalNo);
 	}
 
+	// 팀원 추가
+	@Override
+	public List<Approval> getApprovalRequests(int userNo) {
+		return sqlSession.selectList("Approval.getApprovalRequests", userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalFinishList(int userNo) {
+		return sqlSession.selectList("Approval.getApprovalFinishList", userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalReference(int userNo) {
+		return sqlSession.selectList("Approval.getApprovalReference", userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalSendList(int userNo) {
+		return sqlSession.selectList("Approval.getApprovalSendList", userNo);
+	}
+
+	@Override
+	public Integer countApprovalComplete(int userNo) {
+		return sqlSession.selectOne("Approval.countApprovalComplete", userNo);
+	}
+
+	@Override
+	public Integer countApprovalRequest(int userNo) {
+		return sqlSession.selectOne("Approval.countApprovalRequest", userNo);
+	}
+
+	@Override
+	public Integer countApprovalReference(int userNo) {
+		return sqlSession.selectOne("Approval.countApprovalReference", userNo);
+	}
+
+	@Override
+	public Integer countApprovalReceive(int userNo) {
+		return sqlSession.selectOne("Approval.countApprovalReceive", userNo);
+	}
+
+	@Override
+	public Integer countApprovalReject(int userNo) {
+		return sqlSession.selectOne("Approval.countApprovalReject", userNo);
+	}
+	// 팀원 추가 끝
+	
+	
+
 }

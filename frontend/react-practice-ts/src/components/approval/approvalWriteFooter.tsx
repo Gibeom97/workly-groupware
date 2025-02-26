@@ -52,40 +52,37 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
         navigate("/approvalMain/ApprovalWriteDetailPage");
     };
 
-    // ✅ 임시저장 + 불러오기
-    const handleTempSave = async () => {
+    // ✅ 임시저장 + 불러오기 (수정된 코드)
+const handleTempSave = async () => {
+    try {
+        const tempApprovalData = {
+            userNo: parseInt(userNo),
+            approvalType: approvalData.approvalType || '일반',
+            approvalStatus: 4,
+            approvalTitle: approvalData.approvalTitle || '',
+            approvalContent: approvalData.approvalContent || '',
+            approvalNo: approvalData.approvalNo || null
+        };
 
-        console.log("참조값 확인: ", selectedCCUsers);
-        console.log("approvalNo값 확인: ", approvalNo);
-
-        try {
-          const tempApprovalData = {
-            ...approvalData,
-            approvalStatus: "4", // 임시저장 상태
-            startDate: new Date().toISOString(), // 시작 날짜 자동 설정
-          };
-      
-          if (!tempApprovalData.approvalTitle || !tempApprovalData.approvalContent) {
-            alert("제목과 내용을 모두 입력해주세요.");
-            return;
-          }
-      
-          // 임시 저장 요청
-          await axios.post(
-            "http://localhost:8003/workly/api/approval/tempSave",
+        const response = await axios.post(
+            "http://localhost:8003/workly/api/approvalTemp/save",
             tempApprovalData,
             {
-              headers: { "Content-Type": "application/json" },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             }
-          );
-      
-          alert("임시저장 완료!");
-      
-        } catch (error) {
-          console.error("임시저장 실패:", error);
-          alert("임시저장 실패!");
-        }
-      };
+        );
+
+        console.log("임시 저장 완료:", response.data);
+        alert("임시 저장 완료!");
+
+    } catch (error) {
+        console.error("임시저장 실패:", error.response?.data || error.message);
+        alert("임시 저장에 실패했습니다. 다시 시도해주세요.");
+    }
+};
+
       
     
 

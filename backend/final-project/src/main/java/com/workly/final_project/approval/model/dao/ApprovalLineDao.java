@@ -25,4 +25,15 @@ public interface ApprovalLineDao {
 
 	void deleteFavoriteLine(int userNo, String favoriteName);
 
+
+	void updateApprovalStatus(int approvalNo, int userNo, int status);
+
+	Map<String, Object> findNextApprover(int approvalNo, int nextLevel);
+
+	int findApprovalLevel(int approvalNo, int userNo);
+
+	int isFinalApprover(int approvalNo);
+
+	void updateFinalApproval(int approvalNo);
+
 }

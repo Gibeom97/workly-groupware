@@ -5,8 +5,11 @@
   height: 100vh;
   background: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  /* border-right: 1px solid #e5e7eb; */
   display: flex;
   flex-direction: column;
+  min-width: 250px;
+  max-width: 100%;
   padding: 20px;
 }
 
@@ -36,7 +39,8 @@
 }
 
 /* 아이콘 크기 */
-.sidebarNav nav ul li span img, .imgIcon {
+.sidebarNav nav ul li span img,
+.imgIcon {
   width: 20px;
   height: 20px;
 }
@@ -82,8 +86,9 @@
 }
 
 .mypageButton:hover {
-  color:black;
+  color: black;
 }
+
 .logoutButton:hover {
   color: red;
 }
@@ -92,4 +97,3 @@
   text-decoration: none;
   color: black;
 }
-

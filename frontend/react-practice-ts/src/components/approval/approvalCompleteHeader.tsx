@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format, addHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { times } from "lodash";
 
 
 
@@ -21,42 +22,53 @@ export const ApprovalCompleteHeader = () => {
   
   const [formattedDate, setFormattedDate] = useState("N/A"); // 시간 이상함
 
+  // ✅ date-fns를 활용한 시간 변환 함수
   const convertToKST = (timestamp) => {
-    // 🔹 초 단위(10자리)라면 밀리초 변환
-    if (timestamp.toString().length === 10) {
-      timestamp *= 1000;
+    if (!timestamp) {
+      console.error("⛔ 오류: timestamp가 존재하지 않습니다!", timestamp);
+      return "N/A";
     }
   
-    //console.log("🟢 변환 전 timestamp:", timestamp);
-    
-    let dateObj = new Date(timestamp);
-    
-    //console.log("🟢 변환된 Date 객체 (원본 - JS 해석):", dateObj.toString());
-    //console.log("🟢 변환된 UTC 기준 시간:", dateObj.toUTCString());
+    let dateObj;
   
-    // ✅ 서버 `timestamp`가 UTC인지 KST인지 판별 후 변환
-    let isUTC = dateObj.getUTCHours() === dateObj.getHours(); // UTC 시간인지 체크
-    let kstDate;
-  
-    if (isUTC) {
-      //console.log("✅ 서버 시간은 UTC 기준이므로 9시간 추가 변환 필요");
-      kstDate = new Date(dateObj.getTime() + (9 * 60 * 60 * 1000))
-        .toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+    // ✅ 문자열이면 "YYYY-MM-DD HH:mm:ss" → "YYYY-MM-DDTHH:mm:ss" 로 변환 후 Date 객체 생성
+    if (typeof timestamp === "string") {
+      // 공백(" ")을 "T"로 변경
+      timestamp = timestamp.replace(" ", "T");
+      dateObj = new Date(timestamp);
+    } else if (typeof timestamp === "number") {
+      // ✅ 초 단위(10자리)라면 밀리초로 변환
+      if (timestamp.toString().length === 10) {
+        timestamp *= 1000;
+      }
+      dateObj = new Date(timestamp);
     } else {
-      //console.log("✅ 서버 시간은 KST 기준이므로 변환 없이 사용");
-      kstDate = dateObj.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+      console.error("⛔ 오류: 지원되지 않는 timestamp 형식입니다!", timestamp);
+      return "N/A";
     }
   
-    //console.log("🟢 최종 변환된 한국 시간:", kstDate);
-    
-    return kstDate;
+    // ✅ 날짜가 유효한지 확인
+    if (isNaN(dateObj.getTime())) {
+      console.error("⛔ 오류: 유효하지 않은 날짜입니다!", timestamp);
+      return "N/A";
+    }
+
+  
+    // ✅ KST 변환 (9시간 추가)
+    const kstDate = addHours(dateObj, 9);
+  
+    // ✅ 포맷팅된 한국 시간 반환
+    return format(kstDate, "yyyy-MM-dd HH:mm", { locale: ko });
   };
   
-  useEffect(() => {
   
+
+  useEffect(() => {
     if (approvers.length > 0 && approvers[0]?.approvalDate) {
       let timestamp = approvers[0].approvalDate;
-      setFormattedDate(convertToKST(timestamp));
+
+      let convertedTime = convertToKST(timestamp);
+
     }
   }, [approvers]);
   
@@ -156,18 +168,21 @@ export const ApprovalCompleteHeader = () => {
         {/* 구분선 */}
         <div style={dividerStyle} />
   
-        {/* 결재라인 */}
-        <div>
+       {/* 결재라인 */}
+      <div>
         <label style={labelStyle}>결재라인</label>
         <div style={approvalListContainerStyle}>
           {approvers.length > 0 ? (
-            approvers.map((line, index) => (
-              <div key={index} style={approvalItemStyle}>
-                <span>{line.deptName} / {line.positionName} / {line.userName}</span>
-                <span style={dateStyle}>{formattedDate || "N/A"}</span>
-                <span style={statusStyle(line.status)}>{getStatusLabel(line.status)}</span> 
-              </div>
-            ))
+            approvers.map((line, index) => {
+              const formattedDate = convertToKST(line.approvalDate); // ✅ 개별 날짜 변환
+              return (
+                <div key={index} style={approvalItemStyle}>
+                  <span>{line.deptName} / {line.positionName} / {line.userName}</span>
+                  <span style={dateStyle}>{formattedDate || "N/A"}</span>
+                  <span style={statusStyle(line)}>{getStatusLabel(line)}</span> 
+                </div>
+              );
+            })
           ) : (
             <span style={textStyle}>결재자가 없습니다.</span>
           )}
@@ -220,37 +235,58 @@ export const ApprovalCompleteHeader = () => {
     );
   };
 
-    // ✅ 상태 값을 문자열로 변환하는 함수
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 1: return "진행중";
-      case 2: return "승인";
-      case 3: return "반려";
-      default: return "알 수 없음"; // 혹시 모를 예외 처리
-    }
-  };
+// ✅ 상태 값을 문자열로 변환하는 함수 (approvalLineType이 '수신'이면 '수신' 표시)
+const getStatusLabel = (line) => {
+  if (line.approvalLineType === "수신") {
+    return "수신"; // ✅ approvalLineType이 '수신'이면 '수신' 표시
+  }
+  
+  switch (line.status) {
+    case 0: return "대기"; 
+    case 1: return "진행중";
+    case 2: return "승인";
+    case 3: return "반려";
+    default: return "N/A";
+  }
+};
 
-  // ✅ 상태별 스타일 적용 함수
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 1: return "#FFA500"; // 진행중 (오렌지색)
-      case 2: return "#008000"; // 승인 (초록색)
-      case 3: return "#FF0000"; // 반려 (빨간색)
-      default: return "#666"; // 기본 회색 (알 수 없음)
-    }
-  };
-
-  // ✅ 상태 스타일 함수 적용
-  const statusStyle = (status) => ({
+// ✅ 상태별 스타일 적용 함수 (approvalLineType이 '수신'이면 초록색 적용)
+const statusStyle = (line) => {
+  if (line.approvalLineType === "수신") {
+    return {
+      padding: "4px 6px",
+      fontSize: "11px",
+      borderRadius: "4px",
+      color: "white",
+      backgroundColor: "#4CAF50", // ✅ '수신'이면 초록색
+      width: "60px",
+      textAlign: "center"
+    };
+  }
+  
+  return {
     padding: "4px 6px",
     fontSize: "11px",
     borderRadius: "4px",
     color: "white",
-    backgroundColor: getStatusColor(status), // 상태별 색상 적용
+    backgroundColor: getStatusColor(line.status), // ✅ 기본 상태별 색상 적용
     width: "60px",
     textAlign: "center"
-  });
-  
+  };
+};
+
+// ✅ 상태별 색상 반환 함수 추가
+const getStatusColor = (status) => {
+  switch (status) {
+    case 0: return "#666"; // 대기 (회색)
+    case 1: return "#FFA500"; // 진행중 (오렌지색)
+    case 2: return "#4c93ff"; // 승인 (파란색)
+    case 3: return "#FF0000"; // 반려 (빨간색)
+    default: return "#666"; // 기본값 (회색)
+  }
+};
+
+
   // ✅ **컨테이너 스타일**
   const containerStyle = {
     display: "flex",

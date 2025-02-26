@@ -51,7 +51,7 @@ public class ApprovalMemoDaoImpl implements ApprovalMemoDao{
 
 	@Override
 	public boolean deleteApproval(int memoNo) {
-		int deletedRows = sqlSession.delete("Approvalmemo.deleteApproval", memoNo);
+		int deletedRows = sqlSession.delete("ApprovalMemo.deleteApproval", memoNo);
 		return deletedRows > 0;
 	}
 
