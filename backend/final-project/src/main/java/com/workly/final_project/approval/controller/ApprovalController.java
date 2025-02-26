@@ -62,66 +62,66 @@ public class ApprovalController {
 		return approvalService.getDepartmentsWithEmployees();
 	}
 	
-	// 임시저장된 결재 목록 조회 API
-    @GetMapping("/drafts")
-    public ResponseEntity<List<Approval>> getDraftApprovals() {
-        List<Approval> draftApprovals = approvalService.getDraftApprovals();
-        return ResponseEntity.ok(draftApprovals);
-    }
+//	// 임시저장된 결재 목록 조회 API
+//    @GetMapping("/drafts")
+//    public ResponseEntity<List<Approval>> getDraftApprovals() {
+//        List<Approval> draftApprovals = approvalService.getDraftApprovals();
+//        return ResponseEntity.ok(draftApprovals);
+//    }
 
-    // 선택한 결재 문서 삭제 API
-    @PostMapping("/delete")
-    public ResponseEntity<?> deleteApprovals(@RequestBody Map<String, List<Long>> request) {
-        List<Long> approvalNosLong = request.get("approvalNos");
-
-        if (approvalNosLong == null || approvalNosLong.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "삭제할 문서 번호가 없습니다."));
-        }
-
-        // List<Long>을 List<Integer>로 변환
-        List<Integer> approvalNos = approvalNosLong.stream()
-            .map(Long::intValue)
-            .toList();
-
-        try {
-            approvalService.deleteApprovals(approvalNos);
-            return ResponseEntity.ok(Map.of("message", "삭제 완료"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "문서 삭제 중 오류 발생", "error", e.getMessage()));
-        }
-    }
+//    // 선택한 결재 문서 삭제 API
+//    @PostMapping("/delete")
+//    public ResponseEntity<?> deleteApprovals(@RequestBody Map<String, List<Long>> request) {
+//        List<Long> approvalNosLong = request.get("approvalNos");
+//
+//        if (approvalNosLong == null || approvalNosLong.isEmpty()) {
+//            return ResponseEntity.badRequest().body(Map.of("message", "삭제할 문서 번호가 없습니다."));
+//        }
+//
+//        // List<Long>을 List<Integer>로 변환
+//        List<Integer> approvalNos = approvalNosLong.stream()
+//            .map(Long::intValue)
+//            .toList();
+//
+//        try {
+//            approvalService.deleteApprovals(approvalNos);
+//            return ResponseEntity.ok(Map.of("message", "삭제 완료"));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .body(Map.of("message", "문서 삭제 중 오류 발생", "error", e.getMessage()));
+//        }
+//    }
     
     // 임시저장 생성 API
-    @PostMapping("/tempSave")
-    public ResponseEntity<Map<String, Object>> tempSaveApproval(@RequestBody Approval approval) {
-        try {
-            int result = approvalService.tempSaveApproval(approval);
-            
-            if (result > 0) {
-                int approvalNo = approval.getApprovalNo(); // 저장된 문서의 approvalNo 추출
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "임시저장 완료");
-                response.put("approvalNo", approvalNo);
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "임시저장 실패"));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "임시저장 실패", "error", e.getMessage()));
-        }
-    }
+//    @PostMapping("/tempSave")
+//    public ResponseEntity<Map<String, Object>> tempSaveApproval(@RequestBody Approval approval) {
+//        try {
+//            int result = approvalService.tempSaveApproval(approval);
+//            
+//            if (result > 0) {
+//                int approvalNo = approval.getApprovalNo(); // 저장된 문서의 approvalNo 추출
+//                Map<String, Object> response = new HashMap<>();
+//                response.put("message", "임시저장 완료");
+//                response.put("approvalNo", approvalNo);
+//                return ResponseEntity.ok(response);
+//            } else {
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "임시저장 실패"));
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "임시저장 실패", "error", e.getMessage()));
+//        }
+//    }
 
     // 임시저장 조회 API
-    @GetMapping("/getApproval/{approvalNo}")
-    public ResponseEntity<Approval> getApprovalByNo(@PathVariable int approvalNo) {
-        Approval approval = approvalService.getApprovalByNo(approvalNo);
-        if (approval != null) {
-            return ResponseEntity.ok(approval);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
+//    @GetMapping("/getApproval/{approvalNo}")
+//    public ResponseEntity<Approval> getApprovalByNo(@PathVariable int approvalNo) {
+//        Approval approval = approvalService.getApprovalByNo(approvalNo);
+//        if (approval != null) {
+//            return ResponseEntity.ok(approval);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//    }
 	 
 	 // 결재상신한 기안자 이름 가져오기
 	 @GetMapping("/getWriteUser")
