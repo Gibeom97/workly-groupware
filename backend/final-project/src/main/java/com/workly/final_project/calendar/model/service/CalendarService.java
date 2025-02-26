@@ -8,8 +8,10 @@ import java.util.List;
 
 public interface CalendarService {
 
-    // ✅ 일정 (개인 & 팀) 관련 기능
-    List<Calendar> getEvents(Integer userNo, Integer deptNo);
+	// ✅ 일정 조회 기능 추가 (수정된 부분)
+    List<Calendar> getUserEvents(int userNo);
+    List<Calendar> getTeamEvents(int deptNo);
+
     void addEvent(Calendar calendar);
     void updateEvent(int calNo, Calendar calendar);
     void deleteEvent(int calNo);
@@ -17,8 +19,9 @@ public interface CalendarService {
     // ✅ 회의실 예약 관련 기능
     List<MeetingReservation> getMeetingReservations();
     void addMeetingReservation(MeetingReservation meeting);
-    void updateMeetingReservation(int resNo, MeetingReservation meeting);
-    void deleteMeetingReservation(int resNo);
+    void updateMeetingReservation(int mrResNo, MeetingReservation meeting);
+    void deleteMeetingReservation(int mrResNo);
+
 
     // ✅ 메모 관련 기능
     CalendarMemo getMemo(int userNo);
