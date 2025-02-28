@@ -35,7 +35,9 @@ function Header() {
   } else if (pathname.includes("form")) {
     title = "결재양식관리";
   } else if (pathname.includes("leave")) {
-    title ="연차관리"
+    title = "연차관리"
+  } else if (pathname.includes("myPage")) {
+    title = "마이페이지"
   } else {
     title = "";
   }
@@ -75,7 +77,7 @@ function Header() {
           </button>
           {dropDownOpen && (
             <div className={styles.dropdownMenu}>
-              <div className={styles.menuItem}>
+              <div className={styles.menuItem} onClick={() => navigate("/myPage")}>
                 <img src={mypage} alt="마이 페이지" />
                 <span>마이 페이지</span>
               </div>

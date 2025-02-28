@@ -76,11 +76,12 @@
 /* 드롭다운 메뉴 */
 .dropdownMenu {
     position: absolute;
-    top: 60px;
+    background: #fff;
+    top: 80px;
     /* 헤더 아래로 띄움 */
     right: 0;
     /* 우측 정렬 */
-    width: 200px;
+    width: 220px;
     /* 원하는 너비 */
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);

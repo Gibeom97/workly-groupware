@@ -15,13 +15,12 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/userSlice";
-import { useState } from "react";
+import { openChat } from "../../features/sidebarSlice";
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+
   const navigate = useNavigate(); 
   const dispatch = useDispatch();
-
   const user = useSelector((state) => {
     return state.user;
   });
@@ -34,8 +33,7 @@ const Sidebar = () => {
   }
 
   return (
-    <>
-      <div className={styles.sidebar}>
+    <div className={styles.sidebar}>
       <div className={styles.title}>Wonk</div>
       <div className={styles.sidebarNav}>
       <nav>
@@ -62,14 +60,14 @@ const Sidebar = () => {
             <span>캘린더</span>
           </li>
           </Link>
-          <li onClick={() => navigate('/approvalMain')}>
+          <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
             <span>
               <img src={icon4} alt="전자결재" />
             </span>
             <span>전자결재</span>
             <span className={styles.badge}>6</span>
           </li>
-          <li>
+          <li onClick={() => dispatch(openChat())} style={{ cursor: "pointer" }}>
             <span>
               <img src={icon5} alt="채팅" />
             </span>
@@ -107,24 +105,18 @@ const Sidebar = () => {
             <span>인사관리</span>
           </li>
           </Link>
-          <Link to={"/form"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon10} alt="권한관리" />
-            </span>
-            <span>결재양식관리</span>
-          </li>
-          </Link>
         </ul>
       </nav>
       </div>
       <div className={styles.logout}>
+        <Link to={"/myPage"} className={styles.link}>
         <button className={styles.mypageButton}>
           <span>
             <img className={styles.imgIcon} src={icon11} alt="마이페이지" />
           </span>
           <span>마이페이지</span>
         </button>
+        </Link>
         <button className={styles.logoutButton} onClick={handleLogout}>
           <span>
             <img className={styles.imgIcon} src={icon12} alt="로그아웃" />
@@ -133,7 +125,6 @@ const Sidebar = () => {
         </button>
       </div>
     </div>
-    </>
   );
 };
 

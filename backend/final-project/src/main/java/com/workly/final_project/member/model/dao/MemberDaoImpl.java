@@ -89,7 +89,7 @@ public class MemberDaoImpl implements MemberDao {
 
 	@Override
 	public int checkAttachment(Member m) {
-		return session.selectOne("member.heckAttachment", m);
+		return session.selectOne("member.checkAttachment", m);
 	}
 
 	@Override

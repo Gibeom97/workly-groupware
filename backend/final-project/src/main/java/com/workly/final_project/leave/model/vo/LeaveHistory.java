@@ -1,6 +1,6 @@
 package com.workly.final_project.leave.model.vo;
 
-import java.sql.Date;
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,11 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class LeaveHistory {
+	
 	private int leaveNo;
 	private int userNo;
 	private Date startDate;
 	private Date endDate;
 	private double leaveDays;
 	private String leaveType;
-	private String leaveStatus;
+	private int approvalNo;
+
 }

@@ -11,6 +11,8 @@ import Modal from "../components/calendar/Modal";
 import { EventInput } from "@fullcalendar/core";
 import styles from "./Calendar.module.css";
 
+
+
 const CalendarPage = () => {
   const [selectedCalendar, setSelectedCalendar] = useState("calendar1");
   const [isModalOpen, setModalOpen] = useState(false);
@@ -22,7 +24,7 @@ const CalendarPage = () => {
   // ✅ 내 일정 & 팀 일정 상태 관리
   const [events, setEvents] = useState<EventInput[]>([]); 
   const [teamEvents, setTeamEvents] = useState<EventInput[]>([]);
-
+  
   // ✅ Redux에서 로그인한 사용자 정보 가져오기
   const user = useSelector((state: any) => state.user);
   const userNo = user?.userNo;

@@ -18,4 +18,5 @@ public class Chat {
 	private Timestamp receviedDate;
 	private int userNo;
 	private String userName;
+	private ChatFile chatFile; // 파일 ㅁ세ㅔ지 연결 추가 
 }

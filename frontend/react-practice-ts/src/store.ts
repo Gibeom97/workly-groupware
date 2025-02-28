@@ -5,11 +5,13 @@ import storage from "redux-persist/lib/storage";
 import userReducer from "./features/userSlice";
 import chatReducer from "./features/chatSlice";
 import notificationsReducer from "./features/approvalNotificationsSlice"; // ✅ 추가
+import sidebarReducer from "./features/sidebarSlice"; 
+import notificationsReducer from "./features/approvalNotificationsSlice"; // ✅ 알림 리듀서 추가
 
 const persistConfig = {
     key: "root", // localStorage에 저장
     storage,
-    whitelist: ["user","chat","notifications"], // rootReducer 중 user만 localStorage에 저장
+    whitelist: ["user","chat"], // rootReducer 중 user만 localStorage에 저장
 };
 
 
@@ -17,6 +19,7 @@ const rootReducer = combineReducers({
     user: persistReducer(persistConfig, userReducer),
     chat: persistReducer(persistConfig, chatReducer), 
     notifications: notificationsReducer,
+    sidebar : sidebarReducer,
 });
 
 
@@ -44,4 +47,5 @@ persistor.subscribe(() => {
 
 export type RootState = ReturnType<typeof store.getState>;
 export { isPersisted }; //
+export type AppDispatch = typeof store.dispatch;
 export default store;

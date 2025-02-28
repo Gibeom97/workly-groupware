@@ -24,28 +24,35 @@ import MyLeave from "./components/leave/MyLeave";
 import LeavePolicy from "./components/leave/LeavePolicy";
 import ManageLeave from "./components/leave/ManageLeave";
 import ApprovalConfirmPage from "./pages/approvalPage/approvalConfirmPage";
-
-import  { useState } from "react";
 import Chat from "./Chat";  
 import { RootState } from "./store"; 
+import { useDispatch, useSelector } from "react-redux";
+import { closeChat } from "./features/sidebarSlice";
 import { useSelector } from "react-redux";
-
 import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
 import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
+import MyPage from "./pages/MyPage";
+import MyInfomation from "./components/myPage/MyInfomation";
+import { ApprovalRejectDetailPage } from "./pages/approvalPage/approvalRejectDetailPage";
+import useFetchNotifications from "./hooks/useFetchNotifications";
 
 function App() {
+  // 전자결재 알림서비스 추가
+  const userNo = useSelector((state: RootState) => state.user.userNo);
+  useFetchNotifications(userNo);
+
 
   const currentUser = useSelector((state: RootState) => state.user); 
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
+  const {isChatOpen} = useSelector((state: RootState) => state.sidebar); 
+  const dispatch = useDispatch();
   return (
     <div>
       {/* 🔹 Chat 열기 버튼 */}
-      <button onClick={() => setIsChatOpen(true)}>채팅 열기</button>
+      {/* <button onClick={() => setIsChatOpen(true)}>채팅 열기</button> */}
 
       {/* 🔹 Chat 모달 (유저 정보 전달) */}
       {isChatOpen && (
-        <Chat currentUser={currentUser} onClose={() => setIsChatOpen(false)} />
+        <Chat currentUser={currentUser} onClose={() => dispatch(closeChat())} />
       )}
 
       <Routes>
@@ -68,12 +75,13 @@ function App() {
         <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage/>}/>
 
         <Route path="/ApprovalConfirmPage/:approvalNo" element={<ApprovalConfirmPage/>}/>
-
         <Route path="/ApprovalCompletepage2/:approvalNo" element={<ApprovalCompletePage2/>}/>
         <Route path="/ApprovalSendPage" element={<ApprovalSendPage/>}/>
 
-        {/*전자결재Route*/}
+        <Route path="/ApprovalRejectpage" element={<ApprovalReferencePage/>}/>
+        <Route path="/ApprovalRejectDetailPage/:approvalNo" element={<ApprovalRejectDetailPage/>}/>
 
+        {/*전자결재Route*/}
         <Route path="/personnel" element={<PersonnelMain />}>
           <Route index element={<PersonnelTable />} />
           <Route path="createEmployee" element={<CreateEmployee />} />
@@ -85,6 +93,11 @@ function App() {
           <Route index element={<MyLeave/>}/>
           <Route path="manage" element={<ManageLeave/>}/>
           <Route path="policy" element={<LeavePolicy/>}/>
+        </Route>
+
+        <Route path="/mypage" element={<MyPage/>}>
+          <Route index element={<MyInfomation/>}/>
+          <Route path="salary" element={<></>}/>
         </Route>
 
         <Route path="/form" element={<FormMain/>}>

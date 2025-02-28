@@ -1,5 +1,4 @@
 package com.workly.final_project.chat.config;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -29,5 +28,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("http://localhost:5173") // CORS 허용 설정
                 .withSockJS();
     }
+    
+    
+//    @Override
+//    public boolean configureMessageConverters(List<MessageConverter> converters) {
+//        converters.add(new MappingJackson2MessageConverter());
+//        return false; // 기본 컨버터를 등록하지 않도록 설정 (필요 시 true로 변경)
+//    }
+
 }
 

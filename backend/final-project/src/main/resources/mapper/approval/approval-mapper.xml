@@ -143,7 +143,7 @@
 		WHERE A.APPROVAL_NO = #{approvalNo}
 	</select>
 	
-	<!-- 팀원 추가 -->
+
 	<select id="getApprovalRequests" resultType="Approval">
 		SELECT
 			M.USER_NAME,
@@ -218,48 +218,52 @@
 		ORDER BY A.START_DATE DESC
 	</select>
 	
-	<!-- 결재 완료 문서 개수 -->
-	<select id="countApprovalComplete" parameterType="int" resultType="int">
-		SELECT COUNT(*)
-		FROM APPROVAL
-		WHERE USER_NO = #{userNo} AND APPROVAL_STATUS = 2
-	</select>
+	<!-- 팀원 추가 -->
+	<!-- 연차 테이블 추가 -->
+	<insert id="saveLeaveRequest" parameterType="LeaveHistory">
+		INSERT INTO LEAVE_HISTORY (LEAVE_NO, USER_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO)
+		VALUES (LEAVE_SEQ.NEXTVAL, #{userNo}, #{startDate}, #{endDate}, #{leaveDays}, #{leaveType}, #{approvalNo})
+	</insert>
 	
-	<!-- 결재 요청 문서 개수 -->
-	<select id="countApprovalRequest" parameterType="int" resultType="int">
-		SELECT COUNT(*)
+	<!-- 결재 반려 시 기안서 상태 변경 -->
+	<update id="rejectApproval">
+		UPDATE APPROVAL
+		SET APPROVAL_STATUS = 3
+		WHERE APPROVAL_NO = #{approvalNo}
+	</update>
+	
+	<update id="rejectApprovalLine">
+		UPDATE APPROVAL_LINE
+		SET STATUS = 3
+		WHERE APPROVAL_NO = #{approvalNo} AND USER_NO = #{userNo}
+	</update>
+	
+	<select id="getApprovalRejectList" resultType="Approval">
+		SELECT 
+		    M.USER_NAME,
+		    A.APPROVAL_NO,
+		    A.USER_NO,
+		    A.APPROVAL_TYPE,
+		    A.APPROVAL_STATUS,
+		    A.APPROVAL_TITLE,
+		    A.START_DATE,
+		    MAX(A.END_DATE) AS END_DATE
 		FROM APPROVAL A
 		JOIN MEMBER M ON A.USER_NO = M.USER_NO
-		JOIN APPROVAL_LINE L ON A.APPROVAL_NO = L.APPROVAL_NO 
-		WHERE L.USER_NO = #{userNo} AND L.TYPE = '결재자'
+		JOIN APPROVAL_LINE L ON A.APPROVAL_NO = L.APPROVAL_NO
+		WHERE A.USER_NO = #{userNo}
+		GROUP BY 
+		    M.USER_NAME, A.APPROVAL_NO, A.USER_NO, A.APPROVAL_TYPE, 
+		    A.APPROVAL_STATUS, A.APPROVAL_TITLE, A.START_DATE
 		ORDER BY A.START_DATE DESC
 	</select>
 	
-	<!-- 결재 참조 문서 개수 -->
-	<select id="countApprovalReference" parameterType="int" resultType="int">
-		SELECT COUNT(*)
-		FROM APPROVAL A
-		JOIN MEMBER M ON A.USER_NO = M.USER_NO
-		JOIN APPROVAL_LINE L ON A.APPROVAL_NO = L.APPROVAL_NO 
-		WHERE L.USER_NO = #{userNo} AND L.TYPE = '참조자'
-		ORDER BY A.START_DATE DESC
-	</select>
+	<delete id="ApprovalDelete">
+		DELETE FROM APPROVAL 
+		WHERE APPROVAL_NO = #{approvalNo}
 	
-	<!-- 결재 수신 문서 개수 -->
-	<select id="countApprovalReceive" parameterType="int" resultType="int">
-		SELECT COUNT(*)
-		FROM APPROVAL A
-		JOIN MEMBER M ON A.USER_NO = M.USER_NO
-		JOIN APPROVAL_LINE L ON A.APPROVAL_NO = L.APPROVAL_NO 
-		WHERE L.USER_NO = #{userNo} AND L.APPROVAL_LINE_TYPE = '수신'
-		ORDER BY A.START_DATE DESC
-	</select>
+	</delete>
 	
-	<select id="countApprovalReject" parameterType="int" resultType="int">
-		SELECT COUNT(*)
-		FROM APPROVAL
-		WHERE USER_NO = #{userNo} AND APPROVAL_STATUS = 3
-	</select>
 	<!-- 팀원 추가 끝 -->
 	
 </mapper>
