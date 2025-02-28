@@ -7,6 +7,10 @@ import { useSelector } from "react-redux";
 
 export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers }) => {
 
+    useEffect(() => {
+        console.log("footer에서 받은 approvalData:", approvalData);
+    }, [approvalData]);
+
     const [approvalNo, setApprovalNo] = useState<number | null>(null); // approvalNo를 상태로 관리
 
     useEffect(() => {
@@ -130,20 +134,31 @@ const handleTempSave = async () => {
 
             console.log("서버에서 받은 approvalNo값:", newApprovalNo);
 
-            setApprovalNo(newApprovalNo);            
+            setApprovalNo(newApprovalNo);    
+            
+            // 만약 결재 유형이 "휴가원"이면 휴가 데이터를 별도로 백엔드로 전송
+            if(approvalData.approvalType === "휴가원"){
+                const leaveRequestData = {
+                    approvalNo: newApprovalNo,
+                    leaveType: approvalData.leaveType,
+                    startDate: approvalData.startLeaveDate,
+                    endDate: approvalData.endDate,
+                    leaveDays: approvalData.leaveDays,
+                    userNo: userNo,
+                };
 
-            // **🔥 `setApprovalMemoData` 업데이트 후 비동기 처리가 끝나기를 기다림**
-            await new Promise(resolve => setTimeout(resolve, 500));
+                console.log("휴가 데이터 백엔드 전송:", leaveRequestData);
 
-            // // 3️⃣ ApprovalMemoData 업데이트 후 저장 요청
-            // const finalApprovalMemoData = {
-            //     ...approvalMemoData,
-            //     approvalNo: newApprovalNo, // ✅ 방금 저장된 approvalNo 설정
-            //     userNo: userNo,
-            //     memoContent: memoContent, // ✅ 최신 결재 의견 반영
-            // };
-            // await axios.post("http://localhost:8003/workly/api/approvalMemos/create", finalApprovalMemoData);
+                await axios.post(
+                    "http://localhost:8003/workly/api/approval/leaveRequest",
+                    leaveRequestData,
+                    {headers: { "Content-Type": "application/json"}}
+                );
 
+                console.log("휴가테이버 저장 완료");
+
+            }
+            
             // 결재라인 저장 요청 (approvalLine 데이터 전송)
             if ((approvalData.approvalLine ?? []).length > 0) {
                 const approvalLineData = [
@@ -207,6 +222,8 @@ const handleTempSave = async () => {
         }
     }, [approvalNo]);
 
+
+
     return (
         <footer
             style={{
@@ -259,7 +276,7 @@ const handleTempSave = async () => {
                         justifyContent: "center",
                     }}
                     onClick={() => {
-                        if (!approvalData.approvalType || !approvalData.approvalTitle || !approvalData.approvalContent) {
+                        if (/*!approvalData.approvalType ||*/ !approvalData.approvalTitle || !approvalData.approvalContent) {
                             alert("필수 입력사항을 모두 입력해야 합니다.");
                         } else {
                             submitApproval();

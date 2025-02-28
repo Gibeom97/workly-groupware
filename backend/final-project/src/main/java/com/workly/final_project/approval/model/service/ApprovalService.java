@@ -9,6 +9,7 @@ import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
+import com.workly.final_project.leave.model.vo.LeaveHistory;
 
 public interface ApprovalService {
 
@@ -38,7 +39,7 @@ public interface ApprovalService {
 
 	Approval getApprovalWriteUser(int userNo);
 
-	// 팀원 추가
+	
 	List<Approval> getApprovalRequests(int userNo);
 
 	List<Approval> getApprovalFinishList(int userNo);
@@ -46,8 +47,18 @@ public interface ApprovalService {
 	List<Approval> getApprovalReference(int userNo);
 
 	List<Approval> getApprovalSendList(int userNo);
+	
+	// 팀원 추가
+	int saveLeaveRequest(LeaveHistory leaveRequest);
 
-	Map<String, Integer> getApprovalCounts(int userNo);
+	void rejectApproval(int approvalNo);
+
+	void rejectApprovalLine(int approvalNo, int userNo);
+
+	List<Approval> getApprovalRejectList(int userNo);
+
+	void ApprovalDelete(int approvalNo);
+
 	
 	// 팀원 추가 끝
 
