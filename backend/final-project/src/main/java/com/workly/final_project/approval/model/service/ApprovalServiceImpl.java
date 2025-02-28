@@ -13,6 +13,7 @@ import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
+import com.workly.final_project.leave.model.vo.LeaveHistory;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 	
 	@Autowired
 	private ApprovalDao approvalDao;
+	
+	private final Map<String, Integer> previousCounts = new HashMap<>();
 
 	@Transactional
 	@Override
@@ -94,7 +97,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 		return approvalDao.getApprovalWriteUser(approvalNo);
 	}
 
-	// 팀원 추가
+
 	@Override
 	public List<Approval> getApprovalRequests(int userNo) {
 		return approvalDao.getApprovalRequests(userNo);
@@ -115,16 +118,36 @@ public class ApprovalServiceImpl implements ApprovalService {
 		return approvalDao.getApprovalSendList(userNo);
 	}
 
+	
+	// 팀원 추가
 	@Override
-	public Map<String, Integer> getApprovalCounts(int userNo) {
-		Map<String, Integer> counts = new HashMap<>();
-		counts.put("approvalComplete", approvalDao.countApprovalComplete(userNo));
-		counts.put("approvalRequest", approvalDao.countApprovalRequest(userNo));
-		counts.put("approvalReference", approvalDao.countApprovalReference(userNo));
-		counts.put("approvalReceive", approvalDao.countApprovalReceive(userNo));
-		counts.put("approvalReject", approvalDao.countApprovalReject(userNo));
-		return counts;
+	public int saveLeaveRequest(LeaveHistory leaveRequest) {
+		return approvalDao.saveLeaveRequest(leaveRequest);
 	}
+
+	@Override
+	@Transactional
+	public void rejectApproval(int approvalNo) {
+		 approvalDao.rejectApproval(approvalNo);
+	}
+
+	@Override
+	@Transactional
+	public void rejectApprovalLine(int approvalNo, int userNo) {
+		 approvalDao.rejectApprovalLine(approvalNo, userNo);
+	}
+
+	@Override
+	public List<Approval> getApprovalRejectList(int userNo) {
+		return approvalDao.getApprovalRejectList(userNo);
+	}
+
+	@Override
+	@Transactional
+	public void ApprovalDelete(int approvalNo) {
+		approvalDao.ApprovalDelete(approvalNo);
+	}
+
 	
 	// 팀원 추가 끝
 

@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.workly.final_project.approval.model.dto.ApprovalDTO;
 import com.workly.final_project.approval.model.service.ApprovalService;
 import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
 import com.workly.final_project.common.utils.TimestampConverter;
+import com.workly.final_project.leave.model.vo.LeaveHistory;
 
 @RestController
 @RequestMapping("/api/approval")
@@ -191,7 +191,6 @@ public class ApprovalController {
 		 
 	 }
 	 
-	 // 팀원 추가 시작
 	 
 	 // 유저에게 요청된 결재 리스트 가져오기
 	 @GetMapping("/requests/{userNo}")
@@ -217,11 +216,45 @@ public class ApprovalController {
 		 return approvalService.getApprovalSendList(userNo);
 	 }
 	 
-	 // 알림기능 위해 각각의 approval개수 가져오기
-	 @GetMapping("/counts")
-	 public ResponseEntity<Map<String, Integer>> getApprovalCounts(@RequestParam("userNo") int userNo){
-		 Map<String, Integer> counts = approvalService.getApprovalCounts(userNo);
-		 return ResponseEntity.ok(counts);
+	 
+	 // 팀원 추가 시작
+	 
+	 // 휴가 테이블 저장
+	 @PostMapping("/leaveRequest")
+    public String saveLeaveRequest(@RequestBody LeaveHistory leaveHistory) {
+	 int result = approvalService.saveLeaveRequest(leaveHistory);
+        return result > 0 ? "휴가 요청이 성공적으로 저장되었습니다." : "휴가 요청 저장 실패";
+    }
+	 
+	 // 문서 반려 처리
+	 @PostMapping("/reject")
+	 public ResponseEntity<String> rejectApproval(@RequestParam int approvalNo, @RequestParam int userNo){
+		 try {
+			 approvalService.rejectApproval(approvalNo);
+			 approvalService.rejectApprovalLine(approvalNo, userNo);
+			 
+			 return ResponseEntity.ok("결재 반려 처리 완료");
+		 } catch (Exception e) {
+			 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("반려 처리 중 오류 발생");
+		 }
+	 }
+	 
+	 // 반려처리된 리스트 가져오기
+	 @GetMapping("/rejectList/{userNo}")
+	 public List<Approval> getApprovalRejectList(@PathVariable int userNo){
+		 return approvalService.getApprovalRejectList(userNo);
+	 }
+	 
+	 // 결재문서 삭제
+	 @DeleteMapping("/deleteApproval/{approvalNo}")
+	 public ResponseEntity<String> deleteApproval(@PathVariable int approvalNo){
+		 try {
+			 approvalService.ApprovalDelete(approvalNo);
+			 return ResponseEntity.ok("결재 문서 삭제 완료");
+		 }catch (Exception e) {
+			 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					 			  .body("문서 삭제 중 오류 발생");
+		 }
 	 }
 	 
 	 // 팀원 추가 끝
