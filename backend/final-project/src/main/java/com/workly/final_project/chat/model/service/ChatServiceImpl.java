@@ -120,6 +120,35 @@ public class ChatServiceImpl implements ChatService{
 
 	    return chatDao.saveChatMessage(chat);
 	}
+//	@Override
+//	@Transactional
+//	public int saveChatMessage(Chat chat) {
+//	    log.info("채팅 저장 요청: {}", chat);
+//
+//	    if (chat.getUserNo() == 0) {
+//	        List<Integer> userNos = chatDao.getUserNosByChatRoom(chat.getChatRoomNo());
+//	        if (!userNos.isEmpty()) {
+//	            chat.setUserNo(userNos.get(0));
+//	            log.info("⚠️ userNo가 없어서 ChatParticipant에서 가져옴: {}", chat.getUserNo());
+//	        } else {
+//	            log.error("❌ 해당 채팅방에 참여자가 없음! chatRoomNo: {}", chat.getChatRoomNo());
+//	            return 0;
+//	        }
+//	    }
+//
+//	    // 1️⃣ `Chat` 테이블에 메시지 저장
+//	    int result = chatDao.saveChatMessage(chat);
+//	    
+//	    if (result > 0) {
+//	        // 2️⃣ `UserChat` 테이블에 사용자별 마지막 읽은 메시지 갱신
+//	        UserChat userChat = new UserChat(chat.getUserNo(), chat.getChatRoomNo(), chat.getChatNo());
+//	        chatDao.insertUserChat(userChat);  // ⬅️ 이 부분 추가
+//	        chatDao.updateLastReadChatNo(userChat);  // ⬅️ 마지막 읽은 메시지 갱신
+//	    }
+//
+//	    return result;
+//	}
+
 
 
 	@Override
@@ -135,19 +164,17 @@ public class ChatServiceImpl implements ChatService{
 
 //	@Override
 //	public int insertUserChat(UserChat userChat) {
-//		int result = chatDao.insertUserChat(userChat);
-//		
-//		if (result > 0) {
-//            return result; // 성공적으로 추가됨
-//        } else {
-//            throw new RuntimeException("❌ 즐겨찾기 추가 실패: DB에서 삽입되지 않음");
-//        }
+//		return chatDao.insertUserChat(userChat);
 //	}
 //
 //	@Override
 //	public void updateLastReadChatNo(UserChat userChat) {
 //		chatDao.updateLastReadChatNo(userChat);
 //	}
+
+
+	
+	
 //
 //	@Override
 //	public int getLastReadChatNo(int userNo, int chatRoomNo) {

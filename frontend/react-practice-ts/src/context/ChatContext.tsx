@@ -6,7 +6,7 @@ interface ChatContextType {
     closeChat : () => void;
 }
 
-const ChatContext = createContext<ChatContextType | undefined>(undefined);
+export const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({children}:{children :ReactNode}) => {
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -29,3 +29,4 @@ export const useChat = () => {
     }
     return context;
 }
+

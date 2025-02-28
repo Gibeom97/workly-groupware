@@ -31,11 +31,11 @@ public interface ChatService {
 
 		List<Integer> getUserNosByChatRoom(int chatRoomNo);
 
-//		 int insertUserChat(UserChat userChat);
-//		 
-//	    void updateLastReadChatNo(UserChat userChat);
-//	    
-//	    int getLastReadChatNo(int userNo, int chatRoomNo);
+//	 int insertUserChat(UserChat userChat);
+//
+//	 void updateLastReadChatNo(UserChat userChat);
+
+	 //	    int getLastReadChatNo(int userNo, int chatRoomNo);
 
 		
 }

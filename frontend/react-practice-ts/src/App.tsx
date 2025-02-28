@@ -24,12 +24,11 @@ import MyLeave from "./components/leave/MyLeave";
 import LeavePolicy from "./components/leave/LeavePolicy";
 import ManageLeave from "./components/leave/ManageLeave";
 import ApprovalConfirmPage from "./pages/approvalPage/approvalConfirmPage";
-
-import  { useState } from "react";
 import Chat from "./Chat";  
 import { RootState } from "./store"; 
+import { useDispatch, useSelector } from "react-redux";
+import { closeChat } from "./features/sidebarSlice";
 import { useSelector } from "react-redux";
-
 import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
 import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
 import { ApprovalRejectDetailPage } from "./pages/approvalPage/approvalRejectDetailPage";
@@ -42,16 +41,16 @@ function App() {
 
 
   const currentUser = useSelector((state: RootState) => state.user); 
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
+  const {isChatOpen} = useSelector((state: RootState) => state.sidebar); 
+  const dispatch = useDispatch();
   return (
     <div>
       {/* 🔹 Chat 열기 버튼 */}
-      <button onClick={() => setIsChatOpen(true)}>채팅 열기</button>
+      {/* <button onClick={() => setIsChatOpen(true)}>채팅 열기</button> */}
 
       {/* 🔹 Chat 모달 (유저 정보 전달) */}
       {isChatOpen && (
-        <Chat currentUser={currentUser} onClose={() => setIsChatOpen(false)} />
+        <Chat currentUser={currentUser} onClose={() => dispatch(closeChat())} />
       )}
 
       <Routes>
@@ -74,7 +73,6 @@ function App() {
         <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage/>}/>
 
         <Route path="/ApprovalConfirmPage/:approvalNo" element={<ApprovalConfirmPage/>}/>
-
         <Route path="/ApprovalCompletepage2/:approvalNo" element={<ApprovalCompletePage2/>}/>
         <Route path="/ApprovalSendPage" element={<ApprovalSendPage/>}/>
 

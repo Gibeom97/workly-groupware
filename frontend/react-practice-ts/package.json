@@ -24,6 +24,8 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
     "lexical": "^0.24.0",
     "lodash": "^4.17.21",
     "pdfmake": "^0.2.4",
