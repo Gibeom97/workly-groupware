@@ -20,10 +20,11 @@ public class Approval {
 	private String approvalContent;
 	private Date startDate;//요청 날짜
 	private Date endDate;// 최종승인 날짜
-	private String approvalUser;//결재해주는사람
+	private String approvalUser;//기안자
 	
-	private String userName;
 	private int status;
 	private String type;
+	
+	private String userName; // ✅ 추가: 조인된 userName을 받을 필드
 	
 }

@@ -258,6 +258,16 @@ public class ApprovalController {
 	 }
 	 
 	 // 팀원 추가 끝
+	 
+	// ✅ 진행함 목록 조회 API (userNo가 기안자인 경우)
+	 @GetMapping("/progressList/{userNo}")
+	 public ResponseEntity<List<Approval>> getProgressList(@PathVariable int userNo) {
+	     List<Approval> progressDocs = approvalService.getApprovalProgressList(userNo);
+	     System.out.println("진행함 응답 데이터: " + progressDocs); // 로그 확인
+	     return ResponseEntity.ok(progressDocs);
+	 }
+
+
 
 }
 

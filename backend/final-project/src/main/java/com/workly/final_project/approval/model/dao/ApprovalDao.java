@@ -47,4 +47,7 @@ public interface ApprovalDao {
 	// 팀원 추가 끝
 
 	
+	//진행함
+	List<Approval> getApprovalProgressList(int userNo);
+	
 }
