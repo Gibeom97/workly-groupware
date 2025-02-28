@@ -77,16 +77,17 @@ public class ChatDao {
 	    return userNos;
 	}
 
-
-	
-//	// 채팅방 참여 시 UserChat에 추가
+	// userchat에 추가
 //	public int insertUserChat(UserChat userChat) {
 //		return sqlSession.insert("chat.insertUserChat", userChat);
 //	}
-//	
+//
 //	public void updateLastReadChatNo(UserChat userChat) {
 //		sqlSession.update("chat.updateLastReadChatNo", userChat);
 //	}
+	
+	
+	
 //
 //	public int getLastReadChatNo(int userNo, int chatRoomNo) {
 //		return sqlSession.selectOne("chat.getLastReadChatNo", Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));

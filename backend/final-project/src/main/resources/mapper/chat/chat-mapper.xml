@@ -127,13 +127,29 @@
 	        USER_NAME AS userName  
 	    FROM CHAT 
 	    WHERE CHAT_ROOM_NO = #{chatRoomNo}
-	    ORDER BY RECEIVED_DATE ASC
+	    ORDER BY CHAT_NO ASC, RECEIVED_DATE ASC
 	</select>
 
 	<!-- 채팅 참가자 쪽에서 userno 가져오기-->
 	<select id="getUserNosByChatRoom" parameterType="int" resultType="int">
 	    SELECT USER_NO FROM CHAT_PARTICIPANT WHERE CHAT_ROOM_NO = #{chatRoomNo}
 	</select>
+
+	<insert id="insertUserChat">
+	    MERGE INTO USER_CHAT T
+	    USING (SELECT #{userNo} AS USER_NO, #{chatRoomNo} AS CHAT_ROOM_NO FROM DUAL) S
+	    ON (T.USER_NO = S.USER_NO AND T.CHAT_ROOM_NO = S.CHAT_ROOM_NO)
+	    WHEN NOT MATCHED THEN
+	        INSERT (USER_NO, CHAT_ROOM_NO, LAST_READ_CHAT_NO)
+	        VALUES (S.USER_NO, S.CHAT_ROOM_NO, #{lastReadChatNo})
+	</insert>
+	
+	<update id="updateLastReadChatNo">
+	    UPDATE USER_CHAT 
+	    SET LAST_READ_CHAT_NO = #{lastReadChatNo}
+	    WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
+	</update>
+
 
 	
 

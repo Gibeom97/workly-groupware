@@ -3,7 +3,45 @@ import ApprovalLineModal from "./approvalLineModal";
 import ApprovalCCModal from "./approvalCCModal";
 
 export const ApprovalWriteHeader = ({approvalData, setApprovalData, selectedCCUsers = [], setSelectedCCUsers = []}) => {
+    // ✅ 각각의 모달 상태를 독립적으로 관리
+    const [approvalLineModalOpen, setApprovalLineModalOpen] = useState(false);
+    const [approvalCCModalOpen, setApprovalCCModalOpen] = useState(false);
+    const [approvalType, setApprovalType] = useState(""); // ✅ 종류 선택 (일반 or 휴가원)
+    const [leaveType, setLeaveType] = useState(""); // ✅ 휴가원 선택 시 기안양식 (연차, 반차 등)
+    const [startLeaveDate, setStartLeaveDate] = useState(""); // ✅ 연차 시작일
+    const [endDate, setEndDate] = useState(""); // ✅ 연차 종료일
+    const [halfDayDate, setHalfDayDate] = useState(""); // ✅ 반차 날짜
+    const [leaveDays, setLeaveDays] = useState(0); // ✅ 사용 연차 일수
 
+
+    const handleApprovalTypeChange = (e) => {
+      const selectedType = e.target.value;
+      setApprovalType(selectedType);
+    
+      // ✅ approvalData에도 반영
+      setApprovalData((prevData: any) => ({
+        ...prevData,
+        approvalType: selectedType, // approvalData에 반영
+        leaveType: "", // 기안양식 초기화
+        startLeaveDate: "",
+        endDate: "",
+        halfDayDate: "",
+        leaveDays: 0,
+      }));
+    };
+
+    useEffect(() => {
+      setApprovalData((prevData: any) => ({
+        ...prevData,
+        approvalType,
+        leaveType,
+        startLeaveDate,
+        endDate,
+        halfDayDate: leaveType.includes("반차") ? startLeaveDate : "", // 반차는 startDate와 동일
+        leaveDays,
+      }));
+    }, [leaveType, startLeaveDate, endDate, leaveDays, approvalType]);
+    
   
   // 참조자 목록 상태 추가
   //const [selectedCCUsers, setSelectedCCUsers] = useState([]);
@@ -56,10 +94,20 @@ const handleRemoveFile = (index: number) => {
       fileInputRef.current?.click();
     };
 
-  // ✅ 각각의 모달 상태를 독립적으로 관리
-  const [approvalLineModalOpen, setApprovalLineModalOpen] = useState(false);
-  const [approvalCCModalOpen, setApprovalCCModalOpen] = useState(false);
-  const [documentType, setDocumentType] = useState(""); // ✅ 첫 번째 셀렉트 박스 값 저장
+     // 📌 연차 시작일/종료일이 변경될 때 연차 일수 계산
+  useEffect(() => {
+    if (approvalType === "휴가원" && leaveType === "연차" && startLeaveDate && endDate) {
+      const start = new Date(startLeaveDate);
+      const end = new Date(endDate);
+      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1; // 차이 계산 후 1일 추가
+      setLeaveDays(days > 0 ? days : 0); // 음수가 나오지 않도록 제한
+    } else if (leaveType === "오전반차" || leaveType === "오후반차") {
+      setLeaveDays(0.5); // ✅ 반차 선택 시 0.5일
+    } else {
+      setLeaveDays(0);
+    }
+  }, [approvalType, leaveType, startLeaveDate, endDate]);
+
 
   return (
     <div style={pageContainerStyle}>
@@ -76,15 +124,8 @@ const handleRemoveFile = (index: number) => {
             <select
               name="approvalType"
               style={selectBoxStyle}
-              value={documentType}
-              onChange={(e) => { 
-                const selectedType = e.target.value;
-                setDocumentType(selectedType);
-                setApprovalData((prevData:any) => ({
-                  ...prevData,
-                  approvalType: selectedType, // 일반 또는 휴가원으로 데이터 추출출
-                }))
-              }}
+              value={approvalType}
+              onChange={handleApprovalTypeChange}
             >
               <option value="">선택</option>
               <option value="일반">일반</option>
@@ -92,27 +133,74 @@ const handleRemoveFile = (index: number) => {
             </select>
           </div>
 
-          {/* ✅ 첫 번째 선택값에 따라 조건부 렌더링 */}
-          {documentType === "일반" && (
+          {/* ✅ 휴가원 선택 시 기안양식 선택 */}
+          {approvalType === "휴가원" && (
             <div style={rowStyle2}>
               <label style={labelStyle}>기안양식</label>
-              <select style={selectBoxStyle}>
-                <option>자유양식</option>
-                <option>정형화 양식</option>
-              </select>
-            </div>
-          )}
-          {documentType === "휴가원" && (
-            <div style={rowStyle2}>
-              <label style={labelStyle}>기안양식</label>
-              <select style={selectBoxStyle}>
-                <option>연차</option>
-                <option>오전반차</option>
-                <option>오후반차</option>
+              <select
+                style={selectBoxStyle}
+                value={leaveType}
+                onChange={(e) => {
+                  setLeaveType(e.target.value);
+                  setLeaveDays(e.target.value.includes("반차") ? 0.5 : 0); // ✅ 반차일 경우 0.5일
+                  setStartLeaveDate("");
+                  setEndDate("");
+                  setHalfDayDate("");
+                }}
+              >
+                <option value="">선택</option>
+                <option value="연차">연차</option>
+                <option value="오전반차">오전반차</option>
+                <option value="오후반차">오후반차</option>
               </select>
             </div>
           )}
         </div>
+
+        {/* ✅ 연차 선택 시 연차 시작일 & 종료일 입력 */}
+        {approvalType === "휴가원" && leaveType === "연차" && (
+          <>
+            <div style={dividerStyle} />
+            <div style={rowContainerStyle}>
+              <div style={rowStyle}>
+                <label style={labelStyle}>연차 시작일</label>
+                <input type="date" style={inputStyle} value={startLeaveDate} onChange={(e) => setStartLeaveDate(e.target.value)} />
+              </div>
+              <div style={rowStyle2}>
+                <label style={labelStyle}>연차 종료일</label>
+                <input type="date" style={inputStyle} value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </div>
+            </div>
+          </>
+        )}
+        {approvalType === "휴가원" && (leaveType === "오전반차" || leaveType === "오후반차") && (
+          <>
+            <div style={dividerStyle} />
+            <div style={rowStyle}>
+              <label style={labelStyle}>반차 날짜</label>
+              <input
+                type="date"
+                style={inputStyle}
+                value={startLeaveDate} // ✅ 반차도 startDate 사용
+                onChange={(e) => {
+                  const selectedDate = e.target.value;
+                  setStartLeaveDate(selectedDate);
+                  setEndDate(selectedDate); // ✅ 반차의 경우 startDate = endDate 동일
+                  setLeaveDays(0.5); // ✅ 반차는 0.5일로 고정
+                }}
+              />
+            </div>
+          </>
+        )}
+                <div style={dividerStyle} />
+        {/* 사용 연차 일수 */}
+        {approvalType === "휴가원" && (
+          <div style={rowStyle}>
+            <label style={labelStyle}>사용 연차 일수</label>
+            <input type="text" style={inputStyle} value={leaveDays} readOnly />
+          </div>
+        )}
+
 
         {/* 구분선 */}
         <div style={dividerStyle} />

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export const ApprovalConfirmMemoModal = ({ onClose, onSave, approvalNo }) => {
 
   const userNo = useSelector((state: any) => state.user.userNo);
-  //console.log("footer에서 받은 approvalNo값:", approvalNo);
+  console.log("footer에서 받은 approvalNo값:", approvalNo);
   const [memoContent, setMemocontent] = useState("");
   const navigate = useNavigate();
 

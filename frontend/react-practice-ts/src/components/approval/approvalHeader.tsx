@@ -1,84 +1,65 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { showNotification } from "../../features/approvalNotificationsSlice";
+import { RootState } from "../../store";
+import { fetchNotifications, clearNotification } from "../../features/approvalNotificationsSlice";
 
 export const ApprovalHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const counts = useSelector((state: any) => state.notifications);
-  const userNo = useSelector((state: any) => state.user.userNo);
+  const dispatch = useDispatch();
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  
-  const handleButtonClick = (index: number, path: string) => {
+  // ✅ Redux에서 알림 개수 가져오기 (타입 명시)
+  const notifications = useSelector((state: RootState) => state.notifications);
+  const userNo = useSelector((state: RootState) => state.user.userNo);
+
+  // ✅ 알림 데이터 가져오기 (백엔드 연동)
+  useEffect(() => {
+    if (userNo) {
+      dispatch(fetchNotifications(userNo) as any);
+    }
+  }, [userNo, dispatch]);
+
+  const handleButtonClick = async (index: number, path: string, page: string) => {
     setActiveIndex(index);
-    navigate(path); // ✅ 페이지 이동
+    navigate(path);
+    dispatch(clearNotification(page));
   };
-  
-   // 새로운 문서가 추가되면 모달 알림 표시
-   useEffect(() => {
-    Object.keys(counts).forEach((key) => {
-      if (counts[key] > 0) {
-        dispatch(showNotification(`새로운 ${key} 문서가 도착했습니다!`));
-        setModalMessage(`📢 새로운 ${key} 문서가 도착했습니다!`);
-        setShowModal(true);
-      }
-    });
-  }, [counts, dispatch]);
 
   return (
-    <>
-      <header style={headerStyle}>
-        {buttons.map((button, index) => {
-          const isActive = location.pathname === button.path;
-          const countKey = button.countKey;
-          const count = countKey ? counts[countKey] || 0 : 0; 
+    <header style={headerStyle}>
+      {buttons.map((button, index) => {
+        const isActive = location.pathname === button.path;
+        const notificationCount = notifications?.[button.page] ?? 0; // ✅ undefined 방지 처리
 
-          return (
-            <div key={index} style={{ position: "relative" }}>
-              <button
-                onClick={() => handleButtonClick(index, button.path)}
-                style={isActive ? activeButtonStyle : buttonStyle}
-                onMouseOver={(e) => (e.currentTarget.style.background = isActive ? "#4880FF" : "#E0E0E0")}
-                onMouseOut={(e) => (e.currentTarget.style.background = isActive ? "#4880FF" : "white")}
-              >
-                {button.label}
-              </button>
-
-              {/* 🔴 countKey가 있는 경우에만 개수 배지 표시 */}
-              {countKey && count > 0 && <span style={badgeStyle}>{count}</span>}
-            </div>
-          );
-        })}
-      </header>
-
-      {/* 📢 모달 알림 */}
-      {showModal && (
-        <div style={modalOverlay}>
-          <div style={modalContent}>
-            <p>{modalMessage}</p>
-            <button onClick={() => setShowModal(false)} style={modalButton}>확인</button>
-          </div>
-        </div>
-      )}
-    </>
+        return (
+          <button
+            key={index}
+            onClick={() => handleButtonClick(index, button.path, button.page)}
+            style={isActive ? activeButtonStyle : buttonStyle}
+          >
+            {button.label}
+            {notificationCount > 0 && (
+              <span style={notificationBadgeStyle}>{notificationCount}</span>
+            )}
+          </button>
+        );
+      })}
+    </header>
   );
 };
 
-// ✅ 버튼 목록 (경로 지정)
+// ✅ 버튼 목록
 const buttons = [
-  { label: "내 문서함", path: "/approvalMain" },
-  { label: "임시저장", path: "/approvalTempPage" },
-  { label: "결재진행", path: "/ApprovalProgressPage" },
-  { label: "결재완료", path: "/ApprovalFinishPage", countKey: "approvalComplete" },
-  { label: "결재요청", path: "/ApprovalRequestPage", countKey: "approvalRequest" },
-  { label: "결재참조", path: "/ApprovalReferencePage", countKey: "approvalReference" },
-  { label: "결재수신", path: "/ApprovalSendPage", countKey: "approvalReceive" },
-  { label: "결재반려", path: "/approvalRejectPage", countKey: "approvalReject" },
+  { label: "내 문서함", path: "/approvalMain", page: "approvalMain" },
+  { label: "임시저장", path: "/approvalTempPage", page: "approvalTemp" },
+  { label: "결재진행", path: "/ApprovalProgressPage", page: "approvalProgress" },
+  { label: "결재완료", path: "/ApprovalFinishPage", page: "approvalFinish" },
+  { label: "결재요청", path: "/ApprovalRequestPage", page: "approvalRequest" },
+  { label: "결재참조", path: "/ApprovalReferencePage", page: "approvalReference" },
+  { label: "결재수신", path: "/ApprovalSendPage", page: "approvalSend" },
+  { label: "결재반려", path: "/approvalRejectPage", page: "approvalReject" },
 ];
 
 // ✅ 스타일 정의
@@ -107,6 +88,7 @@ const buttonStyle = {
   fontWeight: "bold",
   transition: "0.3s",
   padding: "0 15px",
+  position: "relative", // ✅ 알림 뱃지 스타일 적용을 위해 추가
 };
 
 const activeButtonStyle = {
@@ -116,51 +98,18 @@ const activeButtonStyle = {
   border: "0.3px solid #4880FF",
 };
 
-// 🔴 알림 배지 스타일 (새로운 문서 개수 표시)
-const badgeStyle = {
+const notificationBadgeStyle = {
   position: "absolute",
-  top: "-5px",
-  right: "-10px",
+  top: -5, // ✅ 뱃지 위치 조정
+  right: -5,
   background: "red",
   color: "white",
   fontSize: "12px",
   fontWeight: "bold",
+  width: 20,
+  height: 20,
   borderRadius: "50%",
-  width: "20px",
-  height: "20px",
   display: "flex",
-  alignItems: "center",
   justifyContent: "center",
-};
-
-// 📢 모달 스타일
-const modalOverlay = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
   alignItems: "center",
-  justifyContent: "center",
-};
-
-const modalContent = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-  textAlign: "center",
-  minWidth: "300px",
-};
-
-const modalButton = {
-  marginTop: "10px",
-  padding: "8px 12px",
-  border: "none",
-  backgroundColor: "#4880FF",
-  color: "white",
-  borderRadius: "5px",
-  cursor: "pointer",
 };

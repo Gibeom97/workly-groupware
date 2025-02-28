@@ -21,6 +21,11 @@ export const ApprovalWritePage = () => {
     approvalContent: "",
     startDate: "",
     approvalUser: "",
+    leaveType: "", // ✅ 기안양식 (연차, 반차 등)
+    startLeaveDate: "", // ✅ 연차 시작일
+    endDate: "", // ✅ 연차 종료일
+    halfDayDate: "", // ✅ 반차 사용 날짜
+    leaveDays: 0, // ✅ 사용 연차 일수
   });
 
   // 게시글 데이터 자동 불러오기
@@ -55,41 +60,41 @@ export const ApprovalWritePage = () => {
     memoDate: new Date().toISOString(),
   });
 
-  // Spring Boot로 데이터 전송하는 함수
-  const submitApproval = async () => {
-    try {
-      // 1. 결재 문서 저장 요청
-      const response = await axios.post(
-        "http://localhost:8003/workly/api/approval/create",
-        approvalData
-      );
+// Spring Boot로 데이터 전송하는 함수
+  // const submitApproval = async () => {
+  //   try {
+  //     // 1. 결재 문서 저장 요청
+  //     const response = await axios.post(
+  //       "http://localhost:8003/workly/api/approval/create",
+  //       approvalData
+  //     );
 
-      // 2. 저장된 approvalNo 받아오기
-      const approvalNo = response.data.approvalNo;
+  //     // 2. 저장된 approvalNo 받아오기
+  //     const approvalNo = response.data.approvalNo;
 
-      if (!approvalNo || approvalNo === 0) {
-        throw new Error("Invalid approvalNo received");
-      }
+  //     if (!approvalNo || approvalNo === 0) {
+  //       throw new Error("Invalid approvalNo received");
+  //     }
 
-      // 3. 결재 의견 데이터 업데이트 후 저장 요청
-      const finalApprovalMemoData = {
-        ...approvalMemoData,
-        approvalNo: approvalNo,
-        memoContent: approvalMemoData.memoContent, // 최신 결재 의견 반영
-      };
+  //     // 3. 결재 의견 데이터 업데이트 후 저장 요청
+  //     const finalApprovalMemoData = {
+  //       ...approvalMemoData,
+  //       approvalNo: approvalNo,
+  //       memoContent: approvalMemoData.memoContent, // 최신 결재 의견 반영
+  //     };
 
-      await axios.post(
-        "http://localhost:8003/workly/api/approvalMemo/create",
-        finalApprovalMemoData
-      );
+  //     await axios.post(
+  //       "http://localhost:8003/workly/api/approvalMemo/create",
+  //       finalApprovalMemoData
+  //     );
 
-      alert("결재 문서와 결재 의견이 성공적으로 저장되었습니다.");
-      console.log("결재 문서:", approvalData);
-      console.log("결재 의견:", finalApprovalMemoData);
-    } catch (error) {
-      console.error("결재 문서 저장 실패:", error);
-    }
-  };
+  //     alert("결재 문서와 결재 의견이 성공적으로 저장되었습니다.");
+  //     console.log("결재 문서:", approvalData);
+  //     console.log("결재 의견:", finalApprovalMemoData);
+  //   } catch (error) {
+  //     console.error("결재 문서 저장 실패:", error);
+  //   }
+  // };
 
     return(
         <div className="mainpageContainer">
@@ -101,7 +106,7 @@ export const ApprovalWritePage = () => {
             <ApprovalWriteHeader approvalData={approvalData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers}/>
             <ApprovalWriteBody approvalData={approvalData} setApprovalData={setApprovalData}/>
             {/*submitApproval Footer에 전달하여 입력 데이터 업데이트*/}
-            <ApprovalWriteFooter approvalData={approvalData} submitApproval={submitApproval}  setApprovalMemoData={setApprovalMemoData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers} />
+            <ApprovalWriteFooter approvalData={approvalData} setApprovalMemoData={setApprovalMemoData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers} />
             </div>
           </div>
         </div>   

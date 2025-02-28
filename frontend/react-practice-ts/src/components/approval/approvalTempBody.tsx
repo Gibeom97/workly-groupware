@@ -4,8 +4,7 @@ import { format, addHours, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ApprovalSearchBar } from "../../components/approval/approvalSearchBar";
 import { ApprovalFooter2 } from "./approvalFooter2";
-import { useNavigate } from "react-router-dom"; // ✅ 페이지 이동을 위한 Hook 추가
-
+import { useNavigate } from "react-router-dom"; // :흰색_확인_표시: 페이지 이동을 위한 Hook 추가
 interface Post {
   approvalNo: number;
   userNo?: number;
@@ -17,13 +16,11 @@ interface Post {
   endDate?: string;
   approvalUser?: string;
 }
-
 interface SearchParams {
   approvalType: string;
   year: string;
   searchText: string;
 }
-
 interface ApprovalTempBodyProps {
   selectedPosts: number[];
   setSelectedPosts: (posts: number[]) => void;
@@ -33,7 +30,6 @@ interface ApprovalTempBodyProps {
   postsPerPage: number;
   isLoading: boolean;
 }
-
 export const ApprovalTempBody = ({
   selectedPosts,
   setSelectedPosts,
@@ -43,16 +39,13 @@ export const ApprovalTempBody = ({
   postsPerPage,
   isLoading
 }: ApprovalTempBodyProps) => {
-  
   if (isLoading) {
     return <div>데이터를 불러오는 중입니다...</div>;
   }
-
   // 현재 페이지의 게시글만 표시
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
   // 체크박스 처리
   const handleCheckboxChange = (tempNo: number) => {
     setSelectedPosts(prev => {
@@ -63,15 +56,12 @@ export const ApprovalTempBody = ({
       }
     });
   };
-
   const formatDate = (timestamp: number | null) => {
     try {
         if (!timestamp) {
             return '-';
         }
-        
         const date = new Date(timestamp);
-        
         // 'aa'를 사용하여 오전/오후 표시
         return format(date, 'yyyy. MM. dd aa hh:mm', {
             locale: ko
@@ -81,7 +71,6 @@ export const ApprovalTempBody = ({
         return '-';
     }
   };
-
   return (
     <div style={containerStyle}>
       {currentPosts.length === 0 ? (
@@ -137,19 +126,16 @@ export const ApprovalTempBody = ({
     </div>
   );
 };
-
 const containerStyle = {
   width: "100%",
   padding: "20px",
   backgroundColor: "#fff",
 };
-
 const tableStyle = {
   width: "100%",
   borderCollapse: "collapse" as const,
   marginTop: "10px",
 };
-
 const thStyle = {
   padding: "12px",
   borderBottom: "2px solid #202224",
@@ -157,26 +143,22 @@ const thStyle = {
   fontWeight: "bold",
   textAlign: "center" as const,
 };
-
 const rowStyle = {
   borderBottom: "1px solid #E0E0E0",
   "&:hover": {
     backgroundColor: "#F8F9FA",
   },
 };
-
 const tdStyle = {
   padding: "12px",
   fontSize: "12px",
   color: "#202224",
   textAlign: "center" as const,
 };
-
 const tdTitleStyle = {
   ...tdStyle,
   textAlign: "left" as const,
 };
-
 const statusStyle = {
   padding: "5px 10px",
   borderRadius: "4px",

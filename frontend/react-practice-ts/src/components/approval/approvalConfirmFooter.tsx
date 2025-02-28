@@ -1,19 +1,23 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { ApprovalConfirmMemoModal } from "./approvalConfirmMemoModal";
+import { ApprovalRejectMemoModal } from "./approvalRejectMemoModal";
 
 export const ApprovalConfirmFooter = () => {
-
-    const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
     const {approvalNo} = useParams();
 
+    // ✅ 승인 & 반려 모달 상태를 따로 관리
+    const [approveModalOpen, setApproveModalOpen] = useState(false);
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+
     const handleSave = (memoContent) => {
         console.log("Memo Content:", memoContent);
-
-        setModalOpen(false);
+        setApproveModalOpen(false);
+        setRejectModalOpen(false);
     }
-    
+
+
     return (
         <footer
             style={{
@@ -65,16 +69,17 @@ export const ApprovalConfirmFooter = () => {
                         alignItems: "center",
                         justifyContent: "center",
                     }}
-                    onClick={() => setModalOpen(true)}
+                    onClick={() => setApproveModalOpen(true)}
+                    
                 >
                     승인
                 </button>
 
-                {/*모달 창*/}
-                {modalOpen && (
+                {/* 승인 모달 창*/}
+                {approveModalOpen  && (
                     <ApprovalConfirmMemoModal
                     approvalNo={approvalNo}
-                     onClose={() => setModalOpen(false)} 
+                     onClose={() => setApproveModalOpen(false)} 
                      onSave={handleSave}
                     />
                 )}
@@ -95,10 +100,19 @@ export const ApprovalConfirmFooter = () => {
                         alignItems: "center",
                         justifyContent: "center",
                     }}
-                    //onClick={() => navigate('/approvalMain/ApprovalWriteDetailPage')}
+                   onClick={() => setRejectModalOpen(true)}
                 >
                     반려
                 </button>
+
+                {/* 반려 모달 창 */}
+                {rejectModalOpen  && (
+                    <ApprovalRejectMemoModal    
+                    approvalNo={approvalNo}
+                    onClose={() => setRejectModalOpen(false)}
+                    onSave={handleSave}
+                    />
+                )}
             </div>
         </footer>
     );
