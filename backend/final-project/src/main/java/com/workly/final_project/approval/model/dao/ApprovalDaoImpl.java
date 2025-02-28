@@ -14,6 +14,7 @@ import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
+import com.workly.final_project.leave.model.vo.LeaveHistory;
 
 @Repository
 public class ApprovalDaoImpl implements ApprovalDao{
@@ -104,7 +105,7 @@ public class ApprovalDaoImpl implements ApprovalDao{
 		return sqlSession.selectOne("Approval.getApprovalWriteUser", approvalNo);
 	}
 
-	// 팀원 추가
+
 	@Override
 	public List<Approval> getApprovalRequests(int userNo) {
 		return sqlSession.selectList("Approval.getApprovalRequests", userNo);
@@ -125,30 +126,37 @@ public class ApprovalDaoImpl implements ApprovalDao{
 		return sqlSession.selectList("Approval.getApprovalSendList", userNo);
 	}
 
+	// 팀원 추가
 	@Override
-	public Integer countApprovalComplete(int userNo) {
-		return sqlSession.selectOne("Approval.countApprovalComplete", userNo);
+	public int saveLeaveRequest(LeaveHistory leaveRequest) {
+		return sqlSession.insert("Approval.saveLeaveRequest", leaveRequest);
 	}
 
 	@Override
-	public Integer countApprovalRequest(int userNo) {
-		return sqlSession.selectOne("Approval.countApprovalRequest", userNo);
+	public Object rejectApproval(int approvalNo) {
+		return sqlSession.update("Approval.rejectApproval", approvalNo);
 	}
 
 	@Override
-	public Integer countApprovalReference(int userNo) {
-		return sqlSession.selectOne("Approval.countApprovalReference", userNo);
+	public Object rejectApprovalLine(int approvalNo, int userNo) {
+		
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("approvalNo", approvalNo);
+		paramMap.put("userNo", userNo);
+		
+		return sqlSession.update("Approval.rejectApprovalLine", paramMap);
 	}
 
 	@Override
-	public Integer countApprovalReceive(int userNo) {
-		return sqlSession.selectOne("Approval.countApprovalReceive", userNo);
+	public List<Approval> getApprovalRejectList(int userNo) {
+		return sqlSession.selectList("Approval.getApprovalRejectList", userNo);
 	}
 
 	@Override
-	public Integer countApprovalReject(int userNo) {
-		return sqlSession.selectOne("Approval.countApprovalReject", userNo);
+	public void ApprovalDelete(int approvalNo) {
+		sqlSession.delete("Approval.ApprovalDelete", approvalNo);
 	}
+	
 	// 팀원 추가 끝
 	
 	

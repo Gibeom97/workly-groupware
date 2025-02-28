@@ -28,8 +28,17 @@ import Chat from "./Chat";
 import { RootState } from "./store"; 
 import { useDispatch, useSelector } from "react-redux";
 import { closeChat } from "./features/sidebarSlice";
+import { useSelector } from "react-redux";
+import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
+import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
+import { ApprovalRejectDetailPage } from "./pages/approvalPage/approvalRejectDetailPage";
+import useFetchNotifications from "./hooks/useFetchNotifications";
 
 function App() {
+  // 전자결재 알림서비스 추가
+  const userNo = useSelector((state: RootState) => state.user.userNo);
+  useFetchNotifications(userNo);
+
 
   const currentUser = useSelector((state: RootState) => state.user); 
   const {isChatOpen} = useSelector((state: RootState) => state.sidebar); 
@@ -64,6 +73,12 @@ function App() {
         <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage/>}/>
 
         <Route path="/ApprovalConfirmPage/:approvalNo" element={<ApprovalConfirmPage/>}/>
+        <Route path="/ApprovalCompletepage2/:approvalNo" element={<ApprovalCompletePage2/>}/>
+        <Route path="/ApprovalSendPage" element={<ApprovalSendPage/>}/>
+
+        <Route path="/ApprovalRejectpage" element={<ApprovalReferencePage/>}/>
+        <Route path="/ApprovalRejectDetailPage/:approvalNo" element={<ApprovalRejectDetailPage/>}/>
+
         {/*전자결재Route*/}
 
         <Route path="/personnel" element={<PersonnelMain />}>

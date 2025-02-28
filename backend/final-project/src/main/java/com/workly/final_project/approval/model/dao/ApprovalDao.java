@@ -11,6 +11,7 @@ import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
+import com.workly.final_project.leave.model.vo.LeaveHistory;
 
 @Mapper
 public interface ApprovalDao {
@@ -30,16 +31,18 @@ public interface ApprovalDao {
 	List<ApprovalMemo> getApprovalMemo(int approvalNo, int userNo);
 	Approval getApprovalWriteUser(int userNo);
 	
-	// 팀원 추가 시작
+
 	List<Approval> getApprovalRequests(int userNo);
 	List<Approval> getApprovalFinishList(int userNo);
 	List<Approval> getApprovalReference(int userNo);
 	List<Approval> getApprovalSendList(int userNo);
-	Integer countApprovalComplete(int userNo);
-	Integer countApprovalRequest(int userNo);
-	Integer countApprovalReference(int userNo);
-	Integer countApprovalReceive(int userNo);
-	Integer countApprovalReject(int userNo);
+	
+	// 팀원 추가 시작
+	int saveLeaveRequest(LeaveHistory leaveRequest);
+	Object rejectApproval(int approvalNo);
+	Object rejectApprovalLine(int approvalNo, int userNo);
+	List<Approval> getApprovalRejectList(int userNo);
+	void ApprovalDelete(int approvalNo);
 	
 	// 팀원 추가 끝
 
