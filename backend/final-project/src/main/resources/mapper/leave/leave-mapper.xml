@@ -6,7 +6,7 @@
 	<select id="selectLeaveHistory" resultMap="annualHistoryMap">
 		SELECT *
 		FROM(SELECT ROWNUM RNUM, A.*
-		     FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, LEAVE_STATUS, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
+		     FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
         		   FROM ANNUAL_LEAVE AL
         		   LEFT JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
             	       AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
@@ -22,7 +22,7 @@
 			<result property="endDate" column="END_DATE"/>
 			<result property="leaveDays" column="LEAVE_DAYS"/>
 			<result property="leaveType" column="LEAVE_TYPE"/>
-			<result property="leaveStatus" column="LEAVE_STATUS"/>
+			<result property="approvalNo" column="APPROVAL_NO"/>
 		</association>
 		
 		<association property="annualLeave" javaType="AnnualLeave">
@@ -37,7 +37,7 @@
 	</select>
 	
 	<select id="selectLeaveDetail" resultMap="annualHistoryMap">
-		SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, LEAVE_STATUS, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
+		SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
 		FROM ANNUAL_LEAVE AL
 		LEFT JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
 			AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR

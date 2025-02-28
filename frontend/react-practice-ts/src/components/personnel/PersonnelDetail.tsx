@@ -35,6 +35,7 @@ const PersonnelDetail = () => {
         axios.get("http://localhost:8003/workly/personnelDetail/" + userNo)
             .then((response) => {
                 const r = response.data.member
+                console.log(r);
 
                 setMember({
                     deptNo: r.deptNo,
@@ -129,7 +130,6 @@ const PersonnelDetail = () => {
                     </label>
                     {profileImg && <div><span className={styles.cancleProfile} onClick={handleFileCancle}>{profileImg.name} &times;</span></div>}
                     <input type="file" id="uploadFile" className={styles.inputProfile} onChange={handleFileChange} />
-
                 </div>
                 <div className={styles.formContainer}>
                     <div className={styles.row}>
