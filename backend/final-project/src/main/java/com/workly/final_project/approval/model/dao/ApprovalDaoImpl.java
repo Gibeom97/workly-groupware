@@ -151,6 +151,12 @@ public class ApprovalDaoImpl implements ApprovalDao{
 	}
 	// 팀원 추가 끝
 	
+	//진행함
+	@Override
+    public List<Approval> getApprovalProgressList(int userNo) {
+        return sqlSession.selectList("Approval.getApprovalProgressList", userNo);
+    }
+
 	
 
 }

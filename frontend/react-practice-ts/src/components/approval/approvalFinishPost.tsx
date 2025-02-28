@@ -1,41 +1,26 @@
 import { useEffect, useState } from "react";
 import { ApprovalMark } from "./approvalMark";
-import { useSelector } from "react-redux";
-import axios from "axios";
-import { format, addHours } from "date-fns";
+import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
-export const ApprovalFinishPost = () => {
+interface ApprovalFinishPostProps {
+  filteredPosts: any[];
+  currentPage: number;
+  postsPerPage: number;
+  setCurrentPage: (page: number) => void;
+}
 
-  // 로그인한 유저의 userNO
-  const userNo = useSelector((state: any) => state.user.userNo);
-  // 게시글 목록
-  const [posts, setPosts] = useState([]);
+export const ApprovalFinishPost = ({
+  filteredPosts,
+  currentPage,
+  postsPerPage,
+  setCurrentPage
+}: ApprovalFinishPostProps) => {
+  // currentPage 상태 제거 (props로 받음)
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
-  useEffect(() => {
-    const fetchApprovalPosts = async () => {
-      try{
-        const response = await axios.get(`http://localhost:8003/workly/api/approval/finishList/${userNo}`);
-
-        // 필터링: userNo가 포함된 결재라인 + 진행 중(STATUS=2)인 항목만
-        const filterdPosts = response.data.filter((post: any) => post.approvalStatus === 2)
-                                        .map((post: any) => ({
-                                          ...post,
-                                          startDate: formatKST(post.startDate) // ✅ 한국시간 변환 적용
-                                        }));
-
-        setPosts(filterdPosts); 
-      } catch (error) {
-        console.error("결재 요청 목록을 불러오는 데 실패했습니다")
-      }
-    };
-    
-    if(userNo){
-      fetchApprovalPosts();
-    }
-  }, [userNo]);
-
-  // 게시글 클릭 시 상세 페이지로 이동하는 함수
   const handleRowClick = (approvalNo: number) => {
     window.location.href = `/ApprovalCompletePage2/${approvalNo}`;
   }
@@ -54,14 +39,13 @@ export const ApprovalFinishPost = () => {
             <th style={thStyle}>상태</th>
           </tr>
         </thead>
-
         <tbody>
-          {posts.length > 0 ? (
-            posts.map((post, index) => (
+          {currentPosts.length > 0 ? (
+            currentPosts.map((post) => (
               <tr 
-                  key={index} 
-                  style={{ ...rowStyle, cursor: "pointer" }}
-                  onClick={() => handleRowClick(post.approvalNo)}
+                key={post.approvalNo} 
+                style={{ ...rowStyle, cursor: "pointer" }}
+                onClick={() => handleRowClick(post.approvalNo)}
               >
                 <td style={tdIconStyle}>
                   <ApprovalMark isUnread={post.isUnread} />
@@ -72,7 +56,9 @@ export const ApprovalFinishPost = () => {
                 <td style={tdTitleStyle}>{post.approvalTitle}</td>
                 <td style={tdStyle}>{post.startDate}</td>
                 <td style={tdStyle}>
-                  <span style={getStatusStyle(post.approvalStatus)}>{getStatusText(post.approvalStatus)}</span>
+                  <span style={getStatusStyle(post.approvalStatus)}>
+                    {getStatusText(post.approvalStatus)}
+                  </span>
                 </td>
               </tr>
             ))
@@ -89,6 +75,8 @@ export const ApprovalFinishPost = () => {
   );
 };
 
+// ... 기존 스타일 코드 유지 ...
+
 const emptyRowStyle = {
   padding: "20px",
   textAlign: "center" as const,
@@ -96,20 +84,18 @@ const emptyRowStyle = {
   color: "#888",
 };
 
-// ✅ 13자리 숫자를 한국 시간(KST) 형식으로 변환하는 함수
 const formatKST = (timestamp: number | string) => {
   if (!timestamp) return "N/A";
 
   let ts = Number(timestamp);
   if (ts.toString().length === 10) {
-    ts *= 1000; // 초 단위(10자리) → 밀리초(13자리) 변환
+    ts *= 1000;
   }
 
-  const date = addHours(new Date(ts), 9); // UTC → KST 변환 (9시간 추가)
+  const date = addHours(new Date(ts), 9);
   return format(date, "yyyy. MM. dd. a hh:mm", { locale: ko });
 };
 
-// ✅ 상태 텍스트 변환 함수
 const getStatusText = (status: number) => {
   switch (status) {
     case 1: return "진행중";
@@ -119,7 +105,6 @@ const getStatusText = (status: number) => {
   }
 };
 
-// ✅ 상태 스타일 함수
 const getStatusStyle = (status: number) => {
   let baseStyle = {
     padding: "5px 10px",
@@ -150,9 +135,8 @@ const containerStyle = {
     padding: "20px",
   };
   
-  // ✅ 테이블 스타일 (오른쪽으로 이동 & 폭 넓힘)
-  const tableStyle = {
-    width: "90%", // ✅ 기존 90% → 95%로 넓힘
+const tableStyle = {
+    width: "90%",
     borderCollapse: "collapse",
     textAlign: "center",
     justifyContent: "center"
@@ -180,8 +164,7 @@ const tdTitleStyle = {
   textAlign: "left",
 };
 
-// 아이콘을 위한 셀 스타일 (왼쪽 정렬)
 const tdIconStyle = {
-  width: "20px", // 아이콘 크기 조정
+  width: "20px",
   textAlign: "center",
 };

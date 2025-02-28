@@ -262,6 +262,33 @@
 	</select>
 	<!-- 팀원 추가 끝 -->
 	
+	
+	<!--진행함-->
+	<select id="getApprovalProgressList" resultType="Approval">
+	    SELECT 
+	        a.approval_no,
+	        a.user_no,
+	        a.approval_type,
+	        a.approval_status,
+	        a.approval_title,
+	        a.approval_content,
+	        a.start_date,
+	        a.end_date,
+	        m.user_name AS userName  <!-- ✅ 추가: userName을 가져옴 -->
+	    FROM APPROVAL a
+	    JOIN MEMBER m ON a.user_no = m.user_no
+	    WHERE a.user_no = #{userNo} 
+	    AND a.approval_status = 1
+	</select>
+
+
+
+
+
+
+
+
+	
 </mapper>
 
 
