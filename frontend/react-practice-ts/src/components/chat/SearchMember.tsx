@@ -159,7 +159,7 @@ const handleConfirm = async () => {
       <SearchClick 
       onProfileClick={(member) => { 
         toggleCheck(member.userNo);  
-        setIsSearchOpen(false);      // ✅ 검색창 닫기
+        setIsSearchOpen(false);      
       }} 
       />
       </div>
@@ -215,7 +215,7 @@ const handleConfirm = async () => {
                     <input
                       type="checkbox"
                       checked={checkedMembers.includes(member.userNo)} // ✅ 선택된 멤버 유지
-                      onChange={() => toggleCheck(member.userNo)} // ✅ 체크박스 클릭 시 toggleCheck 실행
+                      onChange={() => toggleCheck(member.userNo)} 
                       style={{
                         marginRight: '10px',
                         marginLeft: '10px',

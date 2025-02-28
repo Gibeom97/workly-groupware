@@ -1,6 +1,9 @@
 package com.workly.final_project.chat.controller;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +16,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.workly.final_project.chat.model.service.ChatService;
 import com.workly.final_project.chat.model.vo.Chat;
-import com.workly.final_project.chat.model.vo.UserChat;
+import com.workly.final_project.chat.model.vo.ChatFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +75,47 @@ public class StompController {
 
 	    return ResponseEntity.ok(messages);
 	}
+	
+//	// 채팅 파일
+//	@PostMapping("/chat/uploadFile/{chatRoomNo}")
+//	public ResponseEntity<?> uploadFile(
+//	    @PathVariable int chatRoomNo,
+//	    @RequestParam("file") MultipartFile file,
+//	    @RequestParam("userNo") int userNo) {
+//
+//	    try {
+//	        // 1️⃣ 파일 저장 로직
+//	        String originalFilename = file.getOriginalFilename();
+//	        String savedFilename = UUID.randomUUID() + "_" + originalFilename;
+//
+//	        File uploadFile = new File("/upload/chat/", savedFilename);
+//	        file.transferTo(uploadFile);
+//
+//	        // 2️⃣ `CHAT_FILE` 테이블에 파일 정보 저장
+//	        ChatFile chatFile = new ChatFile();
+//	        chatFile.setChatNo(chatRoomNo);
+//	        chatFile.setChatOriginFile(originalFilename);
+//	        chatFile.setChatChangeFile(savedFilename);
+//	        chatFile.setChatFileType(file.getContentType().startsWith("image") ? "image" : "file");
+//
+//	        chatService.saveChatFile(chatFile);
+//
+//	        // 3️⃣ WebSocket을 통해 파일 메시지 전송
+//	        Chat chat = new Chat();
+//	        chat.setChatRoomNo(chatRoomNo);
+//	        chat.setUserNo(userNo);
+//	        chat.setMessage(""); // 파일이므로 텍스트 메시지는 없음
+//	        chat.setReceviedDate(new Timestamp(System.currentTimeMillis())); 
+//	        chat.setChatFile(chatFile); // 🔥 파일 정보 포함
+//
+//	        messagingTemplate.convertAndSend("/sub/chatRoom/" + chatRoomNo, chat);
+//
+//	        return ResponseEntity.ok(chatFile);
+//	    } catch (Exception e) {
+//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
+//	    }
+//	}
+
 
 	
 	
