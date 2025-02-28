@@ -22,9 +22,4 @@ public interface CalendarDao {
     int updateMeetingReservation(int mrResNo, MeetingReservation meeting);
     int deleteMeetingReservation(int mrResNo);
 
-
-    // ✅ 메모 관련 기능
-    CalendarMemo selectMemo(int userNo);
-    int insertMemo(CalendarMemo memo);
-    int updateMemo(CalendarMemo memo);
 }

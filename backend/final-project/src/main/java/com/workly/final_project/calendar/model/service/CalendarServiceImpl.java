@@ -96,24 +96,4 @@ public class CalendarServiceImpl implements CalendarService {
         calendarDao.deleteMeetingReservation(mrResNo);
     }
 
-    // ✅ 10. 메모 조회
-    @Override
-    public CalendarMemo getMemo(int userNo) {
-        return calendarDao.selectMemo(userNo);
-    }
-
-    // ✅ 11. 메모 저장🚀
-    @Transactional
-    @Override
-    public void saveMemo(CalendarMemo memo) {
-        calendarDao.insertMemo(memo);
-    }
-
-    // ✅ 12. 메모 수정🚀
-    @Transactional
-    @Override
-    public void updateMemo(int userNo, CalendarMemo memo) {
-        memo.setUserNo(userNo);
-        calendarDao.updateMemo(memo);
-    }
 }
