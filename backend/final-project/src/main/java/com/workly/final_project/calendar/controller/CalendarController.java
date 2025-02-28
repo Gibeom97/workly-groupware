@@ -1,15 +1,27 @@
 package com.workly.final_project.calendar.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.workly.final_project.calendar.model.dto.CalendarMemoDTO;
+import com.workly.final_project.calendar.model.service.CalendarMemoService;
 import com.workly.final_project.calendar.model.service.CalendarService;
 import com.workly.final_project.calendar.model.vo.Calendar;
-import com.workly.final_project.calendar.model.vo.MeetingReservation;
 import com.workly.final_project.calendar.model.vo.CalendarMemo;
+import com.workly.final_project.calendar.model.vo.MeetingReservation;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -19,17 +31,18 @@ import java.util.List;
 public class CalendarController {
 
     private final CalendarService calendarService;
+    private final CalendarMemoService calendarMemoService;
 
     // ✅ 1. 내 일정 조회 (수정된 부분)
     @GetMapping("/schedule/user/{userNo}")
-    public ResponseEntity<List<Calendar>> getUserEvents(@PathVariable("userNo") int userNo) {
+    public ResponseEntity<List<Calendar>> getUserEvents(@PathVariable("userNo") Integer userNo) {
         log.debug("GET /schedule/user/{}", userNo);
         return ResponseEntity.ok(calendarService.getUserEvents(userNo));
     }
     
     // ✅ 1-1. 팀 일정 조회 (수정된 부분)
     @GetMapping("/schedule/team/{deptNo}")
-    public ResponseEntity<List<Calendar>> getTeamEvents(@PathVariable("deptNo") int deptNo) {
+    public ResponseEntity<List<Calendar>> getTeamEvents(@PathVariable("deptNo") Integer deptNo) {
         log.debug("GET /schedule/team/{}", deptNo);
         return ResponseEntity.ok(calendarService.getTeamEvents(deptNo));
     }
@@ -41,6 +54,8 @@ public class CalendarController {
     	log.debug("📌 [CalendarController] 받은 일정 데이터: {}", calendar);
         log.debug("📌 startDate: {}", calendar.getStartDate());
         log.debug("📌 color: {}", calendar.getColor());  // ✅ color 값 확인 로그 추가
+        log.debug("📌 userNo: {}", calendar.getUserNo());  // ✅ userNo 값 확인
+        log.debug("📌 deptNo: {}", calendar.getDeptNo());  // ✅ deptNo 값 확인
         
         // ✅ category 값이 없으면 기본값 'P' (내 일정) 설정
         if (calendar.getCategory() == null) {
@@ -57,6 +72,16 @@ public class CalendarController {
         if (calendar.getColor() == null || calendar.getColor().isEmpty()) {
             log.error("🚨 ERROR: color 값이 NULL 입니다! 클라이언트에서 값이 정상적으로 전달되지 않았습니다.");
             calendar.setColor("#000000"); // 기본 색상 설정
+        }
+        
+        // ✅ userNo 또는 deptNo가 없는 경우 오류 처리
+        if (calendar.getUserNo() == null && calendar.getDeptNo() == null) { 
+            log.error("🚨 ERROR: userNo와 deptNo 값이 없습니다!");
+            return ResponseEntity.badRequest().body("userNo 또는 deptNo 값이 필요합니다.");
+        }
+
+        if (calendar.getContent() == null) {
+            calendar.setContent("");
         }
 
         calendarService.addEvent(calendar);
@@ -112,26 +137,36 @@ public class CalendarController {
         return ResponseEntity.ok("회의실 예약이 삭제되었습니다.");
     }
 
-    // ✅ 9. 메모 조회
+    // ✅ 9. 메모 조회 (CalendarService -> CalendarMemoService 사용)
     @GetMapping("/memo/{userNo}")
-    public ResponseEntity<CalendarMemo> getMemo(@PathVariable("userNo") int userNo) {
+    public ResponseEntity<CalendarMemoDTO> getMemo(@PathVariable("userNo") int userNo) {
         log.debug("GET /memo/{}", userNo);
-        return ResponseEntity.ok(calendarService.getMemo(userNo));
-    }
+        CalendarMemoDTO memoDTO = calendarMemoService.getMemo(userNo);
 
-    // ✅ 10. 메모 저장
+        if (memoDTO == null) {
+            log.error("🚨 메모 조회 실패! userNo: {}", userNo);
+            return ResponseEntity.notFound().build();
+        }
+
+        log.info("✅ 메모 조회 성공! memo: {}", memoDTO);
+        return ResponseEntity.ok(memoDTO);
+    }
+    
+    // ✅ 10. 메모 저장 (CalendarService -> CalendarMemoService 사용)
     @PostMapping("/memo/add")
-    public ResponseEntity<String> saveMemo(@RequestBody CalendarMemo memo) {
-        log.debug("POST /memo/add - memo: {}", memo);
-        calendarService.saveMemo(memo);
+    public ResponseEntity<String> saveMemo(@RequestBody CalendarMemoDTO memoDTO) {
+        log.debug("POST /memo/add - memo: {}", memoDTO);
+        calendarMemoService.saveMemo(memoDTO); // ✅ CalendarMemoDTO 그대로 전달!
         return ResponseEntity.ok("메모가 저장되었습니다.");
     }
-
-    // ✅ 11. 메모 수정
+    
+    // ✅ 11. 메모 수정 (CalendarService -> CalendarMemoService 사용)
     @PutMapping("/memo/update/{userNo}")
-    public ResponseEntity<String> updateMemo(@PathVariable("userNo") int userNo, @RequestBody CalendarMemo memo) {
-        log.debug("PUT /memo/update/{} - memo: {}", userNo, memo);
-        calendarService.updateMemo(userNo, memo);
+    public ResponseEntity<String> updateMemo(@PathVariable("userNo") int userNo, @RequestBody CalendarMemoDTO memoDTO) {
+        log.debug("PUT /memo/update/{} - memo: {}", userNo, memoDTO);
+        calendarMemoService.updateMemo(userNo, memoDTO); // ✅ DTO를 그대로 전달!
         return ResponseEntity.ok("메모가 수정되었습니다.");
     }
+
+
 }

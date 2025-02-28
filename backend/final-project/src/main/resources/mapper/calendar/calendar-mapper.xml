@@ -20,8 +20,10 @@
 
     <!-- ✅ 일정 추가 -->
    	<insert id="insertEvent">
-	    INSERT INTO CALENDAR (CAL_NO, CATEGORY, TITLE, START_DATE, END_DATE, USER_NO, DEPT_NO, COLOR)
-	    VALUES (CALENDER_SEQ.NEXTVAL, #{category}, #{title}, #{startDate, jdbcType=DATE}, #{endDate, jdbcType=DATE}, #{userNo}, #{deptNo}, #{color})
+    INSERT INTO CALENDAR (CAL_NO, CATEGORY, TITLE, CONTENT, START_DATE, END_DATE, USER_NO, DEPT_NO, COLOR)
+    VALUES (CALENDER_SEQ.NEXTVAL, #{category}, #{title}, #{content, jdbcType=VARCHAR}, 
+            #{startDate, jdbcType=DATE}, #{endDate, jdbcType=DATE}, 
+            #{userNo, jdbcType=INTEGER}, #{deptNo, jdbcType=INTEGER}, #{color})
 	</insert>
 
     <!-- ✅ 일정 수정 -->
@@ -70,23 +72,5 @@
     <delete id="deleteMeetingReservation">
 	    DELETE FROM MR_RESERVATION WHERE MR_RES_NO = #{mrResNo}
 	</delete>
-
-    <!-- ✅ 사용자 메모 조회 -->
-    <select id="selectMemo" resultType="CalendarMemo">
-        SELECT * FROM CALENDAR_MEMO WHERE USER_NO = #{userNo}
-    </select>
-
-    <!-- ✅ 메모 추가 -->
-    <insert id="insertMemo" useGeneratedKeys="true" keyProperty="memoNo">
-        INSERT INTO CALENDAR_MEMO (USER_NO, CONTENT)
-        VALUES (#{userNo}, #{content})
-    </insert>
-
-    <!-- ✅ 메모 수정 (USER_NO 기준으로 수정하도록 변경) -->
-    <update id="updateMemo">
-        UPDATE CALENDAR_MEMO
-        SET CONTENT = #{content}
-        WHERE USER_NO = #{userNo} 
-    </update>
 
 </mapper>

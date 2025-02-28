@@ -72,22 +72,5 @@ public class CalendarDaoImpl implements CalendarDao {
     public int deleteMeetingReservation(int mrResNo) {
         return sqlSession.delete("calendarMapper.deleteMeetingReservation", mrResNo);
     }
-
-    // ✅ 10. 메모 조회
-    @Override
-    public CalendarMemo selectMemo(int userNo) {
-        return sqlSession.selectOne("calendarMapper.selectMemo", userNo);
-    }
-
-    // ✅ 11. 메모 추가
-    @Override
-    public int insertMemo(CalendarMemo memo) {
-        return sqlSession.insert("calendarMapper.insertMemo", memo);
-    }
-
-    // ✅ 12. 메모 수정 (userNo 기준으로 수정)
-    @Override
-    public int updateMemo(CalendarMemo memo) {
-        return sqlSession.update("calendarMapper.updateMemo", memo);
-    }
+    
 }

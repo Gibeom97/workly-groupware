@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CalendarMemo {
-    private int memoNo;       // 메모 번호 (PK)
-    private int userNo;       // 사용자 번호 (FK)
-    private String content;   // 메모 내용
+    private int userNo;     // FK (PK 역할)
+    private String memo;    // 메모 내용
 }

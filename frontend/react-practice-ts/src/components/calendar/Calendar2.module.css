@@ -1,76 +1,106 @@
 /* ✅ 캘린더 컨테이너 */
 .calendarContainer {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  padding: 0;
   overflow: auto;
 }
 
-/* ✅ FullCalendar 레이아웃 조정 */
+/* ✅ FullCalendar 기본 툴바 크기 유지 */
+.calendarContainer .customToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px; /* FullCalendar 기본 padding 크기에 맞춤 */
+  height: auto; /* FullCalendar 기본 높이 유지 */
+  background: none; /* 🔥 배경 제거 */
+  border-radius: 0;
+  margin-bottom: 8px;
+}
+
+/* ✅ 툴바 제목 (년/월) */
+.calendarContainer .customTitle {
+  font-size: 28px; /* 🔥 요청하신 28px로 조정 */
+  font-weight: bold;
+  text-align: center;
+  flex-grow: 1;
+  min-width: 80px;
+}
+
+/* ✅ 이전, 다음 버튼 (🔥 크기 키움) */
+.calendarContainer .toolbarButton {
+  font-size: 16px;
+  padding: 8px 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  color: black;
+}
+
+/* ✅ '오늘' 버튼 (🔥 Calendar4와 동일한 회색, 크기 키움) */
+.calendarContainer .todayButton {
+  font-size: 16px;
+  padding: 8px 12px;
+  min-width: 60px;
+  height: 40px;
+  background: #ddd; /* 🔥 회색 */
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.calendarContainer .todayButton:hover {
+  background: #ccc; /* Hover 시 더 어두운 회색 */
+}
+
+/* ✅ FullCalendar 스타일 */
 .calendarContainer .fc {
   width: 100% !important;
   height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
   flex-grow: 1;
+  overflow: auto;
 }
 
-/* ✅ FullCalendar 툴바 크기 조정 (수정됨 - 전역 스타일 방지) */
-.calendarContainer .fc-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  width: 100%;
-}
-
-/* ✅ FullCalendar 제목 스타일 */
-.calendarContainer .fc-toolbar-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-/* ✅ FullCalendar 요일 스타일 */
+/* ✅ FullCalendar 날짜 스타일 */
 .calendarContainer .fc-daygrid-day-number {
   font-size: 14px;
   font-weight: bold;
   color: #333;
 }
 
-/* ✅ 이벤트(일정) 스타일 */
+/* ✅ 일정 제목 중앙 정렬 */
 .calendarContainer .fc-event {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   padding: 6px 10px;
   border-radius: 8px !important;
   font-size: 13px;
   font-weight: bold;
-  text-align: center;
+  text-align: center !important;
   border: none !important;
   transition: all 0.2s ease-in-out;
-}
-
-/* ✅ FullCalendar 일정 제목 중앙 정렬 */
-.calendarContainer .customEvent {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  width: 100% !important;
-  height: 100% !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-}
-
-/* ✅ FullCalendar 일정 제목 스타일 */
-.calendarContainer .customEventTitle {
-  font-weight: bold !important;
-  color: white !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
-/* ✅ 일정 호버 효과 */
+/* ✅ 마우스 오버 효과 */
 .calendarContainer .fc-event:hover {
   transform: scale(1.05);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);

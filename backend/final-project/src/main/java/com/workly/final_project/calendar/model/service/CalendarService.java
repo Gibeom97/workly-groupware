@@ -22,9 +22,4 @@ public interface CalendarService {
     void updateMeetingReservation(int mrResNo, MeetingReservation meeting);
     void deleteMeetingReservation(int mrResNo);
 
-
-    // ✅ 메모 관련 기능
-    CalendarMemo getMemo(int userNo);
-    void saveMemo(CalendarMemo memo);
-    void updateMemo(int userNo, CalendarMemo memo);
 }
