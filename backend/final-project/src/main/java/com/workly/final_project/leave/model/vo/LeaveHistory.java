@@ -18,5 +18,5 @@ public class LeaveHistory {
 	private Date endDate;
 	private double leaveDays;
 	private String leaveType;
-	private String leaveStatus;
+	private int approvalNo;
 }

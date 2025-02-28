@@ -110,7 +110,6 @@
 			<artifactId>xmlbeans</artifactId>
 			<version>5.0.3</version>
 		</dependency>
-		
 	</dependencies>
 
 	<build>

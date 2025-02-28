@@ -107,24 +107,18 @@ const Sidebar = () => {
             <span>인사관리</span>
           </li>
           </Link>
-          <Link to={"/form"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon10} alt="권한관리" />
-            </span>
-            <span>결재양식관리</span>
-          </li>
-          </Link>
         </ul>
       </nav>
       </div>
       <div className={styles.logout}>
+        <Link to={"/myPage"} className={styles.link}>
         <button className={styles.mypageButton}>
           <span>
             <img className={styles.imgIcon} src={icon11} alt="마이페이지" />
           </span>
           <span>마이페이지</span>
         </button>
+        </Link>
         <button className={styles.logoutButton} onClick={handleLogout}>
           <span>
             <img className={styles.imgIcon} src={icon12} alt="로그아웃" />

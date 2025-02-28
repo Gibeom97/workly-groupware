@@ -32,6 +32,8 @@ import { useSelector } from "react-redux";
 
 import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
 import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
+import MyPage from "./pages/MyPage";
+import MyInfomation from "./components/myPage/MyInfomation";
 
 function App() {
 
@@ -73,7 +75,6 @@ function App() {
         <Route path="/ApprovalSendPage" element={<ApprovalSendPage/>}/>
 
         {/*전자결재Route*/}
-
         <Route path="/personnel" element={<PersonnelMain />}>
           <Route index element={<PersonnelTable />} />
           <Route path="createEmployee" element={<CreateEmployee />} />
@@ -85,6 +86,11 @@ function App() {
           <Route index element={<MyLeave/>}/>
           <Route path="manage" element={<ManageLeave/>}/>
           <Route path="policy" element={<LeavePolicy/>}/>
+        </Route>
+
+        <Route path="/mypage" element={<MyPage/>}>
+          <Route index element={<MyInfomation/>}/>
+          <Route path="salary" element={<></>}/>
         </Route>
 
         <Route path="/form" element={<FormMain/>}>
