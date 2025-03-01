@@ -35,7 +35,7 @@ export const ApprovalRequestPage = () => {
       try {
         const response = await axios.get(`http://localhost:8003/workly/api/approval/requests/${userNo}`);
         
-        console.log("✅ 요청함함 응답 데이터:", response.data);
+        //console.log("✅ 요청함함 응답 데이터:", response.data);
 
         if (Array.isArray(response.data)) {
           setPosts(response.data);
