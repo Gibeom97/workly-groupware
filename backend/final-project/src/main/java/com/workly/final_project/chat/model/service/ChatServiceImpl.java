@@ -101,34 +101,16 @@ public class ChatServiceImpl implements ChatService{
 		return chatDao.getChatList(userNo);
 	}
 
-	@Override
-	@Transactional
-	public int saveChatMessage(Chat chat) {
-	    log.info("채팅 저장 요청: {}", chat);
-
-	    // 🔥 userNo가 없는 경우 ChatParticipant에서 가져오기
-	    if (chat.getUserNo() == 0) {
-	        List<Integer> userNos = chatDao.getUserNosByChatRoom(chat.getChatRoomNo());
-	        if (!userNos.isEmpty()) {
-	            chat.setUserNo(userNos.get(0)); // 첫 번째 유저를 임시로 할당
-	            log.info("⚠️ userNo가 없어서 ChatParticipant에서 가져옴: {}", chat.getUserNo());
-	        } else {
-	            log.error("❌ 해당 채팅방에 참여자가 없음! chatRoomNo: {}", chat.getChatRoomNo());
-	            return 0;
-	        }
-	    }
-
-	    return chatDao.saveChatMessage(chat);
-	}
 //	@Override
 //	@Transactional
 //	public int saveChatMessage(Chat chat) {
 //	    log.info("채팅 저장 요청: {}", chat);
 //
+//	    // 🔥 userNo가 없는 경우 ChatParticipant에서 가져오기
 //	    if (chat.getUserNo() == 0) {
 //	        List<Integer> userNos = chatDao.getUserNosByChatRoom(chat.getChatRoomNo());
 //	        if (!userNos.isEmpty()) {
-//	            chat.setUserNo(userNos.get(0));
+//	            chat.setUserNo(userNos.get(0)); // 첫 번째 유저를 임시로 할당
 //	            log.info("⚠️ userNo가 없어서 ChatParticipant에서 가져옴: {}", chat.getUserNo());
 //	        } else {
 //	            log.error("❌ 해당 채팅방에 참여자가 없음! chatRoomNo: {}", chat.getChatRoomNo());
@@ -136,18 +118,34 @@ public class ChatServiceImpl implements ChatService{
 //	        }
 //	    }
 //
-//	    // 1️⃣ `Chat` 테이블에 메시지 저장
-//	    int result = chatDao.saveChatMessage(chat);
-//	    
-//	    if (result > 0) {
-//	        // 2️⃣ `UserChat` 테이블에 사용자별 마지막 읽은 메시지 갱신
-//	        UserChat userChat = new UserChat(chat.getUserNo(), chat.getChatRoomNo(), chat.getChatNo());
-//	        chatDao.insertUserChat(userChat);  // ⬅️ 이 부분 추가
-//	        chatDao.updateLastReadChatNo(userChat);  // ⬅️ 마지막 읽은 메시지 갱신
-//	    }
-//
-//	    return result;
+//	    return chatDao.saveChatMessage(chat);
 //	}
+	@Override
+	@Transactional
+	public int saveChatMessage(Chat chat) {
+	    System.out.println("🟢 메시지 저장 시작: " + chat);
+
+	    chatDao.saveChatMessage(chat);
+	    System.out.println("🟢 Chat 저장 완료. chatNo: " + chat.getChatNo());
+
+	    UserChat userChat = new UserChat();
+	    userChat.setChatRoomNo(chat.getChatRoomNo());
+	    userChat.setUserNo(chat.getUserNo());
+	    userChat.setLastReadChatNo(chat.getChatNo());
+
+	    UserChat existingUserChat = chatDao.getUserChat(userChat.getChatRoomNo(), userChat.getUserNo());
+	    System.out.println("🟢 기존 UserChat 조회 결과: " + existingUserChat);
+	    
+	    if (existingUserChat == null) {
+	        chatDao.insertUserChat(userChat);
+	        System.out.println("🟢 UserChat 새로 저장됨.");
+	    } else {
+	        chatDao.updateUserChat(userChat);
+	        System.out.println("🟢 UserChat 업데이트됨. lastReadChatNo: " + chat.getChatNo());
+	    }
+
+	    return chat.getChatNo();
+	}
 
 
 
@@ -162,24 +160,34 @@ public class ChatServiceImpl implements ChatService{
 		return chatDao.getUserNosByChatRoom(chatRoomNo);
 	}
 
-//	@Override
-//	public int insertUserChat(UserChat userChat) {
-//		return chatDao.insertUserChat(userChat);
-//	}
-//
-//	@Override
-//	public void updateLastReadChatNo(UserChat userChat) {
-//		chatDao.updateLastReadChatNo(userChat);
-//	}
+
+
+	@Override
+	public void insertOrUpdateUserChat(UserChat userChat) {
+	    chatDao.insertOrUpdateUserChat(userChat);
+	}
+
+	@Override
+	public int getLastReadChatNo(int userNo, int chatRoomNo) {
+		Integer lastReadChatNo = chatDao.getLastReadChatNo(userNo, chatRoomNo);
+		return (lastReadChatNo != null)? lastReadChatNo : 0;
+	}
+
+	@Override
+	public List<String> getDepartmentList() {
+		return chatDao.getDepartmentList();
+	}
+
+
+
 
 
 	
 	
-//
-//	@Override
-//	public int getLastReadChatNo(int userNo, int chatRoomNo) {
-//		return chatDao.getLastReadChatNo(userNo, chatRoomNo);
-//	}
+	
+	
+
+
 
 
 

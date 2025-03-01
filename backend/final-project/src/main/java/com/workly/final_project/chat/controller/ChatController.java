@@ -130,7 +130,13 @@ public class ChatController {
 			return ResponseEntity.ok(chatRooms);
 		}
 		
-		
+		// 부서 목록 가져오기
+		@GetMapping("/departments")
+		public ResponseEntity<List<String>> getDepartments() {
+		    List<String> departments = chatService.getDepartmentList();
+		    return ResponseEntity.ok(departments);
+		}
+
 	    	
 		
 

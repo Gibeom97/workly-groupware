@@ -59,9 +59,9 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
   // ✅ 채팅 메시지 불러오기 (비동기 함수)
   const fetchMessages = async () => {
     try {
-      await axios.post(`/chat/enter/${room.chatRoomNo}/${currentUser.userNo}`);
-      const response = await axios.get(`/chat/messages/${room.chatRoomNo}`);
-
+      await axios.post(`http://localhost:8003/workly/api/chat/enter/${room.chatRoomNo}/${currentUser.userNo}`);
+      const response = await axios.get(`http://localhost:8003/workly/api/chat/messages/${room.chatRoomNo}`);
+  
       if (Array.isArray(response.data)) {
         setChatMessages(response.data.map(msg => ({
           ...msg,
@@ -73,17 +73,25 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
     } catch (error) {
       console.error("❌ 채팅 메시지 불러오기 실패", error);
     }
-};
+  };
+  
+  
+  useEffect(() => {
+    fetchMessages(); 
+  }, [room.chatRoomNo]);
+  
 
 
   // ✅ 마지막 읽은 메시지 가져오기
   useEffect(() => {
     axios.get(`http://localhost:8003/workly/api/chat/lastRead/${room.chatRoomNo}/${currentUser.userNo}`)
       .then(response => {
-        setLastReadChatNo(response.data.lastReadChatNo);
+        setLastReadChatNo(response.data); // ✅ 데이터가 바로 정수값이므로 그대로 사용
       })
       .catch(() => setLastReadChatNo(null));
-  }, [room.chatRoomNo, currentUser.userNo]);
+}, [room.chatRoomNo, currentUser.userNo]);
+
+
   
 
   // // ✅ 채팅 메시지 및 마지막 읽은 메시지 불러오기 (useEffect)
@@ -123,35 +131,24 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
       reconnectDelay: 5000,
       onConnect: () => {
         console.log("🟢 [프론트엔드] WebSocket Connected");
-
+  
         if (subscriptionRef.current) {
           stompClient.unsubscribe(subscriptionRef.current);
         }
-
+  
         const subscription = stompClient.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
           const newMessage: ChatMessage = JSON.parse(message.body);
           console.log("📩 [프론트엔드] 새 메시지 수신:", newMessage);
-
-          if (!newMessage.userNo) {
-            console.error("❌ [프론트엔드] 서버에서 userNo가 없음!", newMessage);
-          }
-
-          setChatMessages((prevMessages) => {
-            if (prevMessages.some(msg => msg.chatNo === newMessage.chatNo)) {
-              return prevMessages;
-            }
-            return [...prevMessages, { ...newMessage, isMine: Number(newMessage.userNo) === Number(currentUser.userNo) }];
-          });
-
-          setTimeout(() => {
-            chatContainerRef.current?.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
-          }, 100);
+  
+          setChatMessages((prevMessages) => [...prevMessages, {
+            ...newMessage,
+            isMine: Number(newMessage.userNo) === Number(currentUser.userNo),
+          }]);
         });
-
+  
         subscriptionRef.current = subscription.id;
         setClient(stompClient);
       },
-
       onDisconnect: () => {
         console.log("🔴 [프론트엔드] WebSocket Disconnected");
       },
@@ -159,9 +156,9 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
         console.error("❌ [프론트엔드] WebSocket STOMP Error:", frame);
       },
     });
-
+  
     stompClient.activate();
-
+  
     return () => {
       if (subscriptionRef.current && stompClient) {
         stompClient.unsubscribe(subscriptionRef.current);
@@ -169,13 +166,12 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
       stompClient.deactivate();
     };
   }, [room.chatRoomNo]);
-
+  
   // ✅ 메시지 전송 함수
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!client || !client.connected || !inputMessage.trim()) return;
   
     const newMessage = {
-      chatNo: chatMessages.length > 0 ? chatMessages[chatMessages.length - 1].chatNo + 1 : 1,
       userNo: currentUser.userNo,
       userName: currentUser.userName,
       chatRoomNo: room.chatRoomNo,
@@ -184,19 +180,23 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
       isMine: true,
     };
   
-    // ✅ WebSocket으로 전송
-    client.publish({
-      destination: `/pub/chat/sendMessage/${room.chatRoomNo}`,
-      body: JSON.stringify(newMessage),
-    });
+    try {
+      const response = await axios.post(`http://localhost:8003/workly/api/chat/saveMessage`, newMessage);
+      const savedMessage = response.data;
   
-    // ✅ DB에도 저장 요청
-    axios.post(`http://localhost:8003/workly/api/chat/saveMessage`, newMessage)
-      .catch(error => console.error("❌ 채팅 메시지 저장 실패", error));
+      // ✅ WebSocket을 통해 메시지 전송
+      client.publish({
+        destination: `/pub/chat/sendMessage/${room.chatRoomNo}`,
+        body: JSON.stringify(savedMessage),
+      });
   
-    setChatMessages(prev => [...prev, newMessage]);
-    setInputMessage("");
+      setChatMessages(prevMessages => [...prevMessages, savedMessage]);
+      setInputMessage("");
+    } catch (error) {
+      console.error("❌ 채팅 메시지 저장 실패", error);
+    }
   };
+  
   
   
 
