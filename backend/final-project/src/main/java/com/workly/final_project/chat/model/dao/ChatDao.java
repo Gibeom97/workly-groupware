@@ -1,5 +1,6 @@
 package com.workly.final_project.chat.model.dao;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,10 +64,6 @@ public class ChatDao {
 		return sqlSession.selectList("chat.getChatList", userNo);
 	}
 
-	public int saveChatMessage(Chat chat) {
-		return sqlSession.insert("chat.saveChatMessage", chat);
-	}
-
 	public List<Chat> getChatMessages(int chatRoomNo){
 		return sqlSession.selectList("chat.getChatMessages", chatRoomNo);
 	}
@@ -77,27 +74,50 @@ public class ChatDao {
 	    return userNos;
 	}
 
-	// userchat에 추가
-//	public int insertUserChat(UserChat userChat) {
-//		return sqlSession.insert("chat.insertUserChat", userChat);
-//	}
-//
-//	public void updateLastReadChatNo(UserChat userChat) {
-//		sqlSession.update("chat.updateLastReadChatNo", userChat);
-//	}
+	public void insertOrUpdateUserChat(UserChat userChat) {
+	    sqlSession.insert("chat.insertOrUpdateUserChat", userChat);
+	}
 	
+	public Integer getLastReadChatNo(int userNo, int chatRoomNo) {
+	    return sqlSession.selectOne("chat.getLastReadChatNo", 
+	        Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));
+	}
 	
-	
-//
-//	public int getLastReadChatNo(int userNo, int chatRoomNo) {
-//		return sqlSession.selectOne("chat.getLastReadChatNo", Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));
-//	}
-	
-	
+	// 🔹 채팅 메시지 저장
+    public void saveChatMessage(Chat chat) {
+    	System.out.println("🟢 Chat 저장 완료. chatNo: " + chat.getChatNo());
+        sqlSession.insert("ChatMapper.saveChatMessage", chat);
+    }
+
+    // 🔹 특정 유저의 마지막 읽은 메시지 조회
+    public UserChat getUserChat(int chatRoomNo, int userNo) {
+        Map<String, Integer> params = new HashMap<>();
+        params.put("chatRoomNo", chatRoomNo);
+        params.put("userNo", userNo);
+        return sqlSession.selectOne("ChatMapper.getUserChat", params);
+    }
+
+    // 🔹 UserChat 새로 삽입
+    public void insertUserChat(UserChat userChat) {
+        sqlSession.insert("ChatMapper.insertUserChat", userChat);
+    }
+
+    // 🔹 UserChat 업데이트
+    public void updateUserChat(UserChat userChat) {
+        sqlSession.update("ChatMapper.updateUserChat", userChat);
+    }
+
+	public List<String> getDepartmentList() {
+		return sqlSession.selectList("chat.getDepartmentList");
+	}
+}
+
 	
 	
 	
 	
 	
 
-}
+	
+
+

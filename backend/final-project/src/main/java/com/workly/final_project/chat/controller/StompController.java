@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.workly.final_project.chat.model.service.ChatService;
 import com.workly.final_project.chat.model.vo.Chat;
 import com.workly.final_project.chat.model.vo.ChatFile;
+import com.workly.final_project.chat.model.vo.UserChat;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,7 @@ public class StompController {
 
 	
 	// ✅ 채팅 메시지 조회 API
-	@GetMapping("/chat/messages/{chatRoomNo}")
+	@GetMapping("/api/chat/messages/{chatRoomNo}")
 	public ResponseEntity<?> getChatMessages(@PathVariable int chatRoomNo) {
 	    List<Chat> messages = chatService.getChatMessages(chatRoomNo);
 
@@ -120,30 +121,30 @@ public class StompController {
 	
 	
 	
-//	@PostMapping("/chat/enter")
-//	public ResponseEntity<String> enterChatRoom(@RequestBody UserChat userChat) {
-//	    try {
-//	        int lastReadChatNo = chatService.getLastReadChatNo(userChat.getUserNo(), userChat.getChatRoomNo());
-//	        
-//	        if (lastReadChatNo == 0) { // 데이터가 없으면 추가
-//	            int result = chatService.insertUserChat(userChat);
-//	            if (result == 0) {
-//	                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("채팅방 입장 실패");
-//	            }
-//	        }
-//
-//	        return ResponseEntity.ok("채팅방 입장 성공");
-//	    } catch (Exception e) {
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("채팅방 입장 실패");
-//	    }
-//	}
-//	
-//	
-//	@GetMapping("/chat/messages/{chatRoomNo}")
-//	public ResponseEntity<List<Chat>> fetchChatMessages(@PathVariable int chatRoomNo) {
-//	    List<Chat> messages = chatService.getChatMessages(chatRoomNo);
-//	    return ResponseEntity.ok(messages);
-//	}
+	@PostMapping("/chat/enter")
+	public ResponseEntity<String> enterChatRoom(@RequestBody UserChat userChat) {
+	    try {
+	        chatService.insertOrUpdateUserChat(userChat); // `MERGE` 활용으로 insert/update 자동 처리
+	        return ResponseEntity.ok("채팅방 입장 성공");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("채팅방 입장 실패");
+	    }
+	}
+
+
+	// 마지막으로 읽은 번호 가지고 오기
+	@GetMapping("/chat/lastRead/{chatRoomNo}/{userNo}")
+	public ResponseEntity<Integer> getLastReadChatNo(
+	        @PathVariable int chatRoomNo,
+	        @PathVariable int userNo) {
+	    try {
+	        int lastReadChatNo = chatService.getLastReadChatNo(userNo, chatRoomNo);
+	        return ResponseEntity.ok(lastReadChatNo);
+	    } catch (Exception e) {
+	        log.error("❌ lastReadChatNo 조회 실패", e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(-1);
+	    }
+	}
 
 	
 	

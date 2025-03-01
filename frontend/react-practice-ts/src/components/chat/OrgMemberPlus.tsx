@@ -1,51 +1,70 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import SearchClick from './SearchClick';
-import { departments, positions } from '../../type/chatType';
 
 interface Member {
-  userNo: number;
-  name: string;
-  positionNo: number;
-  deptNo: number;
+  userNo: number;     // 고유번호
+  userName: string;       // 이름
+  positionNo?: number; // 직급번호
+  deptNo?: number;     // 부서번호
+  status?:string;// 상태값
+  deptName: string;
+  positionName: string;
+  email?: string;
+  phone?: string;
+  extension?: string;
 }
 
 interface OrgMemberPlusProps {
-  deptName: string; // ✅ 추가
+  deptName: string;
   onComplete: (result: { deptName: string; selectedMembers: Member[] }) => void;
 }
 
-const getDeptName = (deptNo: number) => {
-  return departments.find((dept) => dept.deptNo === deptNo)?.deptName || "알 수 없음";
-};
-
-const getPositionName = (positionNo: number) => {
-  return positions.find((pos) => pos.positionNo === positionNo)?.positionName || "알 수 없음";
-};
-
-
 const OrgMemberPlus = ({ deptName, onComplete }: OrgMemberPlusProps) => {
   const [checkedMembers, setCheckedMembers] = useState<number[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [departments, setDepartments] = useState<{ deptNo: number; deptName: string }[]>([]);
+  const [positions, setPositions] = useState<{ positionNo: number; positionName: string }[]>([]);
 
-  const members: Member[] = [
-    { userNo: 1, name: '박솜이', positionNo: 3, deptNo: 1 },
-    { userNo: 2, name: '안관주', positionNo: 3, deptNo: 1 },
-    { userNo: 3, name: '임사윤', positionNo: 4, deptNo: 1 },
-    { userNo: 4, name: '김자수', positionNo: 7, deptNo: 1 },
-    { userNo: 5, name: '김예삐', positionNo: 8, deptNo: 2 },
-    { userNo: 6, name: '채소염', positionNo: 8, deptNo: 2 },
-    { userNo: 7, name: '최웡카', positionNo: 4, deptNo: 2 },
-    { userNo: 8, name: '김기밤', positionNo: 7, deptNo: 2 },
-    { userNo: 9, name: '김젤리', positionNo: 9, deptNo: 2 },
-    { userNo: 10, name: '이용휘', positionNo: 8, deptNo: 2 },
-  ];
-  
+  // ✅ 부서 및 직급 데이터 가져오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 부서 정보 가져오기
+        const deptResponse = await axios.get("http://localhost:8003/workly/api/chat/departments");
+        setDepartments(deptResponse.data);
 
+        // 직급 정보 가져오기
+        const posResponse = await axios.get("http://localhost:8003/workly/api/chat/positions");
+        setPositions(posResponse.data);
+
+        // 부서원 목록 가져오기 (현재 부서만 필터링)
+        const memberResponse = await axios.get("http://localhost:8003/workly/api/chat/members");
+        const filteredMembers = memberResponse.data.filter((m: Member) => m.deptName === deptName);
+        setMembers(filteredMembers);
+      } catch (error) {
+        console.error("데이터 불러오기 실패:", error);
+      }
+    };
+
+    fetchData();
+  }, [deptName]);
+
+  // ✅ 부서명 가져오기
+  const getDeptName = (deptNo: number) => {
+    return departments.find((dept) => dept.deptNo === deptNo)?.deptName || "알 수 없음";
+  };
+
+
+
+  // ✅ 체크박스 선택
   const toggleCheck = (no: number) => {
     setCheckedMembers((prev) =>
-      prev.includes(no) ? prev.filter((memberno) => memberno !== no) : [...prev, no]
+      prev.includes(no) ? prev.filter((memberNo) => memberNo !== no) : [...prev, no]
     );
   };
 
+  // ✅ 확인 버튼 클릭
   const handleConfirm = () => {
     if (checkedMembers.length === 0) {
       alert('부서원을 선택해주세요');
@@ -55,14 +74,15 @@ const OrgMemberPlus = ({ deptName, onComplete }: OrgMemberPlusProps) => {
     const selectedMembers = members.filter((m) => checkedMembers.includes(m.userNo));
 
     alert(`부서 생성 완료: ${deptName}`);
-    onComplete({ deptName, selectedMembers }); // ✅ deptName 반영됨
+    onComplete({ deptName, selectedMembers });
   };
 
+  // ✅ 부서별 멤버 그룹화
   const groupedMembers = members.reduce<Record<string, Member[]>>((acc, member) => {
-    if (!acc[member.deptNo]) {
-      acc[member.deptNo] = [];
+    if (!acc[member.deptName]) {
+      acc[member.deptName] = [];
     }
-    acc[member.deptNo].push(member);
+    acc[member.deptName].push(member);
     return acc;
   }, {});
 
@@ -111,49 +131,49 @@ const OrgMemberPlus = ({ deptName, onComplete }: OrgMemberPlusProps) => {
             </tr>
           </thead>
           <tbody>
-          {Object.entries(groupedMembers).map(([dept, deptMembers]) =>
-          deptMembers.map((member, index) => (
-            <tr key={member.userNo} style={{ position: 'relative', height: '35px' }}>
-              {index === 0 && (
-                <td
-                  rowSpan={deptMembers.length}
-                  style={{
-                    textAlign: 'center',
-                    verticalAlign: 'middle',
-                    fontWeight: '600',
-                    color: 'black',
-                    position: 'relative',
-                  }}
-                >
-                  {getDeptName(Number(dept))}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      right: '-17px',
-                      left: 0,
-                      height: '1px',
-                      backgroundColor: '#D8D8D8',
-                    }}
-                  />
-                </td>
-              )}
+            {Object.entries(groupedMembers).map(([dept, deptMembers]) =>
+              deptMembers.map((member, index) => (
+                <tr key={member.userNo} style={{ position: 'relative', height: '35px' }}>
+                  {index === 0 && (
+                    <td
+                      rowSpan={deptMembers.length}
+                      style={{
+                        textAlign: 'center',
+                        verticalAlign: 'middle',
+                        fontWeight: '600',
+                        color: 'black',
+                        position: 'relative',
+                      }}
+                    >
+                      {getDeptName(Number(dept))}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          right: '-17px',
+                          left: 0,
+                          height: '1px',
+                          backgroundColor: '#D8D8D8',
+                        }}
+                      />
+                    </td>
+                  )}
 
-              <td style={{ position: 'relative', paddingLeft: '25px', height: '35px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <input
-                    type="checkbox"
-                    checked={checkedMembers.includes(member.userNo)}
-                    onChange={() => toggleCheck(member.userNo)}
-                    style={{
-                      marginRight: '10px',
-                      marginLeft: '10px',
-                      accentColor: '#4880FF',
-                      cursor: 'pointer',
-                    }}
-                  />
-                  {member.name} ({getPositionName(member.positionNo)})
-                </div>
+                  <td style={{ position: 'relative', paddingLeft: '25px', height: '35px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={checkedMembers.includes(member.userNo)}
+                        onChange={() => toggleCheck(member.userNo)}
+                        style={{
+                          marginRight: '10px',
+                          marginLeft: '10px',
+                          accentColor: '#4880FF',
+                          cursor: 'pointer',
+                        }}
+                      />
+                      {member.userName} ({member.positionName})
+                    </div>
 
                     <div
                       style={{
