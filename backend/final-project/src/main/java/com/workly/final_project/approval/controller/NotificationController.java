@@ -35,8 +35,8 @@ public class NotificationController {
 	}
 	
 	// 결재 승인 시 다음 결재자 알림
-	@PostMapping("/approve")
-	public void approveAndNotifyNext(@RequestParam int approvalNo, @RequestParam int currentLevel) {
-		service.approveAndNotifyNext(approvalNo, currentLevel);
-	}
+//	@PostMapping("/approve")
+//	public void approveAndNotifyNext(@RequestParam int approvalNo, @RequestParam int currentLevel) {
+//		service.approveAndNotifyNext(approvalNo, currentLevel);
+//	}
 }
