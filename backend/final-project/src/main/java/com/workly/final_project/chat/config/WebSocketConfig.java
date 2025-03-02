@@ -1,4 +1,6 @@
 package com.workly.final_project.chat.config;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -25,11 +27,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 소켓 연결용 endpoint 설정 -> ws://localhost:5173/ws-stomp 로 연결됨
         // SockJS 사용 가능하게 설정 (웹소켓 미지원 브라우저 대응)
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOriginPatterns("http://localhost:5173") // CORS 허용 설정
+                .setAllowedOriginPatterns("*") // CORS 허용 설정
                 .withSockJS();
     }
     
-    
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer addCustomBigDecimalDeserialization() {
+        return builder -> builder.simpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    }
+
 //    @Override
 //    public boolean configureMessageConverters(List<MessageConverter> converters) {
 //        converters.add(new MappingJackson2MessageConverter());
