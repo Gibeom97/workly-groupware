@@ -117,6 +117,7 @@
 		VALUES (#{chatNo}, #{chatRoomNo}, #{message}, SYSTIMESTAMP, #{userNo}, #{userName})
 	</insert>
 	
+	
 	<select id="getChatMessages" resultType="com.workly.final_project.chat.model.vo.Chat">
 	    SELECT 
 	        CHAT_NO AS chatNo,
@@ -168,7 +169,6 @@
 	<select id="getDepartmentList" resultType="string">
 		SELECT DEPT_NAME FROM DEPARTMENT
 	</select>
-
 
 
 
