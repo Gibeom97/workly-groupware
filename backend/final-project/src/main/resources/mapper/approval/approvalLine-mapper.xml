@@ -117,6 +117,15 @@
 			WHERE APPROVAL_NO = #{approvalNo}
 		</update>
 		
+		<update id="updateApprovalTypeToApproved">
+		    UPDATE APPROVAL
+		    SET APPROVAL_STATUS = 2
+		    WHERE APPROVAL_NO IN
+		    <foreach item="approvalNo" collection="list" open="(" separator="," close=")">
+		        #{approvalNo}
+		    </foreach>
+		</update>
+		
 		<!-- 팀원 추가 끝 -->
 </mapper>
 

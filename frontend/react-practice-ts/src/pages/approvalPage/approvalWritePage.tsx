@@ -5,9 +5,13 @@ import { ApprovalWriteHeader } from "../../components/approval/approvalWriteHead
 import Header from "../../components/common/Header"
 import Sidebar from "../../components/common/Sidebar"
 import axios from "axios"
+import { useSelector } from "react-redux"
 
 export const ApprovalWritePage = () => {
+  const userNo = useSelector((state: any) => state.user.userNo);
+  
   const [selectedCCUsers, setSelectedCCUsers] = useState([]); // ✅ 참조자 목록 상태 추가
+  const [approvalNo, setApprovalNo] = useState<number | null>(null); // ✅ 결재 번호 상태 추가
 
   useEffect(() => {
     console.log("🚀 ApprovalWritePage에서 관리하는 selectedCCUsers:", selectedCCUsers);
@@ -15,7 +19,7 @@ export const ApprovalWritePage = () => {
 
   // 전자결재 데이터를 관리하는 상태 추가
   const [approvalData, setApprovalData] = useState({
-    userNo: "",
+    userNo: userNo,
     approvalType: "",
     approvalTitle: "",
     approvalContent: "",
@@ -26,91 +30,150 @@ export const ApprovalWritePage = () => {
     endDate: "", // ✅ 연차 종료일
     halfDayDate: "", // ✅ 반차 사용 날짜
     leaveDays: 0, // ✅ 사용 연차 일수
+    approvalLine: [], // ✅ 결재라인 추가
+    attachments: [], // ✅ 첨부파일 추가
   });
 
-  // 게시글 데이터 자동 불러오기
-  // useEffect(() => {
-  //   if (approvalNo) {
-  //     const fetchApprovalData = async () => {
-  //       try {
-  //         const response = await axios.get(
-  //           `http://localhost:8003/workly/api/approval/getApproval/${approvalNo}`
-  //         );
-  //         setApprovalData(response.data); // 기존 approvalData에 저장된 값 업데이트
-  //       } catch (error) {
-  //         console.error("게시글 데이터를 불러오는 데 실패했습니다.", error);
-  //       }
-  //     };
-  //     fetchApprovalData();
-  //   }
-  // }, [approvalNo]);
-
-  useEffect(() => {
-    setApprovalMemoData((prevMemoData) => ({
-      ...prevMemoData,
-      userNo: approvalData.userNo,
-    }));
-  }, [approvalData.userNo]);
-
-  // 결재 의견 상태 추가
   const [approvalMemoData, setApprovalMemoData] = useState({
-    userNo: approvalData.userNo || "",
+    userNo: userNo,
     approvalNo: null, // 결재 문서 저장 후 업데이트 필요
     memoContent: "",
     memoDate: new Date().toISOString(),
   });
 
-// Spring Boot로 데이터 전송하는 함수
-  // const submitApproval = async () => {
-  //   try {
-  //     // 1. 결재 문서 저장 요청
-  //     const response = await axios.post(
-  //       "http://localhost:8003/workly/api/approval/create",
-  //       approvalData
-  //     );
+  // ✅ 결재 데이터 백엔드 전송 함수 (Footer에서 실행되던 API들 포함)
+  const submitApproval = async () => {
+    console.log("🚀 전송할 데이터:", approvalData);
+    console.log("✅ 참조자 데이터 확인 (selectedCCUsers):", selectedCCUsers); // ✅ 추가된 로그
 
-  //     // 2. 저장된 approvalNo 받아오기
-  //     const approvalNo = response.data.approvalNo;
+    try {
+      const finalApprovalData = { 
+        ...approvalData,
+        userNo: userNo,
+        ccUsers: [...selectedCCUsers],
+      };
 
-  //     if (!approvalNo || approvalNo === 0) {
-  //       throw new Error("Invalid approvalNo received");
-  //     }
+      console.log("결재 문서 저장 요청 데이터:", finalApprovalData);
 
-  //     // 3. 결재 의견 데이터 업데이트 후 저장 요청
-  //     const finalApprovalMemoData = {
-  //       ...approvalMemoData,
-  //       approvalNo: approvalNo,
-  //       memoContent: approvalMemoData.memoContent, // 최신 결재 의견 반영
-  //     };
+      // 1️⃣ 결재 문서 저장 요청
+      const approvalResponse = await axios.post(
+        "http://localhost:8003/workly/api/approval/submit",
+        finalApprovalData, 
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-  //     await axios.post(
-  //       "http://localhost:8003/workly/api/approvalMemo/create",
-  //       finalApprovalMemoData
-  //     );
+      // 2️⃣ 저장된 approvalNo 받아오기
+      const newApprovalNo = approvalResponse.data?.approvalNo;
+      if (!newApprovalNo) throw new Error("approvalNo를 받지 못함");
 
-  //     alert("결재 문서와 결재 의견이 성공적으로 저장되었습니다.");
-  //     console.log("결재 문서:", approvalData);
-  //     console.log("결재 의견:", finalApprovalMemoData);
-  //   } catch (error) {
-  //     console.error("결재 문서 저장 실패:", error);
-  //   }
-  // };
+      console.log("서버에서 받은 approvalNo:", newApprovalNo);
+      setApprovalNo(newApprovalNo);
 
-    return(
-        <div className="mainpageContainer">
-        <Sidebar />
-        <div className="componentContainer">
-            <Header/>
-            <div style={scrollableContentStyle}>
-            {/*setApprovalData를 Header, Body에 전달하여 입력 데이터 업데이트*/}
-            <ApprovalWriteHeader approvalData={approvalData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers}/>
-            <ApprovalWriteBody approvalData={approvalData} setApprovalData={setApprovalData}/>
-            {/*submitApproval Footer에 전달하여 입력 데이터 업데이트*/}
-            <ApprovalWriteFooter approvalData={approvalData} setApprovalMemoData={setApprovalMemoData} setApprovalData={setApprovalData} selectedCCUsers={selectedCCUsers} setSelectedCCUsers={setSelectedCCUsers} />
-            </div>
-          </div>
-        </div>   
-    )
+      // 3️⃣ 휴가원 데이터 저장
+      if (approvalData.approvalType === "휴가원") {
+        const leaveRequestData = {
+          approvalNo: newApprovalNo,
+          leaveType: approvalData.leaveType,
+          startDate: approvalData.startLeaveDate,
+          endDate: approvalData.endDate,
+          leaveDays: approvalData.leaveDays,
+          userNo: userNo,
+        };
+
+        console.log("휴가 데이터 백엔드 전송:", leaveRequestData);
+
+        await axios.post(
+          "http://localhost:8003/workly/api/approval/leaveRequest",
+          leaveRequestData,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        console.log("휴가 데이터 저장 완료");
+      }
+
+      // 4️⃣ 결재라인 저장
+      if (approvalData.approvalLine?.length > 0) {
+        const approvalLineData = [approvalData.approvalLine.map(emp => ({
+          approvalNo: newApprovalNo,
+          approvalLineType: emp.approvalType,
+          type: emp.type,
+          approvalLevel: emp.approvalLevel,
+          userNo: emp.USER_NO,
+        })),
+          // ✅ 참조자 추가 (type: "참조자", approvalLevel: 1)
+        ...selectedCCUsers.map(emp => ({
+          approvalNo: newApprovalNo,
+          type: "참조자",
+          approvalLevel: 1, // 참조자는 보통 1레벨로 설정
+          userNo: emp.USER_NO,
+        })),
+      ].flat(); // 중첩 배열 평탄화
+
+        console.log("전송할 결재라인 데이터:", approvalLineData);
+
+        await axios.post(
+          "http://localhost:8003/workly/api/approval/saveApprovalLine",
+          approvalLineData
+        );
+
+        console.log("결재라인 저장 완료");
+      }
+
+      // 5️⃣ 파일 업로드 처리
+      if (approvalData.attachments?.length > 0) {
+        const formData = new FormData();
+        approvalData.attachments.forEach((file: File) => {
+          formData.append("files", file);
+        });
+        formData.append("approvalNo", newApprovalNo.toString());
+
+        await axios.post(
+          "http://localhost:8003/workly/api/approval/attachments",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+
+        console.log("파일 업로드 성공");
+      }
+
+      alert("결재 상신 완료");
+
+    } catch (error) {
+      console.error("결재 문서 저장 실패:", error);
+      alert("결재 저장 실패");
+    }
+  };
+
+  return (
+    <div className="mainpageContainer">
+      <Sidebar />
+      <div className="componentContainer">
+        <Header/>
+        <div style={scrollableContentStyle}>
+          <ApprovalWriteHeader 
+            approvalData={approvalData} 
+            setApprovalData={setApprovalData} 
+            selectedCCUsers={selectedCCUsers} 
+            setSelectedCCUsers={setSelectedCCUsers} 
+          />
+          <ApprovalWriteBody 
+            approvalData={approvalData} 
+            setApprovalData={setApprovalData} 
+          />
+          {/* ✅ submitApproval을 Footer로 전달 */}
+          <ApprovalWriteFooter 
+            approvalData={approvalData} 
+            setApprovalMemoData={setApprovalMemoData} 
+            setApprovalData={setApprovalData} 
+            selectedCCUsers={selectedCCUsers} 
+            setSelectedCCUsers={setSelectedCCUsers} 
+            submitApproval={submitApproval} // ✅ 추가됨
+            approvalNo={approvalNo} // ✅ 추가됨
+          />
+        </div>
+      </div>
+    </div>   
+  );
 }
 
 // ✅ **스타일 정의 (TSX 내부에서 적용)**

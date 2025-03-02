@@ -3,6 +3,7 @@ package com.workly.final_project.approval.model.service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,16 @@ public class ApprovalLineServiceImpl implements ApprovalLineService{
 	@Override
 	public void saveApprovalLine(List<ApprovalLine> approvalLines) {
 		dao.saveApprovalLine(approvalLines);
+		
+		List<Integer> approvalNosToUpdate = approvalLines.stream()
+			    .filter(line -> line.getApprovalLevel() == 1 && "수신".equals(line.getApprovalLineType()))
+			    .map(ApprovalLine::getApprovalNo)
+			    .distinct()
+			    .collect(Collectors.toList());
+		
+		if (!approvalNosToUpdate.isEmpty()) {
+		    dao.updateApprovalTypeToApproved(approvalNosToUpdate);
+		}
 		
 	}
 

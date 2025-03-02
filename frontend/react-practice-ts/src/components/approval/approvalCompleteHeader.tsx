@@ -93,7 +93,9 @@ export const ApprovalCompleteHeader = () => {
         approvalNo: approvalNo,
       }
     })
-    const fetchAttachments  = axios.get(`http://localhost:8003/workly/api/approval/getApprovalAttachments/${approvalNo}`);
+    const fetchAttachments = axios
+    .get(`http://localhost:8003/workly/api/approval/getApprovalAttachments/${approvalNo}`)
+    .catch(() => ({ data: [] })); // 404 에러 시 빈 배열 반환
 
     Promise.allSettled([fetchWriteUser, fetchApprovalData, fetchApprovalLine, fetchAttachments])
     .then(results => {

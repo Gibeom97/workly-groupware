@@ -65,7 +65,6 @@ const Sidebar = () => {
               <img src={icon4} alt="전자결재" />
             </span>
             <span>전자결재</span>
-            <span className={styles.badge}>6</span>
           </li>
           <li onClick={() => dispatch(openChat())} style={{ cursor: "pointer" }}>
             <span>

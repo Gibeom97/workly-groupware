@@ -33,7 +33,7 @@ export const ApprovalRejectMemoModal = ({ onClose, onSave, approvalNo }) => {
 
         // 3. 반려 완료 후 이동
         onSave(memoContent);
-        navigate(`/ApprovalRejectpage`);
+        navigate(`/approvalRejectpage`);
         setTimeout(() => {
           window.location.reload();
         });
