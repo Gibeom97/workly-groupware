@@ -94,6 +94,12 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 		sqlSession.update("ApprovalLine.updateFinalApproval", approvalNo);
 	}
 
+	// 결재라인 1번인 사람이 수신일경우 결재문서 바로 승인완료로 저장
+	@Override
+	public void updateApprovalTypeToApproved(List<Integer> approvalNosToUpdate) {
+		sqlSession.update("ApprovalLine.updateApprovalTypeToApproved", approvalNosToUpdate);
+	}
+
 	
 }
 

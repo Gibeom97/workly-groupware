@@ -7,6 +7,9 @@ import { ko } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 
 export const ApprovalReferencePost = () => {
+  const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
   const navigate = useNavigate();
 
   // 로그인한 유저의 userNO
@@ -28,6 +31,7 @@ export const ApprovalReferencePost = () => {
 
 
         setPosts(filterdPosts); 
+        setFilteredPosts(filterdPosts);
       } catch (error) {
         console.error("결재 요청 목록을 불러오는 데 실패했습니다")
       }

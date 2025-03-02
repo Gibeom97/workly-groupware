@@ -36,4 +36,6 @@ public interface ApprovalLineDao {
 
 	void updateFinalApproval(int approvalNo);
 
+	void updateApprovalTypeToApproved(List<Integer> approvalNosToUpdate);
+
 }

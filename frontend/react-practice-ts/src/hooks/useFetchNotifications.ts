@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { fetchNotifications } from "../features/approvalNotificationsSlice";
+import { fetchApprovalStatus, fetchNotifications } from "../features/approvalNotificationsSlice";
+import axios from "axios";
 
 const useFetchNotifications = (userNo: number | undefined) => {
   const dispatch = useDispatch();
@@ -16,18 +17,19 @@ const useFetchNotifications = (userNo: number | undefined) => {
     const fetchUserNotifications = async () => {
       try {
         //console.log(`📢 API 요청 시작: http://localhost:8003/notifications/${userNo}`);
-        const response = await fetch(`http://localhost:8003/workly/notifications/${userNo}`, {
+        // 결재 요청, 참조, 수신 API
+        const userStatusResponse = await fetch(`http://localhost:8003/workly/notifications/${userNo}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         });
         
-        if (!response.ok) {
-          throw new Error(`❌ API 오류: ${response.status} ${response.statusText}`);
+        if (!userStatusResponse.ok) {
+          throw new Error(`❌ API 오류: ${userStatusResponse.status} ${userStatusResponse.statusText}`);
         }
 
-        const data = await response.json();
+        const data = await userStatusResponse.json();
         //console.log("📢 API 응답 데이터:", data); // ✅ API 응답 확인
 
         if (!Array.isArray(data) || data.length === 0) {
@@ -37,6 +39,20 @@ const useFetchNotifications = (userNo: number | undefined) => {
 
         // ✅ Redux 상태 업데이트 (비동기 Thunk 호출)
         dispatch(fetchNotifications(userNo) as any);
+
+        // 결재 완료, 반려  API
+        const approvalStatusResponse = await fetch(`http://localhost:8003/workly/notifications/approvalStatus/${userNo}`);
+
+        if(!approvalStatusResponse.ok){
+            throw new Error(`❌ API 오류: ${approvalStatusResponse.status} ${approvalStatusResponse.statusText}`);
+        }
+
+        const approvalStatusData = await approvalStatusResponse.json();
+       // console.log("결재 완료/반려 응답 데이터:", approvalStatusData);
+
+        dispatch(fetchApprovalStatus(userNo) as any);
+
+
       } catch (error) {
         console.error("❌ API 호출 중 오류 발생:", error);
       }
