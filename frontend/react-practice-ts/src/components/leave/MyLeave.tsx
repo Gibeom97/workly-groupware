@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from './MyLeave.module.css'
 import { useSelector } from 'react-redux';
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import Pagination from '../common/Pagination';
 
 const MyLeave = () => {
@@ -43,7 +43,6 @@ const MyLeave = () => {
             }
         })
             .then((response) => {
-                console.log(response.data)
                 setHistory(response.data.list);
                 setAnnualLeave(response.data.list[0].annualLeave);
                 setPageInfo(response.data.pi);
@@ -59,11 +58,8 @@ const MyLeave = () => {
     }
 
     useEffect(() => {
+        console.log(user);
         fetchMyLeave();
-        console.log("user: " , user);
-        console.log("history: ", history);
-        console.log("annualLeave: ", annualLeave)
-        console.log("pi: ", pageInfo);
     }, [currentPage, year])
 
     return (

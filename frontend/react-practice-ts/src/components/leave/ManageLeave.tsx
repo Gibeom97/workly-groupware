@@ -2,7 +2,7 @@ import styles from './ManageLeave.module.css'
 import search from '../../assets/images/icon/search.png';
 import { useEffect, useState } from 'react';
 import MemberSearchModal from './MemberSearchModal';
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import { format } from 'date-fns';
 
 const ManageLeave = () => {
@@ -87,10 +87,6 @@ const ManageLeave = () => {
 
     useEffect(() => {
         handleLeaveDetail();
-        console.log("상위컴포넌트 memberList: ", memberList);
-        console.log("상위컴포넌트 user: ", user);
-        console.log("상위컴포넌트 annualLeave: ", annualLeave);
-        console.log("상위컴포넌트 leaveHistory: ", leaveHistory);
     }, [user, year])
 
     return (

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Pagination from '../common/Pagination';
 import SearchBar from '../common/SearchBar';
 import styles from './PersonnelTable.module.css'
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import { useNavigate } from 'react-router-dom';
 
 const PersonnelTable = () => {

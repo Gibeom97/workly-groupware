@@ -1,41 +1,64 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from './Login.module.css'
-import axios from "axios";
+import axios from "../utils/CustomAxios";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../features/userSlice";
+import { loginUser, logoutUser } from "../features/userSlice";
+import { getCookie, removeCookie, setCookie, setIdCookie } from "../utils/Cookie";
 
 const Login = () => {
     const [userNo, setUserNo] = useState("");
     const [userPwd, setUserPwd] = useState("");
-
+    const [rememberId, setRememberId] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault();
         const userNoAsInt = Number(userNo);
+
+        if(rememberId) {
+            setIdCookie('rememberId', userNo, 7);
+        } else {
+            removeCookie("rememberId");
+        }
 
         axios.post("http://localhost:8003/workly/login", {
             userNo: userNoAsInt,
             userPwd
         })
             .then((response) => {
-                if (response.data) {
-                    dispatch(loginUser(response.data));
-                    navigate("/main");
-                } else {
-                    alert('사원 정보가 없습니다.');
-                    setUserPwd('');
-                }
-            }).catch(error => {
+                console.log("로그인 성공 response: ", response.data);
+                const jwtToken = response.data.jwtToken;
+                const user = response.data.user;
+                setCookie("accessToken", jwtToken);
+                setCookie("user", JSON.stringify(user));
+                
+                dispatch(loginUser(response.data.user));
+
+                console.log("cookie user확인: ",getCookie("user"));
+                console.log("cookie token확인: ",getCookie("accessToken"));
+                console.log("localStorage 확인: ", localStorage.getItem("user"));
+                navigate("/main");
+            }).catch((error) => {
+                console.log("error: ", error);
                 alert(error.response.data.msg);
                 setUserPwd('')
             })
     }
 
     useEffect(() => {
+        console.log("cookie user확인: ",getCookie("user"));
+        console.log("cookie token확인: ",getCookie("accessToken"));
+        console.log("localStorage 확인: ", localStorage.getItem("user"));
+        console.log("cookie rememberId확인: ",getCookie("rememberId"));
+
+        const userNo = getCookie("rememberId");
+        if(userNo) {
+            setUserNo(userNo);
+            setRememberId(true);
+        }
+
         document.body.classList.add(styles.myBodyStyle);
         return () => {
             document.body.classList.remove(styles.myBodyStyle);
@@ -50,14 +73,9 @@ const Login = () => {
                     <form onSubmit={handleLogin}>
                         <label htmlFor="userNo" className={styles.labelText}>ID</label>
                         <input
-                            type="text"
-                            id="userNo"
+                            type="text" id="userNo" className={styles.inputField} placeholder="사원번호"
                             value={userNo}
-                            className={styles.inputField}
-                            placeholder="사원번호"
-                            onChange={(e) => {
-                                setUserNo(e.target.value)
-                            }}
+                            onChange={(e) => setUserNo(e.target.value)}
                         />
                         <label htmlFor="userPw" className={styles.labelText}>비밀번호</label>
                         <input
@@ -66,13 +84,14 @@ const Login = () => {
                             value={userPwd}
                             className={styles.inputField}
                             placeholder="비밀번호"
-                            onChange={(e) => {
-                                setUserPwd(e.target.value)
-                            }}
+                            onChange={(e) => setUserPwd(e.target.value)}
                         />
                         <div className={styles.saveContainer}>
-                            <input type="checkbox" id="saveId" className={styles.saveId} />
-                            <label htmlFor="saveId"  className={styles.saveLabel}>아이디 저장</label>
+                            <input 
+                                type="checkbox" id="saveId" className={styles.saveId} 
+                                checked={rememberId}
+                                onChange={() => setRememberId(!rememberId)} />
+                            <label htmlFor="saveId" className={styles.saveLabel} >아이디 저장</label>
                         </div>
                         <button type="submit" className={styles.loginBtn}>로그인</button>
                         <p className={styles.notice}>
@@ -86,3 +105,4 @@ const Login = () => {
 }
 
 export default Login;
+

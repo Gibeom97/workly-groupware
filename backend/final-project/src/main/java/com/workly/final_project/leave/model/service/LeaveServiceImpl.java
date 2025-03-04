@@ -49,4 +49,9 @@ public class LeaveServiceImpl implements LeaveService{
 	public int updatePolicy(LeavePolicy policy) {
 		return dao.updatePolicy(policy);
 	}
+
+	@Override
+	public void insertAnnualLeave() {
+		dao.insertAnnualLeave();
+	}
 }

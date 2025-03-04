@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="auth">
+
+	<insert id="insertMember" useGeneratedKeys="true">
+		<selectKey keyProperty="userNo" resultType="int" order="BEFORE">
+			SELECT (TO_CHAR(SYSDATE, 'YYYY') || LPAD(USER_NO_SEQ.NEXTVAL, 2, '0')) FROM DUAL
+		</selectKey>
+			INSERT INTO MEMBER
+			VALUES (
+				#{userNo},  
+				2, 
+				#{positionNo}, 
+				#{deptNo}, 
+				DEFAULT, 
+				#{userPwd}, 
+				#{userName}, 
+				#{phone}, 
+				#{extension}, 
+				#{email}, 
+				#{address}, 
+				#{hireDate}, 
+				'',
+				#{addressDetail},
+				CASE 
+            		WHEN #{deptNo} = 3 THEN 'ROLE_HR' 
+            		ELSE 'ROLE_USER'
+            		END 
+				)
+	</insert>
+	
+	<select id="findByUserNo" resultType="Member">
+		SELECT USER_PWD
+		FROM MEMBER
+		WHERE USER_NO = #{userNo}
+	</select>
+	
+	<select id="loadUserByUserName" resultType="User">
+		SELECT *
+		FROM MEMBER
+		WHERE USER_NO = #{userNo}
+	</select>
+	
+	<select id="loginMember" resultType="User">
+		SELECT USER_NO, STATUS_TYPE, USER_NAME, DEPT_NO, POSITION_NO, DEPT_NAME, POSITION_NAME, CHANGE_NAME, FILE_PATH, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE, HIRE_DATE, ROLE
+		FROM MEMBER
+		JOIN DEPARTMENT USING(DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO AND ATTACH_STATUS = 'Y'
+        LEFT JOIN ANNUAL_LEAVE USING(USER_NO) 
+			WHERE USER_NO = #{userNo} AND YEAR = EXTRACT(YEAR FROM SYSDATE) AND MEMBER.STATUS ='Y'
+	</select>
+	
+	<insert id="insertLeave" parameterType="Member">
+		INSERT INTO ANNUAL_LEAVE (USER_NO, YEAR, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE)
+		SELECT 
+    		USER_NO,
+    		EXTRACT(YEAR FROM SYSDATE),
+    		LEAVE_DAYS,
+    		0
+			FROM MEMBER
+			JOIN LEAVE_POLICY 
+  				ON TRUNC(MONTHS_BETWEEN(SYSDATE, HIRE_DATE) / 12) 
+     			BETWEEN MIN_YEAR AND MAX_YEAR
+     	WHERE USER_NO = #{userNo}
+	</insert>
+
+	<insert id="insertAttachment" parameterType="Attachment">
+		INSERT INTO PROFILE_ATTACHMENT
+		VALUES(
+			PROFILE_AT_SEQ.NEXTVAL,
+			#{refUserNo},
+			#{originalName},
+			#{changeName},
+			#{filePath},
+			SYSDATE,
+			DEFAULT
+			)
+	</insert>
+</mapper>
+
+
+
+
+
+
+
+

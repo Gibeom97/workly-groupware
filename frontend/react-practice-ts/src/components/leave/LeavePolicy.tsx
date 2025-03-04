@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react'
 import styles from './LeavePolicy.module.css'
-import axios from 'axios'
+import axios from '../../utils/CustomAxios'
 import PolicyModal from './PolicyModal';
 
 const LeavePolicy = () => {
     const [policy, setPolicy] = useState([]);
-    const [openModal, setOpenModal] = useState(false); // 모달창 열기
+    const [openModal, setOpenModal] = useState(false);
     const [policyDetail, setPolicyDetail] = useState(0);
 
     const fetchPolicy = () => {
         axios.get("http://localhost:8003/workly/leavePolicy")
             .then((response) => {
-                console.log(response.data);
                 setPolicy(response.data);
             })
             .catch(() => {
@@ -63,7 +62,7 @@ const LeavePolicy = () => {
                     })}
                     {policy.length === 0 &&
                     <tr>
-                        <td  className={styles.tdStyle} colSpan={2}>조회된 내역이 없습니다.</td>
+                        <td className={styles.tdStyle} colSpan={3}>조회된 내역이 없습니다.</td>
                     </tr>
                     }
                 </tbody>}

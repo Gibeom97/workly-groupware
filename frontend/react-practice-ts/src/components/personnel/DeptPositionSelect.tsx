@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './DeptPositionSelect.module.css'
-import axios from 'axios'
+import axios from '../../utils/CustomAxios'
 
 const DeptPositionSelect = ({positionNo, deptNo, handleChange}) => {
 

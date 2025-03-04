@@ -61,6 +61,19 @@
 		SET LEAVE_DAYS = #{leaveDays}
 		WHERE POLICY_NO = #{policyNo}
 	</update>
+	
+	<insert id="insertAnnualLeave">
+		INSERT INTO ANNUAL_LEAVE (USER_NO, YEAR, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE)
+		SELECT 
+    		USER_NO,
+    		EXTRACT(YEAR FROM SYSDATE),
+    		LEAVE_DAYS,
+    		0
+			FROM MEMBER
+			JOIN LEAVE_POLICY 
+  				ON TRUNC(MONTHS_BETWEEN(SYSDATE, HIRE_DATE) / 12) 
+     			BETWEEN MIN_YEAR AND MAX_YEAR
+	</insert>	
 </mapper>
 
 
