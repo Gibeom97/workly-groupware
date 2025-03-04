@@ -81,11 +81,11 @@ const Sidebar = () => {
             <span>연차관리</span>
           </li>
           </Link>
-          <li>
+          <li onClick={() => navigate('/AIAssistantPage')} style={{ cursor: "pointer" }}>
             <span>
               <img src={icon7} alt="근태관리" />
             </span>
-            <span>근태관리</span>
+            <span>회사규정Q&A</span>
           </li>
         </ul>
         <hr className={styles.firstHr} />
@@ -104,6 +104,12 @@ const Sidebar = () => {
             <span>인사관리</span>
           </li>
           </Link>
+        <li onClick={() => navigate('/AdminPolicyManagerPage')} style={{ cursor: "pointer" }}>
+          <span>
+            <img src={icon7} alt="근태관리" />
+          </span>
+          <span>회사규정Q&A 관리</span>
+      </li>
         </ul>
       </nav>
       </div>

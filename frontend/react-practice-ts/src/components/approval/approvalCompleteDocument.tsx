@@ -8,7 +8,7 @@ import fontBase64 from "../../fonts/fontBase64.json"; // :흰색_확인_표시: 
 
 // ✅ 한글 폰트 등록
 pdfMake.vfs = {
-  ...pdfFonts.pdfMake.vfs,
+  ...(pdfFonts.pdfMake.vfs?.vfs || {}),
   ...fontBase64, // Base64 인코딩된 폰트 추가
 };
 pdfMake.fonts = {

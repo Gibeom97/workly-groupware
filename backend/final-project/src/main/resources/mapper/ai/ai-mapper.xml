@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai">
+
+    <!-- 회사별 사내 규정 가져오기 -->
+    <select id="getPoliciesByCompanyId" resultType="CompanyPolicy">
+        SELECT * FROM company_policies WHERE company_id = #{companyId}
+    </select>
+
+    <!-- 특정 회사의 특정 질문 검색 -->
+    <select id="findByCompanyIdAndQuestion" resultType="CompanyPolicy">
+        SELECT * FROM company_policies WHERE company_id = #{companyId} AND question = #{question}
+    </select>
+
+    <!-- 사내 규정 추가 -->
+    <insert id="insertPolicy">
+        INSERT INTO company_policies (id, company_id, category, question, answer)
+        VALUES (company_policies_seq.NEXTVAL, #{companyId}, #{category}, #{question}, #{answer})
+    </insert>
+
+    <!-- 사내 규정 업데이트 -->
+    <update id="updatePolicy">
+        UPDATE company_policies SET answer = #{answer}, updated_at = SYSTIMESTAMP
+        WHERE company_id = #{companyId} AND question = #{question}
+    </update>
+    
+    <!-- 사내 규정 삭제 -->
+    <delete id="deletePolicy">
+    	DELETE FROM company_policies
+    	WHERE company_id = #{companyId} 
+    	AND question = #{question}
+    </delete>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
