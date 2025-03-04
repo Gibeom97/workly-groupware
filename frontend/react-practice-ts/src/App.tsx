@@ -28,7 +28,6 @@ import Chat from "./Chat";
 import { RootState } from "./store"; 
 import { useDispatch, useSelector } from "react-redux";
 import { closeChat } from "./features/sidebarSlice";
-import { useSelector } from "react-redux";
 import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
 import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
 import MyPage from "./pages/MyPage";
