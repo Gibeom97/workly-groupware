@@ -48,17 +48,7 @@
 	</delete>
 
 
-	<select id="searchMember" resultType="com.workly.final_project.member.model.dto.MemberDeptPositionDTO">
-		SELECT 
-	        M.USER_NO AS userNo,
-	        M.USER_NAME AS userName,
-	        D.DEPT_NAME AS deptName,
-	        P.POSITION_NAME AS positionName
-	    FROM MEMBER M
-	    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
-	    JOIN POSITION P USING (POSITION_NO)
-	    WHERE M.USER_NAME LIKE '%' || #{userName} || '%'
-	</select>
+	
 	
 	
 
@@ -120,16 +110,19 @@
 	
 	<select id="getChatMessages" resultType="com.workly.final_project.chat.model.vo.Chat">
 	    SELECT 
-	        CHAT_NO AS chatNo,
-	        CHAT_ROOM_NO AS chatRoomNo,
-	        MESSAGE AS message,
-	        RECEIVED_DATE AS receivedDate,
-	        USER_NO AS userNo,  
-	        USER_NAME AS userName  
-	    FROM CHAT 
-	    WHERE CHAT_ROOM_NO = #{chatRoomNo}
-	    ORDER BY CHAT_NO ASC, RECEIVED_DATE ASC
+	        C.CHAT_NO AS chatNo,
+	        C.CHAT_ROOM_NO AS chatRoomNo,
+	        C.MESSAGE AS message,
+	        TO_CHAR(C.RECEIVED_DATE, 'YYYY-MM-DD') AS receivedDate,
+	        TO_CHAR(C.RECEIVED_DATE, 'HH24:MI') AS receivedTime,
+	        C.USER_NO AS userNo,  
+	        C.USER_NAME AS userName,
+	        (SELECT PROFILE_IMG FROM CHAT_PROFILE WHERE USER_NO = C.USER_NO) AS profileImg  -- ✅ 프로필 이미지 추가
+	    FROM CHAT C
+	    WHERE C.CHAT_ROOM_NO = #{chatRoomNo}
+	    ORDER BY C.CHAT_NO ASC, C.RECEIVED_DATE ASC
 	</select>
+
 
 
 	<!-- 채팅 참가자 쪽에서 userno 가져오기-->
@@ -152,28 +145,101 @@
         WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
     </update>
 
-	
+	<!--마지막으로 읽은 채팅 번호 조회-->
 	<select id="getLastReadChatNo" parameterType="map" resultType="int">
 	    SELECT LAST_READ_CHAT_NO
 	    FROM USER_CHAT
 	    WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
 	</select>
 	
-	<!-- 특정 유저의 마지막 읽은 메시지 조회 -->
-    <select id="getUserChat" parameterType="map" resultType="UserChat">
-        SELECT USER_NO, CHAT_ROOM_NO, LAST_READ_CHAT_NO
-        FROM USER_CHAT
-        WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
-    </select>
 	
 	<select id="getDepartmentList" resultType="string">
 		SELECT DEPT_NAME FROM DEPARTMENT
 	</select>
+	
+	<!-- 채팅방의 마지막 번호 조회-->
+	<select id="getLastChatNo" resultType="int">
+		SELECT MAX(CHAT_NO)
+		FROM CHAT
+		WHERE CHAT_ROOM_NO = #{chatRoomNo}
+	</select>
+	
+	<!-- 특정 유저의 USER_CHAT 정보 조회 -->
+	<select id="getUserChat" parameterType="map" resultType="UserChat">
+	    SELECT USER_NO, CHAT_ROOM_NO, LAST_READ_CHAT_NO
+	    FROM USER_CHAT
+	    WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
+	</select>
 
+	<!--안읽은 채팅 수 계산-->
+	<select id="countUnreadMessages" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM CHAT c
+	    WHERE c.CHAT_ROOM_NO = #{chatRoomNo}
+	    AND c.CHAT_NO > (
+	        SELECT NVL(MAX(UC.LAST_READ_CHAT_NO), 0) 
+	        FROM USER_CHAT UC 
+	        WHERE UC.USER_NO = #{userNo} AND UC.CHAT_ROOM_NO = #{chatRoomNo}
+	    )
+	</select>
+	
+	<!-- 🔹 프로필 조회 -->
+    <select id="getChatProfile" parameterType="int" resultType="string">
+        SELECT PROFILE_IMG FROM CHAT_PROFILE WHERE USER_NO = #{userNo}
+    </select>
 
+    <!-- 🔹 프로필 추가 -->
+    <insert id="insertProfile" parameterType="map">
+        INSERT INTO CHAT_PROFILE (USER_NO, PROFILE_IMG)
+        VALUES (#{userNo}, #{profileImg})
+    </insert>
+
+    <!-- 🔹 프로필 업데이트 -->
+    <update id="updateChatProfile" parameterType="map">
+        UPDATE CHAT_PROFILE 
+        SET PROFILE_IMG = #{profileImg} 
+        WHERE USER_NO = #{userNo}
+    </update>
+
+	<!-- 현재 로그인한 유저를 제외하고 채팅방의 멤버들의 프로필 이미지 가져오기 -->
+	<select id="getChatMembersWithoutMe" parameterType="map" resultType="com.workly.final_project.member.model.dto.MemberDeptPositionDTO">
+	    SELECT 
+	        M.USER_NO AS userNo,
+	        M.USER_NAME AS userName,
+	        D.DEPT_NAME AS deptName,
+	        P.POSITION_NAME AS positionName,
+	        CP.PROFILE_IMG AS profileImg
+	    FROM CHAT_PARTICIPANT CP
+	    JOIN MEMBER M ON CP.USER_NO = M.USER_NO
+	    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
+	    JOIN POSITION P ON M.POSITION_NO = P.POSITION_NO
+	    LEFT JOIN CHAT_PROFILE CP ON CP.USER_NO = M.USER_NO
+	    WHERE CP.CHAT_ROOM_NO = #{chatRoomNo} 
+	    AND M.USER_NO != #{userNo} <!-- 현재 로그인한 유저 제외 -->
+	</select>
 
 	
+	<insert id="addMembersToChatRoom">
+	    INSERT INTO CHAT_PARTICIPANT (CHAT_ROOM_NO, USER_NO, ENTER_DATE, BELL_SETTING)
+	    VALUES 
+	    <foreach collection="userNos" item="userNo" separator=",">
+	        (#{chatRoomNo}, #{userNo}, SYSDATE, 'Y')
+	    </foreach>
+	</insert>
 
+
+
+	<select id="searchMember" resultType="Member">
+			SELECT 
+		        M.USER_NO AS userNo,
+		        M.USER_NAME AS userName,
+		        D.DEPT_NAME AS deptName,
+		        P.POSITION_NAME AS positionName
+		    FROM MEMBER M
+		    JOIN DEPARTMENT D ON M.DEPT_NO = D.DEPT_NO
+		    JOIN POSITION P USING (POSITION_NO)
+		    WHERE M.USER_NAME LIKE '%' || #{userName} || '%'
+		</select>
 
 </mapper>
 

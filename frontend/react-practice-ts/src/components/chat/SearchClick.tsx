@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import search from "../../assets/Images/chat/search.png";
 import { Member } from "../../type/chatType";
 
@@ -9,6 +10,7 @@ interface SearchClickProps {
 const SearchClick: React.FC<SearchClickProps> = ({ onProfileClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // ✅ 검색 API 요청
   const handleSearch = async () => {
@@ -17,22 +19,18 @@ const SearchClick: React.FC<SearchClickProps> = ({ onProfileClick }) => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      const response = await fetch(
-        `http://localhost:8003/workly/api/chat/search?userName=${encodeURIComponent(searchTerm)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (!response.ok) throw new Error("검색 실패");
-
-      const data = await response.json();
-      setSearchResults(data);
+      const response = await axios.get(`http://localhost:8003/workly/api/chat/search`, {
+        params: { userName: searchTerm },
+      });
+      setSearchResults(response.data);
     } catch (error) {
-      console.error("검색 중 오류 발생:", error);
+      console.error("❌ 검색 중 오류 발생:", error);
       setSearchResults([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,7 +96,18 @@ const SearchClick: React.FC<SearchClickProps> = ({ onProfileClick }) => {
             margin: 0,
           }}
         >
-          {searchResults.length > 0 ? (
+          {isLoading ? (
+            <li
+              style={{
+                padding: "12px 16px",
+                fontSize: "14px",
+                color: "#8C8C8D",
+                textAlign: "center",
+              }}
+            >
+              검색 중...
+            </li>
+          ) : searchResults.length > 0 ? (
             searchResults.map((member) => (
               <li
                 key={member.userNo}
@@ -112,7 +121,7 @@ const SearchClick: React.FC<SearchClickProps> = ({ onProfileClick }) => {
                   alignItems: "center",
                   transition: "background-color 0.2s",
                 }}
-                onClick={() => onProfileClick(member)} 
+                onClick={() => onProfileClick(member)}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
               >

@@ -29,7 +29,6 @@ public class ChatDao {
 
     // ✅ 즐겨찾기 추가
     public int addFavorite(FavoriteDTO favoriteDTO) {
-        System.out.println("🔹 DB에 추가할 즐겨찾기 데이터: " + favoriteDTO);
         return sqlSession.insert("chat.addFavorite", favoriteDTO);
     }
 
@@ -56,7 +55,7 @@ public class ChatDao {
     // ✅ 채팅방 생성
     public int createChatRoom(ChatRoom chatRoom) {
         sqlSession.insert("chat.createChatRoom", chatRoom);
-        return chatRoom.getChatRoomNo(); // 자동 생성된 chatRoomNo 반환
+        return chatRoom.getChatRoomNo();
     }
 
     // ✅ 다음 채팅방 번호 조회
@@ -76,29 +75,21 @@ public class ChatDao {
 
     // ✅ 특정 채팅방 참여자의 userNo 리스트 조회
     public List<Integer> getUserNosByChatRoom(int chatRoomNo) {
-        List<Integer> userNos = sqlSession.selectList("chat.getUserNosByChatRoom", chatRoomNo);
-        System.out.println("✅ [ChatDao] 채팅방 참여자 userNos: " + userNos);
-        return userNos;
-    }
-
-    // ✅ 채팅방 입장 또는 업데이트
-    public void insertOrUpdateUserChat(UserChat userChat) {
-        sqlSession.insert("chat.insertOrUpdateUserChat", userChat);
+        return sqlSession.selectList("chat.getUserNosByChatRoom", chatRoomNo);
     }
 
     // ✅ 특정 유저의 마지막 읽은 메시지 조회
     public Integer getLastReadChatNo(int userNo, int chatRoomNo) {
-        return sqlSession.selectOne("chat.getLastReadChatNo", 
-            Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));
+        return sqlSession.selectOne("chat.getLastReadChatNo",
+                Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));
     }
 
     // ✅ 채팅 메시지 저장
     public void saveChatMessage(Chat chat) {
-        System.out.println("🟢 Chat 저장 완료. chatNo: " + chat.getChatNo());
         sqlSession.insert("chat.saveChatMessage", chat);
     }
 
-    // ✅ 특정 유저의 마지막 읽은 메시지 조회
+    // ✅ 특정 유저의 user_chat 정보 조회
     public UserChat getUserChat(int chatRoomNo, int userNo) {
         Map<String, Integer> params = new HashMap<>();
         params.put("chatRoomNo", chatRoomNo);
@@ -121,8 +112,26 @@ public class ChatDao {
         return sqlSession.selectList("chat.getDepartmentList");
     }
 
+    // ✅ 특정 채팅방의 채팅 메시지 조회
+    public List<Chat> getChatMessages(int chatRoomNo) {
+        return sqlSession.selectList("chat.getChatMessages", chatRoomNo);
+    }
 
-	public List<Chat> getChatMessages(int chatRoomNo) {
-		return sqlSession.selectList("chat.getChatMessages",chatRoomNo);
+    // ✅ 특정 채팅방의 가장 최근 채팅 번호 조회
+    public Integer getLastChatNo(int chatRoomNo) {
+        return sqlSession.selectOne("chat.getLastChatNo", chatRoomNo);
+    }
+
+
+	public int countUnreadMessages(int chatRoomNo, int userNo) {
+    	return sqlSession.selectOne("chat.countUnreadMessages",
+    			Map.of("userNo", userNo, "chatRoomNo", chatRoomNo));
+    }
+
+	public void addMembersToChatRoom(int chatRoomNo, List<Integer> userNos) {
+		sqlSession.insert("chat.addMembersToChatRoom",  
+				Map.of("userNos", userNos, "chatRoomNo", chatRoomNo));
 	}
+    	
+
 }

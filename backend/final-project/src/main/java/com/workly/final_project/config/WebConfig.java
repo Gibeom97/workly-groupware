@@ -16,21 +16,27 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://127.0.0.1:3000", "http://localhost:3000", 
                               "http://127.0.0.1:8003", "http://localhost:8003",
                               "http://localhost:5173")
-
-               .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. static 폴더 전체에 대한 기본 매핑
+        // ✅ 기존 정적 리소스 설정 유지
         registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/"); 
-                // 필요하다면 "classpath:/public/", "classpath:/resources/" 등도 추가
+                .addResourceLocations("classpath:/static/");
 
-        // 2. 혹은 uploads 폴더만 따로 세분화해서 매핑할 수도 있음
         registry.addResourceHandler("/uploads/profile/**")
                 .addResourceLocations("classpath:/static/uploads/profile/");
+
+        // ✅ chatFile 폴더를 명확하게 매핑
+        registry.addResourceHandler("/uploads/chatFile/**")
+                .addResourceLocations("file:C:/FinalProject/backend/final-project/src/main/resources/static/uploads/chatFile/")
+                .setCachePeriod(3600);
+        
+        registry.addResourceHandler("/uploads/**")
+        .addResourceLocations("file:C:/upload/");
+
     }
 }

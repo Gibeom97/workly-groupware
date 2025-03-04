@@ -1,37 +1,26 @@
 package com.workly.final_project.chat.controller;
 
-//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.workly.final_project.chat.model.dto.FavoriteDTO;
 import com.workly.final_project.chat.model.service.ChatService;
-import com.workly.final_project.chat.model.vo.Chat;
-import com.workly.final_project.chat.model.vo.ChatFile;
 import com.workly.final_project.chat.model.vo.ChatRoom;
+import com.workly.final_project.chat.model.vo.UserChat;
 import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +33,6 @@ public class ChatController {
 		
 		private final ChatService chatService;
 
-	    @Value("${file.upload-dir}")  // 파일 저장 경로 가져오기
-	    private String uploadDir;
 	    
 		@Autowired
 		public ChatController(ChatService chatService) {
@@ -157,12 +144,69 @@ public class ChatController {
 		    return ResponseEntity.ok(departments);
 		}
  
-	    
+		// userChat 마지막으로 읽은 번호 업데이트 
+		@PutMapping("/updateStatus/{chatRoomNo}/{userNo}")
+		public ResponseEntity<?> updateUserChatStatus(@PathVariable int chatRoomNo, @PathVariable int userNo) {
+		    try {
+		        chatService.updateUserChat(new UserChat(userNo, chatRoomNo, chatService.getLastChatNo(chatRoomNo)));
+		        return ResponseEntity.ok().body("User chat status updated successfully");
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update user chat status");
+		    }
+		}
+		
+		// 다른 채팅방으로 이동시
+		@PostMapping("/leave/{chatRoomNo}/{userNo}")
+		public ResponseEntity<?> leaveChatRoom(@PathVariable int chatRoomNo, @PathVariable int userNo) {
+		    log.info("🚪 [API] 채팅방 이동 요청 - userNo: {}, chatRoomNo: {}", userNo, chatRoomNo);
+		    chatService.leaveChatRoom(userNo, chatRoomNo);
+		    return ResponseEntity.ok().build();
+		}
+		
+		// 새로운 API (lastReadChatNo가 포함된 경우)
+		@PutMapping("/updateStatusWithRead/{chatRoomNo}/{userNo}/{lastReadChatNo}")
+		public ResponseEntity<Void> updateUserChatStatusWithRead(
+		    @PathVariable int chatRoomNo, 
+		    @PathVariable int userNo, 
+		    @PathVariable int lastReadChatNo
+		) {
+		    chatService.updateUserChatStatus(userNo, chatRoomNo, lastReadChatNo);
+		    return ResponseEntity.ok().build();
+		}
+
+		// 안읽은 채팅 수 계산
+		@GetMapping("/chat/unreadUsers/{chatRoomNo}/{lastReadChatNo}")
+		public List<Integer> getUnreadUsers(
+		    @PathVariable int chatRoomNo, 
+		    @PathVariable int lastReadChatNo
+		) {
+		    return chatService.getUnreadUserList(chatRoomNo, lastReadChatNo);
+		}
+		
+		// 채팅방 멤버 추가하기
+		@PostMapping("/chat/addMembers")
+		public ResponseEntity<String> addMembersToChatRoom(@RequestBody Map<String, Object> requestData) {
+		    int chatRoomNo = (int) requestData.get("chatRoomNo");
+		    List<Integer> userNos = (List<Integer>) requestData.get("userNos");
+
+		    try {
+		        chatService.addMembersToChatRoom(chatRoomNo, userNos);
+		        return ResponseEntity.ok("멤버 추가 성공");
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("멤버 추가 실패: " + e.getMessage());
+		    }
+		}
+		
+		// 멤버 검색
+		 @GetMapping("/search")
+		    public ResponseEntity<List<MemberDeptPositionDTO>> searchMember(@RequestParam("userName") String userName) {
+		        System.out.println("검색 요청: " + userName); // 확인용
+		        List<MemberDeptPositionDTO> members = chatService.searchMember(userName);
+		        System.out.println("검색 결과: " + members); // 확인용
+		        return ResponseEntity.ok(members);
+		    }
+
+
+
 
 	}
-
-
-
-
-
-
