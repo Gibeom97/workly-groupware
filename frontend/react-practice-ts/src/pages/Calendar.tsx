@@ -129,6 +129,7 @@ const CalendarPage = () => {
             </div>
 
             <div className={styles.rightSection}>
+              <div className={styles.buttonContainer2}>
               <button
                 className={styles.addEventButton}
                 onClick={() => {
@@ -145,6 +146,7 @@ const CalendarPage = () => {
               >
                 + 회의실 예약
               </button>
+              </div>
 
               <div className={styles.miniCalendar}>
                 <Calendar4 />

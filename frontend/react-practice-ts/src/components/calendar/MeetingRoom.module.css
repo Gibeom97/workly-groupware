@@ -1,7 +1,6 @@
 /* ✅ 회의실 현황판 컨테이너 */
 .meetingRoomContainer {
   width: 100%;
-  height: 100%;  /* 부모 컨테이너에 꽉 차게 */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -20,7 +19,7 @@
   height: auto;
   background: none;
   border-radius: 0;
-  margin-bottom: 8px;
+  margin-bottom: 30px;
 }
 
 /* ✅ 툴바 제목 (년/월) */
@@ -69,7 +68,6 @@
 /* ✅ FullCalendar 스타일 - 높이를 부모 div에 맞추기 */
 .meetingRoomContainer .fc {
   width: 100% !important;
-  height: 100% !important;  /* 전체 높이 맞추기 */
   max-width: 100%;
   max-height: 100%;
   flex-grow: 1;
@@ -103,4 +101,8 @@
 .meetingRoomContainer .fc-event:hover {
   transform: scale(1.05);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.fc-license-message {
+    display:none;
 }

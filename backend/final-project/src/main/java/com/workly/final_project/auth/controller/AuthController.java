@@ -35,7 +35,6 @@ public class AuthController {
 			@RequestBody Member m
 			) {
 	    User user = service.loadUserByUserName(m);
-	    log.debug("controller에서 가져온 DBuser: " + user);
 	    
 	    HashMap<String, Object> map = new HashMap<>();
 	    
@@ -44,7 +43,6 @@ public class AuthController {
 	    	
 	    	String jwtToken = jwtProvider.createToken(user);
 	    	map.put("jwtToken", jwtToken);
-	    	log.debug("controller, 발급한 jwtToken: {}", jwtToken);
 		    return ResponseEntity.ok(map); 
 	    } else {
 	    	map.put("msg", "계정 정보가 일치하지 않습니다.");
