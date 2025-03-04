@@ -117,7 +117,8 @@
 		VALUES (#{chatNo}, #{chatRoomNo}, #{message}, SYSTIMESTAMP, #{userNo}, #{userName})
 	</insert>
 	
-	<select id="getChatMessages" resultType="chat">
+	
+	<select id="getChatMessages" resultType="com.workly.final_project.chat.model.vo.Chat">
 	    SELECT 
 	        CHAT_NO AS chatNo,
 	        CHAT_ROOM_NO AS chatRoomNo,
@@ -130,25 +131,45 @@
 	    ORDER BY CHAT_NO ASC, RECEIVED_DATE ASC
 	</select>
 
+
 	<!-- 채팅 참가자 쪽에서 userno 가져오기-->
 	<select id="getUserNosByChatRoom" parameterType="int" resultType="int">
 	    SELECT USER_NO FROM CHAT_PARTICIPANT WHERE CHAT_ROOM_NO = #{chatRoomNo}
 	</select>
 
-	<insert id="insertUserChat">
-	    MERGE INTO USER_CHAT T
-	    USING (SELECT #{userNo} AS USER_NO, #{chatRoomNo} AS CHAT_ROOM_NO FROM DUAL) S
-	    ON (T.USER_NO = S.USER_NO AND T.CHAT_ROOM_NO = S.CHAT_ROOM_NO)
-	    WHEN NOT MATCHED THEN
-	        INSERT (USER_NO, CHAT_ROOM_NO, LAST_READ_CHAT_NO)
-	        VALUES (S.USER_NO, S.CHAT_ROOM_NO, #{lastReadChatNo})
-	</insert>
+	<!-- UserChat 삽입 -->
+    <insert id="insertUserChat" parameterType="UserChat">
+        INSERT INTO USER_CHAT (USER_NO, CHAT_ROOM_NO, LAST_READ_CHAT_NO)
+        VALUES (#{userNo}, #{chatRoomNo}, #{lastReadChatNo})
+    </insert>
+
+
 	
-	<update id="updateLastReadChatNo">
-	    UPDATE USER_CHAT 
-	    SET LAST_READ_CHAT_NO = #{lastReadChatNo}
+	 <!-- UserChat 업데이트 -->
+    <update id="updateUserChat" parameterType="UserChat">
+        UPDATE USER_CHAT
+        SET LAST_READ_CHAT_NO = #{lastReadChatNo}
+        WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
+    </update>
+
+	
+	<select id="getLastReadChatNo" parameterType="map" resultType="int">
+	    SELECT LAST_READ_CHAT_NO
+	    FROM USER_CHAT
 	    WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
-	</update>
+	</select>
+	
+	<!-- 특정 유저의 마지막 읽은 메시지 조회 -->
+    <select id="getUserChat" parameterType="map" resultType="UserChat">
+        SELECT USER_NO, CHAT_ROOM_NO, LAST_READ_CHAT_NO
+        FROM USER_CHAT
+        WHERE USER_NO = #{userNo} AND CHAT_ROOM_NO = #{chatRoomNo}
+    </select>
+	
+	<select id="getDepartmentList" resultType="string">
+		SELECT DEPT_NAME FROM DEPARTMENT
+	</select>
+
 
 
 	

@@ -4,8 +4,13 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { format, addHours } from "date-fns";
 import { ko } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 export const ApprovalReferencePost = () => {
+  const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+  const navigate = useNavigate();
 
   // 로그인한 유저의 userNO
   const userNo = useSelector((state: any) => state.user.userNo);
@@ -17,7 +22,7 @@ export const ApprovalReferencePost = () => {
       try{
         const response = await axios.get(`http://localhost:8003/workly/api/approval/referenceList/${userNo}`);
 
-        // 필터링: userNo가 포함된 결재라인 + 진행 중(STATUS=1)인 항목만
+        // 필터링: userNo가 포함된 참조 + 진행 중, 완료인 항목만
         const filterdPosts = response.data.filter((post: any) => post.approvalStatus === 1 || post.approvalStatus === 2)
                                         .map((post: any) => ({
                                           ...post,
@@ -26,6 +31,7 @@ export const ApprovalReferencePost = () => {
 
 
         setPosts(filterdPosts); 
+        setFilteredPosts(filterdPosts);
       } catch (error) {
         console.error("결재 요청 목록을 불러오는 데 실패했습니다")
       }
@@ -36,10 +42,22 @@ export const ApprovalReferencePost = () => {
     }
   }, [userNo]);
 
-  // 게시글 클릭 시 상세 페이지로 이동하는 함수
-  const handleRowClick = (approvalNo: number) => {
-    window.location.href = `/ApprovalCompletePage2/${approvalNo}`;
-  }
+  // 게시글 클릭 시 상세 페이지로 이동, 읽음처리리하는 함수
+  const handleRowClick = async (approvalNo: number) => {
+    if (!userNo) {
+      console.error("❌ 로그인된 사용자 정보 없음");
+      return;
+    }
+
+    try{
+      await axios.post(`http://localhost:8003/workly/notifications/read`, null, {
+        params: {approvalNo: approvalNo, userNo: userNo},
+      });
+      navigate(`/ApprovalCompletePage2/${approvalNo}`);
+    }catch (error) {
+      console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
+    }
+  };
 
   return (
     <div style={containerStyle}>

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.workly.final_project.chat.model.dto.FavoriteDTO;
 import com.workly.final_project.chat.model.vo.Chat;
+import com.workly.final_project.chat.model.vo.ChatFile;
 import com.workly.final_project.chat.model.vo.ChatRoom;
 import com.workly.final_project.chat.model.vo.UserChat;
 import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;
@@ -11,31 +12,28 @@ import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;
 public interface ChatService {
 
 		List<MemberDeptPositionDTO> getChatMembers();
-
 		int addFavorite(FavoriteDTO favoriteDTO);
-	
-
 		List<MemberDeptPositionDTO> getFavoriteList(int userNo);
-
 		int removeFavorite(FavoriteDTO favoriteDTO);
-
 		List<MemberDeptPositionDTO> searchMember(String userName);
-
 		int createChatRoom(String roomTitle, String chatType, List<Integer> participantNos);
-
 		List<ChatRoom> getChatList(int userNo);
 
+		// 일반 채팅 메세지 저장(파일 포함)
 		int saveChatMessage(Chat chat);
 
+		// 채팅 메세지 조회
 		List<Chat> getChatMessages(int chatRoomNo);
 
+		// STOMP 전용 메소드
 		List<Integer> getUserNosByChatRoom(int chatRoomNo);
+		void insertOrUpdateUserChat(UserChat userChat);
+		int getLastReadChatNo(int userNo, int chatRoomNo);
+		List<String> getDepartmentList();
 
-//	 int insertUserChat(UserChat userChat);
-//
-//	 void updateLastReadChatNo(UserChat userChat);
 
-	 //	    int getLastReadChatNo(int userNo, int chatRoomNo);
+
+		
 
 		
 }

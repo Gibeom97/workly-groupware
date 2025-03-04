@@ -68,7 +68,6 @@ const Sidebar = () => {
               <img src={icon4} alt="전자결재" />
             </span>
             <span>전자결재</span>
-            <span className={styles.badge}>6</span>
           </li>
           <li onClick={() => dispatch(openChat())} style={{ cursor: "pointer" }}>
             <span>
@@ -85,12 +84,12 @@ const Sidebar = () => {
             <span>연차관리</span>
           </li>
           </Link>
-          {/* <li>
+          <li onClick={() => navigate('/AIAssistantPage')} style={{ cursor: "pointer" }}>
             <span>
-              <img src={icon7} alt="근태관리" />
+              <img src={icon7} alt="회사규정Q&A" />
             </span>
-            <span>근태관리</span>
-          </li> */}
+            <span>회사규정Q&A</span>
+          </li>
         </ul>
         <ul>
           {/* <li>
@@ -109,6 +108,12 @@ const Sidebar = () => {
           </li>
           </Link>
           }
+        <li onClick={() => navigate('/AdminPolicyManagerPage')} style={{ cursor: "pointer" }}>
+          <span>
+            <img src={icon7} alt="근태관리" />
+          </span>
+          <span>회사규정Q&A 관리</span>
+      </li>
         </ul>
       </nav>
       </div>

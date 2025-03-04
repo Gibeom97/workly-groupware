@@ -56,7 +56,6 @@ function Header() {
     default:
       title = "";
       break;
-  }
 
   const toggleDown = () => {
     setDropDownOpen((prev) => !prev);

@@ -34,6 +34,9 @@ import MyPage from "./pages/MyPage";
 import MyInfomation from "./components/myPage/MyInfomation";
 import { ApprovalRejectDetailPage } from "./pages/approvalPage/approvalRejectDetailPage";
 import useFetchNotifications from "./hooks/useFetchNotifications";
+import NotificationModal from "./components/approval/approvalNotification";
+import AdminPolicyManagerPage from "./pages/AdminPolicyManagerPage";
+import AIAssistantPage from "./pages/AIAssistantPage";
 
 function App() {
   // 전자결재 알림서비스 추가
@@ -46,6 +49,10 @@ function App() {
   const dispatch = useDispatch();
   return (
     <div>
+
+      {/* 전자결재 알림 모달 (모든 페이지에서 표시) */}
+      <NotificationModal />  
+
       {/* 🔹 Chat 열기 버튼 */}
       {/* <button onClick={() => setIsChatOpen(true)}>채팅 열기</button> */}
 
@@ -79,6 +86,9 @@ function App() {
 
         <Route path="/ApprovalRejectpage" element={<ApprovalReferencePage/>}/>
         <Route path="/ApprovalRejectDetailPage/:approvalNo" element={<ApprovalRejectDetailPage/>}/>
+
+        <Route path="/AIAssistantPage" element={<AIAssistantPage/>}/>
+        <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage/>}/>
 
         {/*전자결재Route*/}
         <Route path="/personnel" element={<PersonnelMain />}>

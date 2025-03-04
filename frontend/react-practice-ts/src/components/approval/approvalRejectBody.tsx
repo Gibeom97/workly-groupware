@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { ApprovalMark } from "./approvalMark";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { format, addHours } from "date-fns";
 import { ko } from "date-fns/locale";
+import { isNil } from "lodash";
+import { useNavigate } from "react-router-dom";
+import { fetchApprovalStatus } from "../../features/approvalNotificationsSlice";
 
 export const ApprovalRejectBody = () => {
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   // 로그인한 유저의 userNO
   const userNo = useSelector((state: any) => state.user.userNo);
   // 게시글 목록
@@ -36,10 +40,25 @@ export const ApprovalRejectBody = () => {
     }
   }, [userNo]);
 
-  // 게시글 클릭 시 상세 페이지로 이동하는 함수
-  const handleRowClick = (approvalNo: number) => {
-    window.location.href = `/ApprovalRejectDetailPage/${approvalNo}`;
-  }
+  // 게시글 클릭 시 읽음 처리 & 상세 페이지로 이동하는 함수
+  const handleRowClick = async (approvalNo: number) => {
+    if(!userNo) {
+      console.log("❌ 로그인된 사용자 정보 없음");
+      return;
+    }
+
+    try{
+      await axios.post(`http://localhost:8003/workly/notifications/read2`, null, {
+        params: {approvalNo: approvalNo, userNo: userNo},
+      });
+
+      dispatch(fetchApprovalStatus(userNo) as any); // 🚀 Redux 상태 즉시 반영
+
+      navigate(`/ApprovalRejectDetailPage/${approvalNo}`);
+    }catch (error){
+      console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
+    }
+  };
 
   return (
     <div style={containerStyle}>

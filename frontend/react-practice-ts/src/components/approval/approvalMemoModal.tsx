@@ -34,32 +34,6 @@ export const ApprovalMemoModal = ({ onClose, onSave, approvalNo }) => {
           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // :흰색_확인_표시: 그림자 추가
         }}
       >
-        {/* 닫기 버튼 (오른쪽 상단) */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            cursor: "pointer",
-          }}
-          onClick={onClose}
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 15 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12.25 2.5L2.75 12.5M2.75 2.5L12.25 12.5"
-              stroke="#1E1E1E"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
         {/* 타이틀 */}
         <div
           style={{
