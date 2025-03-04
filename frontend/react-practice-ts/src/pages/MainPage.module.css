@@ -1,16 +1,7 @@
-.componentContainer1 {
-    display: column;
-    padding: 30px 50px;
-    height: 100%;
-}
-
 .components {
     display: flex;
     gap: 20px;
     height: 100%;
-}
-
-.components {
 }
 
 .leftComponents {
@@ -20,21 +11,9 @@
     width: 65%;
 }
 
-.approval {
-}
-
-.meetingRoom {
-}
-
-.weather {
-}
-
 .rightComponents {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 35%;
-}
-
-.calendar {
 }

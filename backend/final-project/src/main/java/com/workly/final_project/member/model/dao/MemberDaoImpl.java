@@ -9,6 +9,7 @@ import com.workly.final_project.common.model.vo.Attachment;
 import com.workly.final_project.common.model.vo.PageInfo;
 import com.workly.final_project.common.model.vo.PageRow;
 import com.workly.final_project.member.model.dto.CategoryPrDTO;
+import com.workly.final_project.member.model.dto.ChangePwd;
 import com.workly.final_project.member.model.dto.MemberDTO;
 import com.workly.final_project.member.model.vo.CategoryFilter;
 import com.workly.final_project.member.model.vo.Department;
@@ -45,16 +46,6 @@ public class MemberDaoImpl implements MemberDao {
 		CategoryPrDTO dto = new CategoryPrDTO(filter, pr);
 		
 		return session.selectList("member.selectMemberList", dto);
-	}
-
-	@Override
-	public int insertMember(Member m) {
-		return session.insert("member.insertMember", m);
-	}
-	
-	@Override
-	public int insertLeave(Member m) {
-		return session.insert("member.insertLeave", m);
 	}
 
 	@Override
@@ -95,5 +86,15 @@ public class MemberDaoImpl implements MemberDao {
 	@Override
 	public List<MemberDTO> selectModalMemberList() {
 		return session.selectList("member.selectModalMemberList");
+	}
+
+	@Override
+	public Member currentPwdCheck(int userNo) {
+		return session.selectOne("member.currentPwdCheck", userNo);
+	}
+
+	@Override
+	public int updatePassword(ChangePwd changePwd) {
+		return session.update("member.updatePassword", changePwd);
 	}
 }

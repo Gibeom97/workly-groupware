@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './MyInfomation.module.css'
 import { useNavigate, useParams } from 'react-router-dom';
 import defaultImg from "../../assets/images/icon/profile.png"
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import { useSelector } from 'react-redux';
 import AddressForm from '../personnel/AddressForm';
+import ChangePwdModal from './ChangePwdModal';
 
 const MyInfomation = () => {
     let user = useSelector((state) => {
         return state.user;
     });
+    const [openModal, setOpenModal] = useState(false);
 
     const [member, setMember] = useState({
         deptNo: 0,
@@ -85,6 +87,7 @@ const MyInfomation = () => {
 
             await axios.put("http://localhost:8003/workly/memberUpdate", formData)
                 .then(response => {
+                    console.log(response);
                     navigate("/myPage")
                     alert(response.data.msg);
                 })
@@ -122,10 +125,13 @@ const MyInfomation = () => {
                 alert("사원 정보 조회에 실패하였습니다.");
                 console.log(error);
             })
-            .finally(() => console.log(member));
     }, [member.userNo]);
 
     return (
+        <>
+        {openModal && 
+            <ChangePwdModal setOpenModal={setOpenModal}/>
+        }
         <form className={styles.container} onSubmit={handleUpdate}>
             <div className={styles.mainSection}>
                 <div className={styles.leftSection}>
@@ -186,7 +192,7 @@ const MyInfomation = () => {
                             <label className={styles.label}>내선번호</label>
                             <input type="number" value={member.extension} name="extension" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" />
                         </div>
-                        <div className={styles.chagnePwd} style={{ cursor: "pointer" }}>비밀번호 변경</div>
+                        <div className={styles.chagnePwd} style={{ cursor: "pointer" }} onClick={() => setOpenModal(true)}>비밀번호 변경</div>
                     </div>
                 </div>
             </div>
@@ -194,6 +200,7 @@ const MyInfomation = () => {
                 <button className={styles.submitButton} style={{ cursor: "pointer" }} onClick={() => handleUpdate}>정보 변경</button>
             </div>
         </form>
+        </>
     )
 }
 export default MyInfomation;

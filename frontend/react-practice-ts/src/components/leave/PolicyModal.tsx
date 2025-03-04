@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './PolicyModal.module.css'
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 
 const PolicyModal = ({setOpenModal, policy, policyDetail, fetchPolicy}) => {
     const [detail, setDetail] = useState(policy[policyDetail]);

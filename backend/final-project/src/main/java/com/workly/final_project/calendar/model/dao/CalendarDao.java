@@ -15,11 +15,5 @@ public interface CalendarDao {
     int insertEvent(Calendar calendar);
     int updateEvent(Calendar calendar);
     int deleteEvent(int calNo);
-
-    // ✅ 회의실 예약 관련 기능
-    List<MeetingReservation> selectMeetingReservations();
-    int insertMeetingReservation(MeetingReservation meeting);
-    int updateMeetingReservation(int mrResNo, MeetingReservation meeting);
-    int deleteMeetingReservation(int mrResNo);
-
+   
 }

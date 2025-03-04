@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from './MyLeave.module.css'
 import { useSelector } from 'react-redux';
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import Pagination from '../common/Pagination';
 
 const MyLeave = () => {
@@ -34,7 +34,8 @@ const MyLeave = () => {
         setYear(newYear);
     }
 
-    const fetchMyLeave = () => {
+    useEffect(() => {
+        console.log(user);
         axios.get("http://localhost:8003/workly/myLeave", {
             params: {
                 year,
@@ -43,7 +44,7 @@ const MyLeave = () => {
             }
         })
             .then((response) => {
-                console.log(response.data)
+                console.log(response.data);
                 setHistory(response.data.list);
                 setAnnualLeave(response.data.list[0].annualLeave);
                 setPageInfo(response.data.pi);
@@ -56,14 +57,6 @@ const MyLeave = () => {
                 });
                 setPageInfo({});
             })
-    }
-
-    useEffect(() => {
-        fetchMyLeave();
-        console.log("user: " , user);
-        console.log("history: ", history);
-        console.log("annualLeave: ", annualLeave)
-        console.log("pi: ", pageInfo);
     }, [currentPage, year])
 
     return (
@@ -106,11 +99,11 @@ const MyLeave = () => {
                     {history.length > 0 && history[0].leaveHistory !== null && history.map((e, i) => (
                         <tr key={i} className={styles.rowStyle}>
                             <td className={styles.tdStyle}>{i + 1}</td>
-                            <td className={styles.tdStyle}>{e.leaveHistory.leaveType === "1" ? "연차" : (e.leaveHistory.leaveType === "2" ? "오전 반차" : "오후 반차")}</td>
+                            <td className={styles.tdStyle}>{e.leaveHistory.leaveType}</td>
                             <td className={styles.tdStyle}>{new Date(e.leaveHistory.startDate).toISOString().split("T")[0]}</td>
                             <td className={styles.tdStyle}>{new Date(e.leaveHistory.endDate).toISOString().split("T")[0]}</td>
                             <td className={styles.tdStyle}>{e.leaveHistory.leaveDays}</td>
-                            <td className={styles.tdStyle}>{e.leaveHistory.leaveStatus === "1" ? "대기" : (e.leaveHistory.leaveStatus === "2" ? "승인" : "반려")}</td>
+                            <td className={styles.tdStyle}>{e.leaveHistory.approvalStatus === 1 ? "신청" : (e.leaveHistory.approvalStatus === 2 ? "승인" : "반려")}</td>
                         </tr>
                     ))}
                     {(history.length === 0 || (history.length > 0 && history[0].leaveHistory === null)) && user.userName !== "" && 

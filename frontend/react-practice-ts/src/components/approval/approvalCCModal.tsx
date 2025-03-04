@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface Employee {
   USER_NO: number;
@@ -13,6 +14,7 @@ interface Employee {
 const ApprovalCCModal = ({ onClose, selectedCCUsers, setSelectedCCUsers }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const companyId = useSelector((state: any) => state.user.companyId);
 
 
   // ✅ 백엔드에서 직원 목록 가져오기 (axios 사용)
@@ -20,8 +22,10 @@ const ApprovalCCModal = ({ onClose, selectedCCUsers, setSelectedCCUsers }) => {
     axios
       .get("http://localhost:8003/workly/api/approval/approvalLineList")
       .then((response) => {
-        console.log("가져온 직원 목록: ", response.data)
-        setEmployees(response.data);
+        console.log("백엔드 응답 데이터:", response.data);
+
+        const filteredEmployees = response.data.filter(emp => emp.COMPANY_ID === companyId);
+        setEmployees(filteredEmployees); // ✅ 필터링된 직원만 저장
       })
       .catch((error) => console.error("데이터 가져오기 실패:", error));
   }, []);
@@ -144,6 +148,7 @@ const modalOverlay = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  zIndex: 1000
 };
 
 const modalContainer = {

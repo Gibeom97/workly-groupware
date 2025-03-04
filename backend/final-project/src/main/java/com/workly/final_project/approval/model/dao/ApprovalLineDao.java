@@ -38,4 +38,13 @@ public interface ApprovalLineDao {
 
 	void updateApprovalTypeToApproved(List<Integer> approvalNosToUpdate);
 
+	String selectApprovalType(int approvalNo);
+
+	double selectLeaveDays(int approvalNo);
+
+
+	void updateAnnualLeave(int userNo, double leaveDays);
+
+	int selectApprovalUserNo(int approvalNo);
+
 }

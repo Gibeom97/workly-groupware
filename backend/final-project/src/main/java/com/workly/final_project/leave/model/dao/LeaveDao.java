@@ -20,4 +20,6 @@ public interface LeaveDao {
 	List<LeavePolicy> selectLeavePolicy();
 
 	int updatePolicy(LeavePolicy policy);
+
+	void insertAnnualLeave();
 }
