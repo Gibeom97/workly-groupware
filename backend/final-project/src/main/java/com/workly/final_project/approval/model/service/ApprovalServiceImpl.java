@@ -117,12 +117,13 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public List<Approval> getApprovalSendList(int userNo) {
 		return approvalDao.getApprovalSendList(userNo);
 	}
-
 	
 	// 팀원 추가
 	@Override
+	@Transactional
 	public int saveLeaveRequest(LeaveHistory leaveRequest) {
-		return approvalDao.saveLeaveRequest(leaveRequest);
+		int result = approvalDao.saveLeaveRequest(leaveRequest);
+		return result;
 	}
 
 	@Override

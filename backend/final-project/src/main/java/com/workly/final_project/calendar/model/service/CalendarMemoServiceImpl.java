@@ -20,8 +20,11 @@ public class CalendarMemoServiceImpl implements CalendarMemoService {
         CalendarMemo memo = calendarMemoDao.selectMemo(userNo);
 
         if (memo == null) {
-            System.out.println("🚨 getMemo 결과: NULL (해당 userNo에 대한 메모 없음)");
-            return null;
+            System.out.println("🚨 getMemo 결과: NULL (해당 userNo에 대한 메모 없음, 기본값 '' 반환)");
+            return CalendarMemoDTO.builder()
+                .userNo(userNo)
+                .memo("") // 🔥 기본값 빈 문자열 반환
+                .build();
         }
 
         System.out.println("✅ getMemo 결과: " + memo);

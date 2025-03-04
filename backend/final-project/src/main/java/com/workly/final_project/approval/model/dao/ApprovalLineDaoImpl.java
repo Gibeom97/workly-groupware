@@ -100,6 +100,29 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 		sqlSession.update("ApprovalLine.updateApprovalTypeToApproved", approvalNosToUpdate);
 	}
 
+	@Override
+	public String selectApprovalType(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.selectApprovalType", approvalNo);
+	}
+
+	@Override
+	public double selectLeaveDays(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.selectLeaveDays", approvalNo);
+	}
+
+	@Override
+	public void updateAnnualLeave(int userNo, double leaveDays) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("userNo", userNo);
+		map.put("leaveDays", leaveDays);
+		sqlSession.update("ApprovalLine.updateAnnualLeave", map);		
+	}
+
+	@Override
+	public int selectApprovalUserNo(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.selectApprovalUserNo", approvalNo);
+	}
+
 	
 }
 

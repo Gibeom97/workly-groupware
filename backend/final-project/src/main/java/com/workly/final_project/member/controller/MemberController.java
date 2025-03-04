@@ -93,6 +93,12 @@ public class MemberController {
 		log.debug("m : {}", m);
 		log.debug("fileImg: {}", fileImg);
 		
+		if(m.getDeptNo() == 2) {
+			m.setRole("ROLE_HR");
+		} else {
+			m.setRole("ROLE_USER");
+		}
+		
     	String serverPath = new File("src/main/resources/static/uploads/profile/").getAbsolutePath();
     	log.debug("serverPath : {}", serverPath);
     	
@@ -153,11 +159,11 @@ public class MemberController {
 		Map<String, Object> map = new HashMap<>();
 
 		boolean currentPwdCheck = service.currentPwdCheck(changePwd.getUserNo(), changePwd.getCurrentPwd());
-//		if(!currentPwdCheck) {
-//			log.debug("currentPwdCheck: {}",currentPwdCheck);
-//			map.put("msg", "현재 비밀번호가 일치하지 않습니다.");
-//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
-//		}
+			if(!currentPwdCheck) {
+				log.debug("currentPwdCheck: {}",currentPwdCheck);
+				map.put("msg", "현재 비밀번호가 일치하지 않습니다.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+			}
 		
 		int result = service.updatePassword(changePwd);
 		if(result > 0) {
