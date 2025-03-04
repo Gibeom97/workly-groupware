@@ -32,10 +32,10 @@ const useFetchNotifications = (userNo: number | undefined) => {
         const data = await userStatusResponse.json();
         //console.log("📢 API 응답 데이터:", data); // ✅ API 응답 확인
 
-        if (!Array.isArray(data) || data.length === 0) {
-          console.warn("❌ API 응답이 비어 있거나 배열이 아님");
-          return;
-        }
+        // if (!Array.isArray(data) || data.length === 0) {
+        //   console.warn("❌ API 응답이 비어 있거나 배열이 아님");
+        //   return;
+        // }
 
         // ✅ Redux 상태 업데이트 (비동기 Thunk 호출)
         dispatch(fetchNotifications(userNo) as any);
@@ -52,9 +52,8 @@ const useFetchNotifications = (userNo: number | undefined) => {
 
         dispatch(fetchApprovalStatus(userNo) as any);
 
-
       } catch (error) {
-        console.error("❌ API 호출 중 오류 발생:", error);
+        // console.error("❌ API 호출 중 오류 발생:", error);
       }
     };
 

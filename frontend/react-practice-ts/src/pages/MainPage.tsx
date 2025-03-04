@@ -15,7 +15,7 @@ const MainPage = () => {
     });
 
     useEffect(() => {
-        console.log(user)
+        console.log("메인페이지 리덕스에 받아온 : ", user)
     }, [])
 
     return (
@@ -23,7 +23,7 @@ const MainPage = () => {
             <Sidebar />
             <div className="componentContainer">
                 <Header />
-                <div className={styles.componentContainer1}>
+                <div className="componentContainer1">
                     <div className={styles.components}>
                         <div className={styles.leftComponents}>
                             <div className={styles.approval}>

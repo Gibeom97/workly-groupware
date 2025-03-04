@@ -3,6 +3,7 @@ package com.workly.final_project.leave.model.dao;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
 import com.workly.final_project.common.model.vo.PageInfo;
@@ -54,5 +55,16 @@ public class LeaveDaoImpl implements LeaveDao {
 	@Override
 	public int updatePolicy(LeavePolicy policy) {
 		return session.update("leave.updatePolicy", policy);
+	}
+
+	@Override
+	@Scheduled(cron = "0 0 0 1 1 *")
+	public void insertAnnualLeave() {
+		try {
+			session.insert("leave.insertAnnualLeave");
+            System.out.println("AnnualLeave 데이터 삽입 성공!");
+        } catch (Exception e) {
+            System.err.println("AnnualLeave 데이터 삽입 실패: " + e.getMessage());
+        }
 	}
 }

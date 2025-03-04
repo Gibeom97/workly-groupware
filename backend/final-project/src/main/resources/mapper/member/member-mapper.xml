@@ -11,7 +11,8 @@
 		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO AND ATTACH_STATUS = 'Y'
         LEFT JOIN ANNUAL_LEAVE USING(USER_NO) 
 			WHERE USER_NO = #{userNo} AND USER_PWD = #{userPwd} AND YEAR = EXTRACT(YEAR FROM SYSDATE) AND MEMBER.STATUS ='Y'
-	</select> 
+	</select>
+
 
 	<select id="selectCategoryMemberCount" resultType="int" parameterType="CategoryFilter">
 	    SELECT COUNT(*) FROM MEMBER
@@ -79,12 +80,11 @@
 			<result property="positionName" column="POSITION_NAME"/>
 		</association>
 	</resultMap>
-	
+
 	<insert id="insertMember" useGeneratedKeys="true">
 		<selectKey keyProperty="userNo" resultType="int" order="BEFORE">
 			SELECT (TO_CHAR(SYSDATE, 'YYYY') || LPAD(USER_NO_SEQ.NEXTVAL, 2, '0')) FROM DUAL
 		</selectKey>
-		
 		INSERT INTO MEMBER
 		VALUES (
 			#{userNo},  
@@ -97,7 +97,7 @@
 			#{addressDetail}
 			)
 	</insert>
-	
+
 	<insert id="insertLeave" parameterType="Member">
 		INSERT INTO ANNUAL_LEAVE (USER_NO, YEAR, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE)
 		SELECT 
@@ -213,6 +213,19 @@
 		JOIN POSITION USING(POSITION_NO)
 		ORDER BY DEPT_NO, HIRE_DATE DESC
 	</select>
+	
+	<select id="currentPwdCheck" resultType="Member">
+		SELECT USER_PWD
+		FROM MEMBER
+		WHERE USER_NO = #{userNo}
+	</select>
+	
+	
+	<update id="updatePassword">
+		UPDATE MEMBER
+		SET USER_PWD = #{newPwd}
+		WHERE USER_NO = #{userNo}
+	</update>
 </mapper>
 
 
