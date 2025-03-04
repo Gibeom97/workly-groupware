@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.ai.model.dao.CompanyPolicyDao;
+import com.workly.final_project.ai.model.vo.Company;
 import com.workly.final_project.ai.model.vo.CompanyPolicy;
 
 @Service
@@ -34,7 +35,14 @@ public class CompanyPolicyServiceImpl implements CompanyPolicyService{
     }
 
 	@Override
+	@Transactional
 	public void deletePolicy(int companyId, String question) {
 		dao.deletePolicy(companyId, question);
+	}
+
+	@Override
+	@Transactional
+	public Company saveCompany(Company company) {
+		return dao.saveCompany(company);
 	}
 }

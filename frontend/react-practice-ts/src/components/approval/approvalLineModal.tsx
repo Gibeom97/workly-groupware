@@ -24,6 +24,7 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
   const [favoriteName, setFavoriteName] = useState(""); // 즐겨찾기 명
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [refresh, setRefresh] = useState(false); //새로고침 트리거
+  const companyId = useSelector((state: any) => state.user.companyId);
   const refreshFavoritList = () => {
     setRefresh(prev => !prev);
   }
@@ -73,7 +74,12 @@ const userNo = useSelector((state: any) => state.user.userNo);
   useEffect(() => {
     axios
       .get<Employee[]>("http://localhost:8003/workly/api/approval/approvalLineList")
-      .then((response) => setEmployees(response.data))
+      .then((response) => {
+        console.log("백엔드 응답 데이터:", response.data);
+
+        const filteredEmployees = response.data.filter(emp => emp.COMPANY_ID === companyId);
+        setEmployees(filteredEmployees); // ✅ 필터링된 직원만 저장
+      })
       .catch((error) => console.error("데이터 가져오기 실패:", error));
   }, []);
 
@@ -145,6 +151,7 @@ const userNo = useSelector((state: any) => state.user.userNo);
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        zIndex: 1000
       }}
     >
 

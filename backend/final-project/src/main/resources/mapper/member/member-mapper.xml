@@ -35,7 +35,7 @@
 	<select id="selectMemberList" resultMap="memberDTOListMap" parameterType="CategoryPrDTO">
 		SELECT *
 		FROM (SELECT ROWNUM RNUM, A.*
-		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, ADDRESS, ADDRESS_DETAIL
+		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, ADDRESS, ADDRESS_DETAIL, COMPANY_ID
 		            FROM MEMBER
                     JOIN DEPARTMENT USING(DEPT_NO)
                     JOIN POSITION USING(POSITION_NO)
@@ -70,6 +70,7 @@
 			<result property="updateDate" column="UPDATE_DATE" />
 			<result property="address" column="ADDRESS" />
 			<result property="addressDetail" column="ADDRESS_DETAIL" />
+			<result property="companyId" column="COMPANY_ID"/>
 		</association>
 		
 		<association property="department" javaType="Department">

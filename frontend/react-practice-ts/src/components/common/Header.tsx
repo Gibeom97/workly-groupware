@@ -19,6 +19,8 @@ function Header() {
   const location = useLocation();
   const { pathname } = location;
   const [openModal, setOpenModal] = useState(false);
+  const user = useSelector((state) => state.user);
+  
 
   const url = "http://localhost:8003/workly/uploads/profile/";
 
@@ -52,18 +54,23 @@ function Header() {
     case pathname.includes("myPage"):
       title = "마이페이지";
       break;
+
+    case pathname.includes("AIAssistant"):
+      title = "회사규정Q&A"; 
+      break
+     
+    case pathname.includes("AdminPolicyManager"):
+      title = "회사규정Q&A 관리";  
+      break
   
     default:
       title = "";
       break;
+  }
 
   const toggleDown = () => {
     setDropDownOpen((prev) => !prev);
   }
-
-  let user = useSelector((state) => {
-    return state.user;
-  });
 
   const handleLogout = () => {
     if (confirm("로그아웃하시겠습니까?")) {
@@ -122,5 +129,6 @@ function Header() {
       </header>
     </>
   );
+
 }
 export default Header;

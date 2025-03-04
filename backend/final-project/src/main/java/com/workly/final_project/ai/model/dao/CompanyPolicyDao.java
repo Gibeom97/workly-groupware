@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.workly.final_project.ai.model.vo.Company;
 import com.workly.final_project.ai.model.vo.CompanyPolicy;
 
 public interface CompanyPolicyDao {
@@ -17,6 +18,8 @@ public interface CompanyPolicyDao {
 	void insertPolicy(CompanyPolicy policy);
 
 	void deletePolicy(int companyId, String question);
+
+	Company saveCompany(Company company);
 
 
 

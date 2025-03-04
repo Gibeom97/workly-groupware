@@ -27,4 +27,5 @@ public class UserDTO {
 	private Date updateDate;
 	private String role;
 	private String userPwd;
+	private int companyId;
 }

@@ -5,6 +5,7 @@ import axios from "../../utils/CustomAxios";
 import { useNavigate } from "react-router-dom";
 import AddressForm from "./AddressForm";
 import DeptPositionSelect from "./DeptPositionSelect";
+import { useSelector } from "react-redux";
 
 const CreateEmployee = () => {
     const [member, setMember] = useState({
@@ -24,6 +25,7 @@ const CreateEmployee = () => {
     const [profileImg, setProfileImg] = useState(null); // 프로필 이미지
     const [preview, setPreview] = useState(null); // 프로필 이미지 미리보기
     const fileInputRef = useRef(null);
+    const companyId = useSelector((state: any) => state.user.companyId);
 
     const navigate = useNavigate();
 
@@ -63,6 +65,7 @@ const CreateEmployee = () => {
 
         const updateMember = {
             ...member,
+            companyId: companyId,
             hireDate : new Date(member.hireDate).toISOString().split("T")[0], // 날짜 string -> Date로 변환
             address : addressApi,
         };

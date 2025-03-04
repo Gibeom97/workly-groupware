@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.workly.final_project.ai.model.vo.Company;
 import com.workly.final_project.ai.model.vo.CompanyPolicy;
 
 @Repository
@@ -52,5 +53,11 @@ public class CompanyPolicyDaoImpl implements CompanyPolicyDao{
 	    params.put("question", question);
 		    
 		sqlSession.delete("ai.deletePolicy", params);
+	}
+
+	@Override
+	public Company saveCompany(Company company) {
+		int result = sqlSession.insert("ai.saveCompany", company);
+		return result > 0 ? company : null; // 성공 시 company 반환
 	}
 }

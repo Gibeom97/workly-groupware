@@ -32,6 +32,15 @@
     	WHERE company_id = #{companyId} 
     	AND question = #{question}
     </delete>
+    
+    <!-- 법인회원가입 -->
+	<insert id="saveCompany" parameterType="Company" useGeneratedKeys="true" keyProperty="companyId">
+	    <selectKey keyProperty="companyId" resultType="int" order="BEFORE">
+	        SELECT company_seq.NEXTVAL FROM DUAL
+	    </selectKey>
+	    INSERT INTO company (company_id, company_name, company_num)
+	    VALUES (#{companyId}, #{companyName}, #{companyNum})
+	</insert>
 	
 </mapper>
 
