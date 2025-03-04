@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const AdminPolicyManager: React.FC = () => {
-  const [companyId] = useState<number>(1); // 로그인한 회사 ID
+  const companyId = useSelector((state: any) => state.user.companyId);
   const [category, setCategory] = useState<string>("HR");
   const [question, setQuestion] = useState<string>("");
   const [answer, setAnswer] = useState<string>("");

@@ -19,6 +19,8 @@ function Header() {
   const location = useLocation();
   const { pathname } = location;
   const [openModal, setOpenModal] = useState(false);
+  const user = useSelector((state) => state.user);
+  
 
   const url = "http://localhost:8003/workly/uploads/profile/";
 
@@ -57,14 +59,33 @@ function Header() {
       title = "마이페이지";
       break;
 
+    case pathname.includes("AIAssistant"):
+      title = "회사규정Q&A"; 
+      break
+     
+    case pathname.includes("AdminPolicyManager"):
+      title = "회사규정Q&A 관리";  
+      break
+  
     default:
       title = "";
       break;
   }
 
-      const toggleDown = () => {
-        setDropDownOpen((prev) => !prev);
-      }
+  const toggleDown = () => {
+    setDropDownOpen((prev) => !prev);
+  }
+
+  const handleLogout = () => {
+    if (confirm("로그아웃하시겠습니까?")) {
+      removeCookie("user");
+      removeCookie("accessToken");
+      dispatch(logoutUser());
+      console.log("cookie user확인: ", getCookie("user"));
+      console.log("cookie token확인: ", getCookie("accessToken"));
+      navigate("/");
+    }
+  }
 
       const handleLogout = () => {
         if (confirm("로그아웃하시겠습니까?")) {
@@ -116,12 +137,15 @@ function Header() {
                   </div>
                 )}
               </div>
-            </div>
-            <div>
-              <h2 className={styles.category}>{title}</h2>
-            </div>
-          </header>
-        </>
-      );
-  }
+            )}
+          </div>
+        </div>
+        <div>
+          <h2 className={styles.category}>{title}</h2>
+        </div>
+      </header>
+    </>
+  );
+
+}
 export default Header;

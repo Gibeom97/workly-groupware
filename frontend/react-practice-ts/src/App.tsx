@@ -37,6 +37,7 @@ import useFetchNotifications from "./hooks/useFetchNotifications";
 import NotificationModal from "./components/approval/approvalNotification";
 import AdminPolicyManagerPage from "./pages/AdminPolicyManagerPage";
 import AIAssistantPage from "./pages/AIAssistantPage";
+import CompanyEnrollPage from "./pages/CompanyEnrollPage";
 
 function App() {
   // 전자결재 알림서비스 추가
@@ -89,6 +90,7 @@ function App() {
 
         <Route path="/AIAssistantPage" element={<AIAssistantPage/>}/>
         <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage/>}/>
+        <Route path="/CompanyEnrollPage" element={<CompanyEnrollPage/>}/>
 
         {/*전자결재Route*/}
         <Route path="/personnel" element={<PersonnelMain />}>

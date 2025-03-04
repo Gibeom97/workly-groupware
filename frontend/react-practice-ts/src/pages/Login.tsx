@@ -94,6 +94,12 @@ const Login = () => {
                             <label htmlFor="saveId" className={styles.saveLabel} >아이디 저장</label>
                         </div>
                         <button type="submit" className={styles.loginBtn}>로그인</button>
+                        <label className={styles.notice} 
+                        style={{ float: "right", marginTop: "3px", cursor: "pointer" }}
+                        onClick={() => navigate("/CompanyEnrollPage")}
+                        >
+                        법인 회원가입
+                        </label>
                         <p className={styles.notice}>
                             비밀번호 분실 시 인사팀에 문의해주세요
                         </p>

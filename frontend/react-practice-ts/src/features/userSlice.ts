@@ -32,7 +32,8 @@ if (storedUser) {
         changeName: user?.changeName || "",
         filePath: user.filePath || "",
         hireDate: user.hireDate || "",
-        role: user.role || ""
+        role: user.role || "",
+        companyId: user.companyId || 0
     }
 } else {
     // 3) 없으면 기본값
@@ -49,7 +50,8 @@ if (storedUser) {
         changeName: "",
         filePath: "",
         hireDate: "",
-        role: ""
+        role: "",
+        companyId: 0
     };
 }
 const userSlice = createSlice({
@@ -73,7 +75,8 @@ const userSlice = createSlice({
                 changeName: user?.changeName || "",
                 filePath: user.filePath || "",
                 hireDate: user.hireDate || "",
-                role: user.role || ""
+                role: user.role || "",
+                companyId: user.companyId || 0
             }
         },
         logoutUser(state) {
@@ -91,7 +94,8 @@ const userSlice = createSlice({
                 changeName: "",
                 filePath: "",
                 hireDate: "",
-                role: ""
+                role: "",
+                companyId: 0
             }
         }
     }

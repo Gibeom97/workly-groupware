@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
+import { useSelector } from "react-redux";
 
 const AIAssistant: React.FC = () => {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
-  const [companyId] = useState<number>(1); // 로그인한 회사 ID
+  const companyId = useSelector((state: any) => state.user.companyId);
   const [isRecording, setIsRecording] = useState<boolean>(false); // 음성 녹음 상태 추가
 
 
@@ -56,7 +57,7 @@ const AIAssistant: React.FC = () => {
           messages: [
             { role: "system", content: "너는 회사의 사내 규정 목록을 기반으로 사용자의 질문과 가장 유사한 질문을 찾아야 해." },
             { role: "system", content: `사내 규정 목록:\n\n${policies.map((p: any) => `질문: ${p.question}\n답변: ${p.answer}`).join("\n\n")}` },
-            { role: "user", content: `사용자의 질문: "${inputText}"\n위의 사내 규정 중에서 가장 유사한 질문을 찾아서 제공해줘. 그리고 해당 질문의 '답변'만 반환해줘. 추가적인 설명은 필요 없어.` }
+            { role: "user", content: `사용자의 질문: "${inputText}"\n위의 사내 규정 중에서 가장 유사한 질문을 찾아서 제공해줘. 하지만 답변을 '답변:' 이라는 단어 없이 자연스럽게 문장만 출력해줘. "답변:", "답변 -" 등과 같은 형식을 사용하지 말고, 답변 내용만 반환해줘.` }
           ],
           max_tokens: 300,
         },
@@ -93,6 +94,7 @@ const AIAssistant: React.FC = () => {
           placeholder="회사 관련 궁금한 질문을 입력하세요"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
         />
          <button 
           style={{ ...styles.voiceButton, backgroundColor: isRecording ? "#ff4c4c" : "#4880ff" }} 

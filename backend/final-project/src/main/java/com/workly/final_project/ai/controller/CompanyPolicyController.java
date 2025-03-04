@@ -1,5 +1,6 @@
 package com.workly.final_project.ai.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.workly.final_project.ai.model.service.CompanyPolicyService;
+import com.workly.final_project.ai.model.vo.Company;
 import com.workly.final_project.ai.model.vo.CompanyPolicy;
 
 @RestController
@@ -46,5 +48,14 @@ public class CompanyPolicyController {
     	
     	return ResponseEntity.ok().build();
     }
+    
+    @PostMapping("/enroll")
+    public ResponseEntity<Map<String, Object>> enrollCompany(@RequestBody Company company){
+    	int companyId = service.saveCompany(company).getCompanyId(); // 회사 ID 저장
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("companyId", companyId);
+	    return ResponseEntity.ok(response); // JSON 형태로 반환
+    }
+    
 
 }
