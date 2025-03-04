@@ -38,6 +38,10 @@ function Header() {
     title = "연차관리"
   } else if (pathname.includes("myPage")) {
     title = "마이페이지"
+  } else if (pathname.includes("AIAssistant")){
+    title = "회사규정Q&A"
+  } else if (pathname.includes("AdminPolicyManager")){
+    title = "회사규정Q&A 관리"
   } else {
     title = "";
   }
