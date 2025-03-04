@@ -49,15 +49,11 @@ public class LeaveController {
 																		   .year(year)
 																		   .build())
 												   .build();
-		log.debug("history : {}", history);
-		
 		int listCount = service.selectLeaveCount(history);
-		log.debug("history: {}", history);
 		
 		PageInfo pi = Util.pagination(cPage, listCount);
 		
 		List<AnnualHistoryDTO> list = service.selectLeaveHistory(pi, history);
-		log.debug("list: {}", list);
 		
 		if(list.size() > 0) {
 			Map<String, Object> res = new HashMap<>();
@@ -83,10 +79,8 @@ public class LeaveController {
 				  										   				   .year(year)
 				  										   				   .build())
 				  								   .build();
-		log.debug("history: {}", history);
 		
 		List<AnnualHistoryDTO> list = service.selectLeaveDetail(history);
-		log.debug("list: {}", list);
 		
 		return list;
 	}

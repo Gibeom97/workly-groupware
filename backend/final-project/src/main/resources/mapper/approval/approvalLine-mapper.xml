@@ -127,6 +127,30 @@
 		</update>
 		
 		<!-- 팀원 추가 끝 -->
+		
+		<select id="selectApprovalType" resultType="String">
+			SELECT APPROVAL_TYPE
+ 			FROM APPROVAL
+     		WHERE APPROVAL_NO = #{approvalNo}
+		</select>
+	
+		<select id="selectLeaveDays" resultType="double">
+			SELECT LEAVE_DAYS
+			FROM LEAVE_HISTORY
+			WHERE APPROVAL_NO = #{approvalNo}
+		</select>
+	
+		<update id="updateAnnualLeave">
+			UPDATE ANNUAL_LEAVE
+			SET USED_ANNUAL_LEAVE = USED_ANNUAL_LEAVE + #{leaveDays}
+			WHERE USER_NO = #{userNo} AND YEAR = EXTRACT(YEAR FROM SYSDATE)
+		</update>
+		
+		<select id="selectApprovalUserNo" resultType="int">
+			SELECT USER_NO
+			FROM APPROVAL
+			WHERE APPROVAL_NO = #{approvalNo}
+		</select>
 </mapper>
 
 

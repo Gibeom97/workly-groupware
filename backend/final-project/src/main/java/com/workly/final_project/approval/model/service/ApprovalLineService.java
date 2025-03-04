@@ -25,6 +25,14 @@ public interface ApprovalLineService {
 	boolean isFinalApprover(int approvalNo);
 
 	void updateFinalApproval(int approvalNo);
+
+	String selectApprovalType(int approvalNo);
+
+	void updateAnnualLeave(int userNo, int approvalNo);
+
+	int selectApprovalUserNo(int approvalNo);
+
+
 	
 //	List<ApprovalLine> getInProgressApprovals(int userNo);
 }

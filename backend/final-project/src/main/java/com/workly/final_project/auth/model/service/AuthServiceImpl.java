@@ -67,10 +67,10 @@ public class AuthServiceImpl implements AuthService {
 		
 		User user = null;
 		
-//		if(verify) {
+		if(verify) {
 			user = dao.loadUserByUserName(m);
 			user.setUserPwd("");
-//		}
+		}
 		
 		return user;
 	}

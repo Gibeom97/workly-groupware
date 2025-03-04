@@ -1,6 +1,7 @@
 package com.workly.final_project.approval.model.service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -107,6 +108,21 @@ public class ApprovalLineServiceImpl implements ApprovalLineService{
 		dao.updateFinalApproval(approvalNo);
 	}
 
+	@Override
+	public String selectApprovalType(int approvalNo) {
+		return dao.selectApprovalType(approvalNo);
+	}
+
+	@Override
+	public void updateAnnualLeave(int userNo, int approvalNo) {
+		double leaveDays = dao.selectLeaveDays(approvalNo);
+		dao.updateAnnualLeave(userNo, leaveDays);
+	}
+
+	@Override
+	public int selectApprovalUserNo(int approvalNo) {
+		return dao.selectApprovalUserNo(approvalNo);
+	}
 }
 
 

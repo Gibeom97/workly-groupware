@@ -165,6 +165,4 @@ public class ApprovalDaoImpl implements ApprovalDao{
         return sqlSession.selectList("Approval.getApprovalProgressList", userNo);
     }
 
-	
-
 }
