@@ -6,11 +6,13 @@ import { useDispatch } from "react-redux";
 import { setMemberInvite } from "../../features/chatSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store"; // RootState 임포트 필요
+import axios from 'axios';
 
 
 interface AddMemberPanelProps {
   allEmployees: Member[];
   currentMembers: Member[];
+  room: {chatRoom:number};
   onClose: () => void;
   onConfirm: (newMembers: Member[]) => void;
 }
@@ -22,6 +24,7 @@ const AddMemberPanel = ({
   currentMembers,
   onClose,
   onConfirm,
+  room,
 }: AddMemberPanelProps) => {
   const currentMemberuserNos = currentMembers.map((m) => m.userNo);
 
@@ -55,21 +58,41 @@ const AddMemberPanel = ({
 
 const dispatch = useDispatch(); // Redux Dispatch 추가
 
-const handleConfirm = () => {
+const handleConfirm = async () => {
   const selectedMembersObjects = allEmployees.filter((member) =>
     checkedMembers.includes(member.userNo)
   );
 
-  // ✅ 기존 멤버 제외하고 새로 초대된 멤버만 Redux에 저장
-  const newInvitedMembers = selectedMembersObjects
-    .map(member => member.userName)
-    .filter(name => !currentMembers.some(m => m.userName === name));
+  // ✅ 기존 멤버 제외하고 새로 초대된 멤버만 추출
+  const newUserNos = selectedMembersObjects
+    .filter(member => !currentMembers.some(m => m.userNo === member.userNo))
+    .map(member => member.userNo);
 
-  dispatch(setMemberInvite(newInvitedMembers));
+  if (newUserNos.length === 0) {
+    alert("새로 추가할 멤버가 없습니다.");
+    return;
+  }
 
-  onConfirm(selectedMembersObjects);
-  onClose();
-}
+  try {
+    // ✅ 백엔드에 새로운 멤버 추가 요청
+    await axios.post(`http://localhost:8003/workly/api/chat/addMembers`, {
+      chatRoomNo: room.chatRoom,
+      userNos: newUserNos
+    });
+
+    console.log("✅ 멤버 추가 성공");
+    
+    // Redux 업데이트
+    dispatch(setMemberInvite(selectedMembersObjects.map(m => m.userName)));
+
+    // ✅ 프론트엔드 상태 업데이트
+    onConfirm(selectedMembersObjects);
+    onClose();
+  } catch (error) {
+    console.error("❌ 멤버 추가 실패", error);
+    alert("멤버 추가에 실패했습니다.");
+  }
+};
 
 
   return (

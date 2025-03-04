@@ -6,7 +6,6 @@ import noticeIcon from "../../assets/Images/chat/loud-speaker 11.png";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
-
 import { setFavorites } from "../../features/chatSlice";
 import { Member } from "../../type/chatType";
 
@@ -35,19 +34,35 @@ const ChatMain: React.FC<ChatMainProps> = ({
     { userNo: number; userName: string; deptName: string; positionName: string; status: string }[]
   >([]);
 
+  const [profileImage, setProfileImage] = useState(profileIcon);
+
   // ✅ 1️⃣ 팀원 목록 불러오기
   useEffect(() => {
     const fetchMembers = async () => {
       try {
         const response = await axios.get("http://localhost:8003/workly/api/chat/members");
-        setMembers(response.data);
+  
+        // ✅ 각 멤버에 대해 서버에서 프로필 이미지 불러오기
+        const membersWithProfile = await Promise.all(
+          response.data.map(async (member: any) => {
+            try {
+              const profileResponse = await axios.get(`http://localhost:8003/workly/api/user/profile/${member.userNo}`);
+              return { ...member, profileImg: profileResponse.data.profileImg || profileIcon };
+            } catch {
+              return { ...member, profileImg: profileIcon };
+            }
+          })
+        );
+  
+        setMembers(membersWithProfile);
       } catch (err) {
         console.error("❌ 멤버 목록 불러오기 실패", err);
       }
     };
-
+  
     fetchMembers();
   }, []);
+  
 
   // ✅ 2️⃣ 즐겨찾기 목록 불러오기 (최초 1회 실행)
   useEffect(() => {
@@ -111,7 +126,42 @@ const ChatMain: React.FC<ChatMainProps> = ({
     }
   };
   
-  
+  // 프로필 이미지
+  useEffect(() => {
+    axios.get(`http://localhost:8003/workly/api/user/profile/${user.userNo}`)
+        .then(response => {
+            console.log("📌 서버에서 받은 프로필 이미지:", response.data.profileImg);
+            setProfileImage(response.data.profileImg);
+        })
+        .catch(() => setProfileImage(profileIcon));
+}, [user.userNo]);
+
+// ✅ 팀원들의 프로필 가져오기
+const fetchProfileImages = async () => {
+  try {
+    const updatedMembers = await Promise.all(
+      members.map(async (member) => {
+        try {
+          const response = await axios.get(`http://localhost:8003/workly/api/user/profile/${member.userNo}`);
+          return { ...member, profileImg: response.data.profileImg || profileIcon };
+        } catch {
+          return { ...member, profileImg: profileIcon }; // 프로필 이미지가 없으면 기본 이미지 사용
+        }
+      })
+    );
+
+    setMembers(updatedMembers);
+  } catch (error) {
+    console.error("❌ 팀원 프로필 이미지 불러오기 실패:", error);
+  }
+};
+
+// ✅ 팀원 목록이 변경될 때마다 프로필 이미지 가져오기
+useEffect(() => {
+  fetchProfileImages();
+}, [members.length]);  // ✅ 팀원 목록이 변경될 때만 실행
+
+
 
   // ✅ 4️⃣ 즐겨찾기 목록 필터링
   const favoriteUsers = members.filter((member) => favorites.some(fav => fav.userNo === member.userNo));
@@ -150,12 +200,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
           }}
           onClick={() => onProfileClick(user)}
         >
-          <img
-            className="mineProfileIcon"
-            style={{ width: "22px", height: "22px", objectFit: "cover" }}
-            src={profileIcon}
-            alt="profile"
-          />
+          <img className="mineProfileIcon" style={{ width: "40px", height: "40px",borderRadius:"8px", objectFit: "cover" }} src={profileImage} alt="profile" />
         </div>
         <div style={{ marginLeft: "10px" }}>
           <div className="mineUserName" style={{ fontSize: "16px", fontWeight: "600" }}>
@@ -255,7 +300,13 @@ const ChatMain: React.FC<ChatMainProps> = ({
                 alignItems: "center",
               }}
             >
-              <img className="memberProfileIcon" style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profileIcon} alt="profile" />
+              <img
+  className="memberProfileIcon"
+  style={{ width: "40px", height: "40px", borderRadius:"8px", objectFit: "cover" }}
+  src={member.profileImg || profileIcon}
+  alt="profile"
+/>
+
             </div>
             <div style={{ marginLeft: "10px" }}>
               <div>{member.userName}</div>

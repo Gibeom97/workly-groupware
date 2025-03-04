@@ -14,6 +14,7 @@ export interface ChatDropdownProps {
     email?: string;
     phone?: string;
     extension?: string;
+    profileImg?:string;
   }
 
 // ✅ 기본값을 가지는 빈 Member 객체를 생성
