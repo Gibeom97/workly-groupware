@@ -29,7 +29,7 @@ if (storedUser) {
         deptName: user.deptName || "",
         positionNo: user.positionNo || 0, 
         positionName: user.positionName || "",
-        changeName: user.changeName || "",
+        changeName: user?.changeName || "",
         filePath: user.filePath || "",
         hireDate: user.hireDate || "",
         role: user.role || ""
@@ -70,7 +70,7 @@ const userSlice = createSlice({
                 deptName: user.deptName || "",
                 positionNo: user.positionNo || 0, 
                 positionName: user.positionName || "",
-                changeName: user.changeName || "",
+                changeName: user?.changeName || "",
                 filePath: user.filePath || "",
                 hireDate: user.hireDate || "",
                 role: user.role || ""

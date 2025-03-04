@@ -25,7 +25,7 @@
 				'',
 				#{addressDetail},
 				CASE 
-            		WHEN #{deptNo} = 3 THEN 'ROLE_HR' 
+            		WHEN #{deptNo} = 2 THEN 'ROLE_HR' 
             		ELSE 'ROLE_USER'
             		END 
 				)

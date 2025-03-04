@@ -171,11 +171,11 @@ const ManageLeave = () => {
                         {leaveHistory.length > 0 && leaveHistory[0].leaveHistory !== null && leaveHistory.map((e, i) => (
                             <tr key={i} className={styles.rowStyle}>
                                 <td className={styles.tdStyle}>{i + 1}</td>
-                                <td className={styles.tdStyle}>{e.leaveHistory.leaveType === "1" ? "연차" : (e.leaveHistory.leaveType === "2" ? "오전 반차" : "오후 반차")}</td>
+                                <td className={styles.tdStyle}>{e.leaveHistory.leaveType}</td>
                                 <td className={styles.tdStyle}>{new Date(e.leaveHistory.startDate).toISOString().split("T")[0]}</td>
                                 <td className={styles.tdStyle}>{new Date(e.leaveHistory.endDate).toISOString().split("T")[0]}</td>
                                 <td className={styles.tdStyle}>{e.leaveHistory.leaveDays}</td>
-                                <td className={styles.tdStyle}>{e.leaveHistory.leaveStatus === "1" ? "대기" : (e.leaveHistory.leaveStatus === "2" ? "승인" : "반려")}</td>
+                                <td className={styles.tdStyle}>{e.leaveHistory.approvalStatus === 1 ? "신청" : (e.leaveHistory.approvalStatus === 2 ? "승인" : "반려")}</td>
                             </tr>
                         ))}
                         {leaveHistory.length === 0 && user.userName === "" &&

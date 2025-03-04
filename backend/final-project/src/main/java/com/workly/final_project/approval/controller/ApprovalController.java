@@ -222,7 +222,7 @@ public class ApprovalController {
 	 // 휴가 테이블 저장
 	 @PostMapping("/leaveRequest")
     public String saveLeaveRequest(@RequestBody LeaveHistory leaveHistory) {
-	 int result = approvalService.saveLeaveRequest(leaveHistory);
+		int result = approvalService.saveLeaveRequest(leaveHistory);
         return result > 0 ? "휴가 요청이 성공적으로 저장되었습니다." : "휴가 요청 저장 실패";
     }
 	 

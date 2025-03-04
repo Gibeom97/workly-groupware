@@ -4,15 +4,17 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="leave">
 	<select id="selectLeaveHistory" resultMap="annualHistoryMap">
-		SELECT *
-		FROM(SELECT ROWNUM RNUM, A.*
-		     FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
-        		   FROM ANNUAL_LEAVE AL
-        		   LEFT JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
-            	       AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
-        		   WHERE AL.USER_NO = #{annualLeave.userNo} AND  AL.YEAR = #{annualLeave.year}
-		           ORDER BY LH.START_DATE)A)
-	    WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow}
+	    SELECT *
+    	FROM(SELECT ROWNUM RNUM, A.*
+        	 FROM (SELECT A.*, APPROVAL_STATUS
+               	   FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
+                     	 FROM ANNUAL_LEAVE AL
+                     	 JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
+                         	AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
+                     	 WHERE AL.USER_NO = #{annualLeave.userNo} AND  AL.YEAR = #{annualLeave.year}
+                     	 ORDER BY LH.START_DATE) A
+               	   LEFT JOIN APPROVAL AP ON A.APPROVAL_NO = AP.APPROVAL_NO)A)
+		WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow}
 	</select>
 	
 	<resultMap id="annualHistoryMap" type="AnnualHistoryDTO">
@@ -23,6 +25,7 @@
 			<result property="leaveDays" column="LEAVE_DAYS"/>
 			<result property="leaveType" column="LEAVE_TYPE"/>
 			<result property="approvalNo" column="APPROVAL_NO"/>
+			<result property="approvalStatus" column="APPROVAL_STATUS"/>
 		</association>
 		
 		<association property="annualLeave" javaType="AnnualLeave">
@@ -37,12 +40,14 @@
 	</select>
 	
 	<select id="selectLeaveDetail" resultMap="annualHistoryMap">
-		SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
-		FROM ANNUAL_LEAVE AL
-		LEFT JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
-			AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
-		WHERE AL.USER_NO = #{annualLeave.userNo} AND AL.YEAR = #{annualLeave.year}
-		ORDER BY LH.START_DATE
+		SELECT A.*, APPROVAL_STATUS
+		FROM (SELECT LEAVE_NO, START_DATE, END_DATE, LEAVE_DAYS, LEAVE_TYPE, APPROVAL_NO, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE
+			  FROM ANNUAL_LEAVE AL
+			  JOIN LEAVE_HISTORY LH ON LH.USER_NO = AL.USER_NO
+			  	AND EXTRACT(YEAR FROM LH.START_DATE) = AL.YEAR
+			  WHERE AL.USER_NO = #{annualLeave.userNo} AND AL.YEAR = #{annualLeave.year}
+			  ORDER BY LH.START_DATE) A
+		LEFT JOIN APPROVAL AP ON A.APPROVAL_NO = AP.APPROVAL_NO
 	</select>
 	
 	<update id="updateLeave">

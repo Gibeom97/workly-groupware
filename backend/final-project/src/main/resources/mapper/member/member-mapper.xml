@@ -202,7 +202,8 @@
 			ADDRESS = #{address},
 			HIRE_DATE = #{hireDate},
 			ADDRESS_DETAIL = #{addressDetail},
-			UPDATE_DATE = #{updateDate}
+			UPDATE_DATE = #{updateDate},
+			ROLE = #{role}
 		WHERE USER_NO = #{userNo}
 	</update>
 	

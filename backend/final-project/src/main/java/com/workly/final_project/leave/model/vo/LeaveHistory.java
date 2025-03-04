@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class LeaveHistory {
-	
 	private int leaveNo;
 	private int userNo;
 	private Date startDate;
@@ -20,5 +19,5 @@ public class LeaveHistory {
 	private double leaveDays;
 	private String leaveType;
 	private int approvalNo;
-
+	private int approvalStatus;
 }

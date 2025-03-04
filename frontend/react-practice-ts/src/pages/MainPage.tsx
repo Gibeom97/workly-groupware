@@ -16,7 +16,7 @@ const MainPage = () => {
 
     useEffect(() => {
         console.log("메인페이지 리덕스에 받아온 : ", user)
-    }, [])
+    }, []);
 
     return (
         <div className="mainpageContainer">

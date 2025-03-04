@@ -284,14 +284,6 @@
 	    WHERE a.user_no = #{userNo} 
 	    AND a.approval_status = 1
 	</select>
-
-
-
-
-
-
-
-
 	
 </mapper>
 
