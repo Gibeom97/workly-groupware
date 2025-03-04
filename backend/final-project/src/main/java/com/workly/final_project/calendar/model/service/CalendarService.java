@@ -16,10 +16,4 @@ public interface CalendarService {
     void updateEvent(int calNo, Calendar calendar);
     void deleteEvent(int calNo);
 
-    // ✅ 회의실 예약 관련 기능
-    List<MeetingReservation> getMeetingReservations();
-    void addMeetingReservation(MeetingReservation meeting);
-    void updateMeetingReservation(int mrResNo, MeetingReservation meeting);
-    void deleteMeetingReservation(int mrResNo);
-
 }
