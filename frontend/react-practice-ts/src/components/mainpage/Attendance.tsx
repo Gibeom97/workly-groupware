@@ -42,12 +42,19 @@ const Attendance = () => {
             }
         }).then((response) => {
             const date = formatTimestamp(response.data.date);
+<<<<<<< HEAD
             const message = `${response.data.msg} ${date}`;
             alert(message);
         }).catch((error) => {
             const date = formatTimestamp(error.response.data.date);
             const message = `${error.response.data.msg} ${date}`;
             alert(message)
+=======
+            const message = `${response.data.msg}\n${date}`;
+            alert(message);
+        }).catch((error) => {
+            alert(error.response.data.msg)
+>>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
         })
     }
 
@@ -62,6 +69,7 @@ const Attendance = () => {
             }
         }).then((response) => {
             const date = formatTimestamp(response.data.date);
+<<<<<<< HEAD
             const message = `${response.data.msg} ${date}`;
             alert(message);
         }).catch((error) => {
@@ -72,6 +80,12 @@ const Attendance = () => {
                 return;
             }
             alert(error.response.data.msg);
+=======
+            const message = `${response.data.msg}\n${date}`;
+            alert(message);
+        }).catch((error) => {
+            alert(error.response.data.msg)
+>>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
         })
     }
 
@@ -81,13 +95,21 @@ const Attendance = () => {
         const month = date.getMonth() + 1;
         const day = date.getDate();
         
+<<<<<<< HEAD
         const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+=======
+        const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+>>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
         const weekday = weekdays[date.getDay()];
         
         const hour = date.getHours();
         const minute = date.getMinutes();
         
+<<<<<<< HEAD
         return `${month}/${day}(${weekday}) ${hour}:${minute}`;
+=======
+        return `${month}/${day}(${weekday}) ${hour}:${minute}분`;
+>>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
       }
 
     return (
