@@ -21,7 +21,7 @@ export const ApprovalPost = ({
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
   const handleRowClick = (approvalNo: number) => {
-    window.location.href = `/ApprovalMain/${approvalNo}`;
+    window.location.href = `/ApprovalCompletePage2/${approvalNo}`;
   };
 
   return (

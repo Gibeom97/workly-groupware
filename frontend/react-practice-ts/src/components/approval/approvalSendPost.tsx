@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { addHours, format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ApprovalMark } from "./approvalMark";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import axios from "axios";
 
-interface ApprovalSendPostProps {
+interface ApprovalPostProps {
   filteredPosts: any[];
   currentPage: number;
   postsPerPage: number;
@@ -17,18 +16,18 @@ export const ApprovalSendPost = ({
   filteredPosts,
   currentPage,
   postsPerPage,
-  setCurrentPage,
-}: ApprovalSendPostProps) => {
+  setCurrentPage
+}: ApprovalPostProps) => {
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userNo = useSelector((state: RootState) => state.user.userNo);
 
-  // ✅ 현재 페이지의 게시글만 표시
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
-  // ✅ 13자리 숫자를 한국 시간(KST) 형식으로 변환하는 함수 (중복 제거)
+  // ✅ 13자리 숫자를 한국 시간(KST) 형식으로 변환하는 함수
+
   const formatKST = (timestamp: number | string) => {
     if (!timestamp || isNaN(new Date(timestamp).getTime())) {
       console.error("⛔ Invalid timestamp:", timestamp);
@@ -45,37 +44,56 @@ export const ApprovalSendPost = ({
   };
   
 
-  // ✅ 게시글 클릭 시 읽음 처리 & 페이지 이동 (중복 제거)
-  const handleRowClick = async (approvalNo: number, event: React.MouseEvent) => {
-    if ((event.target as HTMLElement).tagName === "INPUT") return; // 체크박스 클릭 시 무시
 
+   // ✅ 게시글 클릭 시 읽음 처리, 페이지 이동동
+   const handleRowClick = async (approvalNo: number) => {
     if (!userNo) {
       console.error("❌ 로그인된 사용자 정보 없음");
       return;
     }
 
     try {
+      //console.log(`📢 게시글 ${approvalNo} 열람 - 읽음 처리 요청`);
+
+      // ✅ 백엔드 API 요청: 읽음 처리
       await axios.post(`http://localhost:8003/workly/notifications/read`, null, {
-        params: { approvalNo, userNo },
+        params: { approvalNo: approvalNo, userNo: userNo },
       });
 
       // ✅ Redux 상태 업데이트 (알림 개수 줄이기)
-      // dispatch(markNotificationAsRead({ approvalNo, userNo }));
+      //dispatch(markNotificationAsRead({ approvalNo, userNo }));
 
       // ✅ 페이지 이동
-      navigate(`/approvalCompletePage/${approvalNo}`);
+      navigate(`/ApprovalCompletePage2/${approvalNo}`);
     } catch (error) {
       console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
     }
   };
+  const thStyle = {
+    padding: "12px",
+    borderBottom: "2px solid #202224",
+    fontSize: "13px",
+    fontWeight: "bold",
+    textAlign: "center" as const,
+  };
 
- 
+  const tdStyle = {
+    padding: "12px",
+    fontSize: "12px",
+    color: "#202224",
+    textAlign: "center" as const,
+  };
+
+  const tdTitleStyle = {
+    ...tdStyle,
+    textAlign: "left" as const,
+  };
+
   return (
-    <div style={containerStyle}>
-      <table style={tableStyle}>
+    <div style={{ width: "100%", padding: "20px", backgroundColor: "#fff" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
         <thead>
           <tr>
-            <th style={thStyle}></th>
             <th style={thStyle}>구분</th>
             <th style={thStyle}>기안번호</th>
             <th style={thStyle}>기안자</th>
@@ -90,11 +108,8 @@ export const ApprovalSendPost = ({
               <tr
                 key={post.approvalNo}
                 style={{ borderBottom: "1px solid #E0E0E0", cursor: "pointer" }}
-                onClick={(e) => handleRowClick(post.approvalNo, e)}
+                onClick={() => handleRowClick(post.approvalNo)}
               >
-                <td style={tdIconStyle}>
-                  <ApprovalMark isUnread={post.isUnread} />
-                </td>
                 <td style={tdStyle}>{post.approvalType}</td>
                 <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
                 <td style={tdStyle}>{post.userName}</td>
@@ -109,7 +124,7 @@ export const ApprovalSendPost = ({
             ))
           ) : (
             <tr>
-              <td colSpan={7} style={emptyRowStyle}>
+              <td colSpan={6} style={{ textAlign: "center", padding: "20px", fontSize: "14px", color: "#888" }}>
                 수신된 결재 리스트가 없습니다.
               </td>
             </tr>
@@ -119,8 +134,10 @@ export const ApprovalSendPost = ({
     </div>
   );
 };
+// ✅ 스타일 정의
 
-// ✅ 상태 텍스트 변환 함수 (중복 제거)
+
+// ✅ 상태 텍스트 변환 함수
 const getStatusText = (status: number) => {
   switch (status) {
     case 1: return "진행중";
@@ -130,7 +147,7 @@ const getStatusText = (status: number) => {
   }
 };
 
-// ✅ 상태 스타일 함수 (중복 제거)
+// ✅ 상태 스타일 함수
 const getStatusStyle = (status: number) => {
   let baseStyle = {
     padding: "5px 10px",
@@ -152,49 +169,4 @@ const getStatusStyle = (status: number) => {
     default:
       return { ...baseStyle, background: "#E0E0E0", color: "#202224", opacity: 0.3 };
   }
-};
-
-// ✅ 스타일 정의 (중복 제거)
-const containerStyle = {
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-  padding: "20px",
-};
-
-const tableStyle = {
-  width: "90%",
-  borderCollapse: "collapse",
-  textAlign: "center",
-  justifyContent: "center",
-};
-
-const thStyle = {
-  padding: "12px",
-  borderBottom: "2px solid #202224",
-  fontSize: "13px",
-  fontWeight: 700,
-};
-
-const tdStyle = {
-  padding: "10px",
-  fontSize: "12px",
-  color: "#202224",
-};
-
-const tdTitleStyle = {
-  ...tdStyle,
-  textAlign: "left",
-};
-
-const tdIconStyle = {
-  width: "20px",
-  textAlign: "center",
-};
-
-const emptyRowStyle = {
-  padding: "20px",
-  textAlign: "center" as const,
-  fontSize: "14px",
-  color: "#888",
 };
