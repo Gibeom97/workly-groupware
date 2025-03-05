@@ -9,7 +9,6 @@ const AIAssistant: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const [isRecording, setIsRecording] = useState<boolean>(false); // 음성 녹음 상태 추가
 
-
     // 음성 인식 API 설정
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();

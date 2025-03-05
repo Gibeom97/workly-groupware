@@ -36,3 +36,12 @@
   display: column;
   padding: 30px 50px;
 }
+
+.public-DraftEditor-content {
+  min-height: 350px;
+  padding: 10px;
+  font-size: 16px;
+  color: black;
+  cursor: text;
+  background-color: white;
+}

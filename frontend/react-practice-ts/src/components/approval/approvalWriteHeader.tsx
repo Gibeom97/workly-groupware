@@ -136,7 +136,7 @@ const handleRemoveFile = (index: number) => {
           {/* ✅ 휴가원 선택 시 기안양식 선택 */}
           {approvalType === "휴가원" && (
             <div style={rowStyle2}>
-              <label style={labelStyle}>기안양식</label>
+              <label style={labelStyle}>휴가유형</label>
               <select
                 style={selectBoxStyle}
                 value={leaveType}
