@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import styles from './Attendance.module.css';
+import styles from '../../styles/mainpage/Attendance.module.css';
 import { useSelector } from 'react-redux';
 import profileImg from '../../assets/images/icon/profile.png';
 

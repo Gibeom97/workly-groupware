@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import styles from './Category.module.css'
+import styles from '../../styles/personnel/Category.module.css';
 
 const Category = () => {
     const navigate = useNavigate();

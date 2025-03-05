@@ -1,5 +1,5 @@
 import axios from '../../utils/CustomAxios';
-import styles from './PersonnelDetail.module.css'
+import styles from '../../styles/personnel/PersonnelDetail.module.css'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import defaultImg from "../../assets/images/icon/default-profile.png"

@@ -45,4 +45,28 @@ public class AuthDaoImpl implements AuthDao {
 		return session.insert("auth.insertAttachment", at);
 	}
 
+	@Override
+	public int updateFailCount(int userNo) {
+		return session.update("auth.updateFailCount", userNo);
+	}
+
+	@Override
+	public int selectFailCount(int userNo) {
+		return session.selectOne("auth.selectFailCount", userNo);
+	}
+
+	@Override
+	public void initFailCount(Member m) {
+		session.update("auth.initFailCount", m);
+	}
+
+	@Override
+	public void updatePwd(Member m) {
+		session.update("auth.updatePwd", m);
+	}
+
+	@Override
+	public String selectEmail(Member m) {
+		return session.selectOne("auth.selectEmail", m);
+	}
 }

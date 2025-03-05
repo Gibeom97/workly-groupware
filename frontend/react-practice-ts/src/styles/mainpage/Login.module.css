@@ -84,12 +84,28 @@
 }
 
 .loginBtn:hover {
-    background-color: #4752C4;
+    background-color: #4a59f9;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: #666;
 }
 
 /* 안내 문구 */
 .notice {
-    margin-top: 1rem;
     font-size: 0.85rem;
-    color: #666;
+    float: right;
+    margin-top: 3px;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.notice:hover {
+    color:#2d2d2d;
 }

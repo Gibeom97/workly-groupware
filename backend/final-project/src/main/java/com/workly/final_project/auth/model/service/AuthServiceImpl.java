@@ -79,4 +79,36 @@ public class AuthServiceImpl implements AuthService {
         Member member = dao.findByUserNo(userNo);
         return passwordEncoder.matches(userPwd, member.getUserPwd());
     }
+
+    @Transactional(rollbackFor = Exception.class)
+	@Override
+	public int updateFailCount(Member m) {
+		int userNo = m.getUserNo();
+		int result = dao.updateFailCount(userNo);
+		
+		if(result <= 0) {
+			  TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			  return 0;
+		}
+		
+		result = dao.selectFailCount(userNo);
+		return result;
+	}
+
+	@Override
+	public void initFailCount(Member m) {
+		dao.initFailCount(m);
+	}
+
+	@Override
+	public void updatePwd(Member m) {
+		String changePwd = passwordEncoder.encode(m.getUserPwd());
+		m.setUserPwd(changePwd);
+		dao.updatePwd(m);
+	}
+
+	@Override
+	public String selectEmail(Member m) {
+		return dao.selectEmail(m);
+	}
 }

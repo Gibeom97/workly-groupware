@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import styles from './MyLeave.module.css'
+import styles from '../../styles/leave/MyLeave.module.css';
 import { useSelector } from 'react-redux';
 import axios from '../../utils/CustomAxios';
 import Pagination from '../common/Pagination';

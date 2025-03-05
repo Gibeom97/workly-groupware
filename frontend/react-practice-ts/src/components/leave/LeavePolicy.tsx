@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import styles from './LeavePolicy.module.css'
+import { useEffect, useState } from 'react';
+import styles from '../../styles/leave/LeavePolicy.module.css';
 import axios from '../../utils/CustomAxios'
 import PolicyModal from './PolicyModal';
 

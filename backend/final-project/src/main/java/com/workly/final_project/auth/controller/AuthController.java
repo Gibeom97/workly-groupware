@@ -3,6 +3,7 @@ package com.workly.final_project.auth.controller;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,20 +16,20 @@ import org.springframework.web.multipart.MultipartFile;
 import com.workly.final_project.auth.model.dto.User;
 import com.workly.final_project.auth.model.jwt.JwtTokenProvider;
 import com.workly.final_project.auth.model.service.AuthService;
+import com.workly.final_project.common.model.service.EmailService;
 import com.workly.final_project.common.model.vo.Attachment;
 import com.workly.final_project.common.utils.Util;
 import com.workly.final_project.member.model.vo.Member;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
 	
 	private final JwtTokenProvider jwtProvider;
 	private final AuthService service;
+	private final EmailService emailService;
 	
 	@PostMapping("/login")
 	public ResponseEntity<HashMap<String, Object>> login(
@@ -37,16 +38,38 @@ public class AuthController {
 	    User user = service.loadUserByUserName(m);
 	    
 	    HashMap<String, Object> map = new HashMap<>();
-	    
 	    if(user != null) {
-	    	map.put("user", user);
-	    	
+	    	service.initFailCount(m);  
 	    	String jwtToken = jwtProvider.createToken(user);
+	    	map.put("user", user);
 	    	map.put("jwtToken", jwtToken);
-		    return ResponseEntity.ok(map); 
+	    	return ResponseEntity.ok(map); 
 	    } else {
-	    	map.put("msg", "계정 정보가 일치하지 않습니다.");
-	    	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+	    	int failCount = service.updateFailCount(m);
+	    	if(failCount == 0) {
+	    		map.put("msg", "일시적인 오류로 로그인에 실패하였습니다. 잠시 후 다시 로그인해주세요.");
+	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+	    	}
+	    	
+	    	if(failCount >= 5) {
+	    		map.put("msg", "5회 이상 로그인에 실패하였습니다. 이메일로 임시 비밀번호를 발송합니다.");
+	    		map.put("failCount", failCount);
+	    		
+	    		String changePwd = UUID.randomUUID().toString().substring(0, 8);
+	    		m.setUserPwd(changePwd);
+	    		service.updatePwd(m);
+	    		
+	    		String email = service.selectEmail(m);
+	    		String subject = "[Workly] 비밀번호 변경 알림";
+	    		String text = "안녕하세요. Workly입니다.\n 로그인 시도 횟수 초과로 임시 비밀번호를 안내드리오니 로그인 후 비밀번호를 변경해주세요. \n임시비밀번호: " + changePwd;
+	    		emailService.sendMail(email, subject, text);
+	    		
+		    	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+	    	} else {
+	    		map.put("msg", "계정 정보가 일치하지 않습니다.");
+	    		map.put("failCount", failCount);
+	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+	    	}
 	    }
 	}
 	
@@ -61,7 +84,6 @@ public class AuthController {
 		
 		if(fileImg != null) {
 			Map<String, String> fileInfo;
-			
 			try {
 				fileInfo = Util.fileRename(fileImg, serverPath);
 			

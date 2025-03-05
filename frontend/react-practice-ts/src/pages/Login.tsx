@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from './Login.module.css'
+import styles from '../styles/mainpage/Login.module.css';
 import axios from "../utils/CustomAxios";
 import { useDispatch } from "react-redux";
 import { loginUser, logoutUser } from "../features/userSlice";
@@ -17,7 +17,17 @@ const Login = () => {
         e.preventDefault();
         const userNoAsInt = Number(userNo);
 
-        if(rememberId) {
+        if(!userNo) {
+            alert("아이디를 입력하세요.");
+            return;
+        }
+
+        if(!userPwd) {
+            alert("비밀번호를 입력하세요.");
+            return;
+        }
+
+        if (rememberId) {
             setIdCookie('rememberId', userNo, 7);
         } else {
             removeCookie("rememberId");
@@ -33,28 +43,32 @@ const Login = () => {
                 const user = response.data.user;
                 setCookie("accessToken", jwtToken);
                 setCookie("user", JSON.stringify(user));
-                
+
                 dispatch(loginUser(response.data.user));
 
-                console.log("cookie user확인: ",getCookie("user"));
-                console.log("cookie token확인: ",getCookie("accessToken"));
+                console.log("cookie user확인: ", getCookie("user"));
+                console.log("cookie token확인: ", getCookie("accessToken"));
                 console.log("localStorage 확인: ", localStorage.getItem("user"));
                 navigate("/main");
             }).catch((error) => {
-                console.log("error: ", error);
-                alert(error.response.data.msg);
-                setUserPwd('')
-            })
+                console.log(error.response.data);
+                const failCount = error.response.data.failCount;
+                if(failCount < 5) {
+                    alert(`${error.response.data.msg} [${failCount}/5]`);
+                } else {
+                    alert(error.response.data.msg);
+                }
+            }).finally(() => setUserPwd(''))
     }
 
     useEffect(() => {
-        console.log("cookie user확인: ",getCookie("user"));
-        console.log("cookie token확인: ",getCookie("accessToken"));
+        console.log("cookie user확인: ", getCookie("user"));
+        console.log("cookie token확인: ", getCookie("accessToken"));
         console.log("localStorage 확인: ", localStorage.getItem("user"));
-        console.log("cookie rememberId확인: ",getCookie("rememberId"));
+        console.log("cookie rememberId확인: ", getCookie("rememberId"));
 
         const userNo = getCookie("rememberId");
-        if(userNo) {
+        if (userNo) {
             setUserNo(userNo);
             setRememberId(true);
         }
@@ -87,22 +101,22 @@ const Login = () => {
                             onChange={(e) => setUserPwd(e.target.value)}
                         />
                         <div className={styles.saveContainer}>
-                            <input 
-                                type="checkbox" id="saveId" className={styles.saveId} 
+                            <input
+                                type="checkbox" id="saveId" className={styles.saveId}
                                 checked={rememberId}
                                 onChange={() => setRememberId(!rememberId)} />
                             <label htmlFor="saveId" className={styles.saveLabel} >아이디 저장</label>
                         </div>
                         <button type="submit" className={styles.loginBtn}>로그인</button>
-                        <label className={styles.notice} 
-                        style={{ float: "right", marginTop: "3px", cursor: "pointer" }}
-                        onClick={() => navigate("/CompanyEnrollPage")}
-                        >
-                        법인 회원가입
-                        </label>
-                        <p className={styles.notice}>
-                            비밀번호 분실 시 인사팀에 문의해주세요
-                        </p>
+                        <div className={styles.footer}>
+                            <p>
+                                비밀번호 분실 시 인사팀에 문의해주세요
+                            </p>
+                            <label className={styles.notice}
+                                onClick={() => navigate("/CompanyEnrollPage")}>
+                                법인 회원가입
+                            </label>
+                        </div>
                     </form>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import styles from './LeaveCategory.module.css'
+import styles from '../../styles/leave/LeaveCategory.module.css';
 import { useSelector } from 'react-redux';
 
 const LeaveCategory = () => {

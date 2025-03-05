@@ -1,4 +1,4 @@
-import styles from './ManageLeave.module.css'
+import styles from '../../styles/leave/ManageLeave.module.css';
 import search from '../../assets/images/icon/search.png';
 import { useEffect, useState } from 'react';
 import MemberSearchModal from './MemberSearchModal';

@@ -24,8 +24,8 @@ import MyLeave from "./components/leave/MyLeave";
 import LeavePolicy from "./components/leave/LeavePolicy";
 import ManageLeave from "./components/leave/ManageLeave";
 import ApprovalConfirmPage from "./pages/approvalPage/approvalConfirmPage";
-import Chat from "./Chat";  
-import { RootState } from "./store"; 
+import Chat from "./Chat";
+import { RootState } from "./store";
 import { useDispatch, useSelector } from "react-redux";
 import { closeChat } from "./features/sidebarSlice";
 import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
@@ -38,6 +38,7 @@ import NotificationModal from "./components/approval/approvalNotification";
 import AdminPolicyManagerPage from "./pages/AdminPolicyManagerPage";
 import AIAssistantPage from "./pages/AIAssistantPage";
 import CompanyEnrollPage from "./pages/CompanyEnrollPage";
+import RoleRoute from "./components/common/RoleRoute";
 
 function App() {
   // 전자결재 알림서비스 추가
@@ -45,14 +46,14 @@ function App() {
   useFetchNotifications(userNo);
 
 
-  const currentUser = useSelector((state: RootState) => state.user); 
-  const {isChatOpen} = useSelector((state: RootState) => state.sidebar); 
+  const currentUser = useSelector((state: RootState) => state.user);
+  const { isChatOpen } = useSelector((state: RootState) => state.sidebar);
   const dispatch = useDispatch();
   return (
     <div>
 
       {/* 전자결재 알림 모달 (모든 페이지에서 표시) */}
-      <NotificationModal />  
+      <NotificationModal />
 
       {/* 🔹 Chat 열기 버튼 */}
       {/* <button onClick={() => setIsChatOpen(true)}>채팅 열기</button> */}
@@ -63,57 +64,67 @@ function App() {
       )}
 
       <Routes>
-        <Route path="/" element={<Login/>} />
-        <Route path="/main" element={<MainPage/>} />
-        <Route path="/calendar" element={<Calendar />} />
-      
-        {/*전자결재Route*/}
-        <Route path="/approvalMain" element={<ApprovalMain />}/>
-        <Route path="/ApprovalWritePage" element={<ApprovalWritePage/>}/>
-        {/*<Route path="/ApprovalWritePage/:approvalNo" element={<ApprovalWritePage />} /> 임시저장 작성하기 */}
-        <Route path="/ApprovalCompletePage/:approvalNo" element={<ApprovalCompletePage/>}/>
+        <Route path="/" element={<Login />} />
+        <Route element={<RoleRoute roles={['ROLE_HR', 'ROLE_USER']} />}>
+          <Route path="/main" element={<MainPage />} />
+          <Route path="/calendar" element={<Calendar />} />
 
-        <Route path="/approvalTempPage" element={<ApprovalTempPage />} />
-        <Route path="/approvalRejectPage" element={<ApprovalRejectPage />} />
+          {/*전자결재Route*/}
+          <Route path="/approvalMain" element={<ApprovalMain />} />
+          <Route path="/ApprovalWritePage" element={<ApprovalWritePage />} />
+          {/*<Route path="/ApprovalWritePage/:approvalNo" element={<ApprovalWritePage />} /> 임시저장 작성하기 */}
+          <Route path="/ApprovalCompletePage/:approvalNo" element={<ApprovalCompletePage />} />
 
-        <Route path="/ApprovalProgressPage" element={<ApprovalProgressPage/>}/>
-        <Route path="/ApprovalFinishPage" element={<ApprovalFinishPage/>}/>
-        <Route path="/ApprovalRequestPage" element={<ApprovalRequestPage/>}/>
-        <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage/>}/>
+          <Route path="/approvalTempPage" element={<ApprovalTempPage />} />
+          <Route path="/approvalRejectPage" element={<ApprovalRejectPage />} />
 
-        <Route path="/ApprovalConfirmPage/:approvalNo" element={<ApprovalConfirmPage/>}/>
-        <Route path="/ApprovalCompletepage2/:approvalNo" element={<ApprovalCompletePage2/>}/>
-        <Route path="/ApprovalSendPage" element={<ApprovalSendPage/>}/>
+          <Route path="/ApprovalProgressPage" element={<ApprovalProgressPage />} />
+          <Route path="/ApprovalFinishPage" element={<ApprovalFinishPage />} />
+          <Route path="/ApprovalRequestPage" element={<ApprovalRequestPage />} />
+          <Route path="/ApprovalReferencePage" element={<ApprovalReferencePage />} />
 
-        <Route path="/ApprovalRejectpage" element={<ApprovalReferencePage/>}/>
-        <Route path="/ApprovalRejectDetailPage/:approvalNo" element={<ApprovalRejectDetailPage/>}/>
+          <Route path="/ApprovalConfirmPage/:approvalNo" element={<ApprovalConfirmPage />} />
+          <Route path="/ApprovalCompletepage2/:approvalNo" element={<ApprovalCompletePage2 />} />
+          <Route path="/ApprovalSendPage" element={<ApprovalSendPage />} />
 
-        <Route path="/AIAssistantPage" element={<AIAssistantPage/>}/>
-        <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage/>}/>
-        <Route path="/CompanyEnrollPage" element={<CompanyEnrollPage/>}/>
+          <Route path="/ApprovalRejectpage" element={<ApprovalReferencePage />} />
+          <Route path="/ApprovalRejectDetailPage/:approvalNo" element={<ApprovalRejectDetailPage />} />
 
-        {/*전자결재Route*/}
-        <Route path="/personnel" element={<PersonnelMain />}>
-          <Route index element={<PersonnelTable />} />
-          <Route path="createEmployee" element={<CreateEmployee />} />
-          <Route path="managePermissions" element={<ManagePermission />} />
-          <Route path=":userNo" element={<PersonnelDetail />} />
+          <Route path="/AIAssistantPage" element={<AIAssistantPage />} />
+          <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage />} />
+          <Route path="/CompanyEnrollPage" element={<CompanyEnrollPage />} />
+          {/*전자결재Route*/}
+
+          <Route path="/mypage" element={<MyPage />}>
+            <Route index element={<MyInfomation />} />
+            <Route path="salary" element={<></>} />
+          </Route>
         </Route>
 
-        <Route path="/leave" element={<LeaveMain/>}>
-          <Route index element={<MyLeave/>}/>
-          <Route path="manage" element={<ManageLeave/>}/>
-          <Route path="policy" element={<LeavePolicy/>}/>
+        <Route element={<RoleRoute roles={['ROLE_HR']} />}>
+          <Route path="/personnel" element={<PersonnelMain />}>
+            <Route index element={<PersonnelTable />} />
+            <Route path="createEmployee" element={<CreateEmployee />} />
+            <Route path="managePermissions" element={<ManagePermission />} />
+            <Route path=":userNo" element={<PersonnelDetail />} />
+          </Route>
         </Route>
 
-        <Route path="/mypage" element={<MyPage/>}>
-          <Route index element={<MyInfomation/>}/>
-          <Route path="salary" element={<></>}/>
+        {/* <Route path="/leave" element={<LeaveMain />}>
+            <Route index element={<MyLeave />} />
+            <Route path="manage" element={<ManageLeave />} />
+            <Route path="policy" element={<LeavePolicy />} />
+          </Route> */}
+        <Route path="/leave" element={<LeaveMain />}>
+          <Route element={<RoleRoute roles={["ROLE_HR", "ROLE_USER"]} />}>
+            <Route index element={<MyLeave />} />
+          </Route>
+          <Route element={<RoleRoute roles={["ROLE_HR"]} />}>
+            <Route path="manage" element={<ManageLeave />} />
+            <Route path="policy" element={<LeavePolicy />} />
+          </Route>
         </Route>
-
-        <Route path="/form" element={<FormMain/>}>
-          <Route path="detail/:formNo" element={<FormUpdate/>} />
-        </Route>
+        
       </Routes>
     </div>
   );

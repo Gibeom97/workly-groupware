@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import styles from './ApprovalCard.module.css'
+import styles from '../../styles/mainpage/ApprovalCard.module.css';
 import { RootState } from '../../store';
 import { useNavigate } from 'react-router-dom';
 
