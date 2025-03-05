@@ -42,10 +42,12 @@ const Attendance = () => {
             }
         }).then((response) => {
             const date = formatTimestamp(response.data.date);
-            const message = `${response.data.msg}\n${date}`;
+            const message = `${response.data.msg} ${date}`;
             alert(message);
         }).catch((error) => {
-            alert(error.response.data.msg)
+            const date = formatTimestamp(error.response.data.date);
+            const message = `${error.response.data.msg} ${date}`;
+            alert(message)
         })
     }
 
@@ -60,10 +62,16 @@ const Attendance = () => {
             }
         }).then((response) => {
             const date = formatTimestamp(response.data.date);
-            const message = `${response.data.msg}\n${date}`;
+            const message = `${response.data.msg} ${date}`;
             alert(message);
         }).catch((error) => {
-            alert(error.response.data.msg)
+            if(error.response.data.date) {
+                const date = formatTimestamp(error.response.data.date);
+                const message = `${error.response.data.msg} ${date}`;
+                alert(message);
+                return;
+            }
+            alert(error.response.data.msg);
         })
     }
 
@@ -73,13 +81,13 @@ const Attendance = () => {
         const month = date.getMonth() + 1;
         const day = date.getDate();
         
-        const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
         const weekday = weekdays[date.getDay()];
         
         const hour = date.getHours();
         const minute = date.getMinutes();
         
-        return `${month}/${day}(${weekday}) ${hour}:${minute}분`;
+        return `${month}/${day}(${weekday}) ${hour}:${minute}`;
       }
 
     return (

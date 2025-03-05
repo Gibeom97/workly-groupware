@@ -28,7 +28,8 @@
             		WHEN #{deptNo} = 2 THEN 'ROLE_HR' 
             		ELSE 'ROLE_USER'
             		END,
-            	#{companyId} 
+            	#{companyId},
+            	DEFAULT
 				)
 	</insert>
 	

@@ -34,6 +34,21 @@
 		WHERE USER_NO = #{userNo}
 		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
 	</select>
+	
+	<select id="selectWorkOn" resultType="Date">
+		SELECT WORK_ON
+		FROM ATTENDANCE
+		WHERE USER_NO = #{userNo}
+		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
+	</select>
+	
+	<select id="selectWorkOff" resultType="Date">
+		SELECT WORK_OFF
+		FROM ATTENDANCE
+		WHERE USER_NO = #{userNo}
+		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
+	</select>
+	
 </mapper>
 
 

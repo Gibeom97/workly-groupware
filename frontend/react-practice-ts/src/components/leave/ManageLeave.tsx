@@ -54,6 +54,7 @@ const ManageLeave = () => {
             }
         })
             .then((response) => {
+                console.log("response: ", response);
                 setAnnualLeave(response.data[0].annualLeave);
                 setleaveHistory(response.data);
                 setUpdateLeave(response.data[0].annualLeave.totalAnnualLeave);
@@ -86,6 +87,8 @@ const ManageLeave = () => {
     }
 
     useEffect(() => {
+        // console.log(user);
+        // console.log(annualLeave);
         handleLeaveDetail();
     }, [user, year])
 

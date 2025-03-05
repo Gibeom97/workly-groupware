@@ -1,5 +1,7 @@
 package com.workly.final_project.attendance.model.dao;
 
+import java.util.Date;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +33,13 @@ public class AttendanceDaoImpl implements AttendanceDao {
 		return session.update("attendance.updateAttendance", userNo);
 	}
 
+	@Override
+	public Date selectWorkOn(int userNo) {
+		return session.selectOne("attendance.selectWorkOn", userNo);
+	}
 
-
-	
+	@Override
+	public Date selectWorkOff(int userNo) {
+		return session.selectOne("attendance.selectWorkOff", userNo);
+	}
 }
