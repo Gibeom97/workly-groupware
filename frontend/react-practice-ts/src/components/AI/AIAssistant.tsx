@@ -14,13 +14,12 @@ const AIAssistant: React.FC = () => {
   const companyId = useSelector((state: any) => state.user.companyId);
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
-  // 음성 인식 API 설정
-  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-  recognition.lang = "ko-KR";
-  recognition.continuous = false;
-  recognition.interimResults = false;
-
+    // 음성 인식 API 설정
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "ko-KR";
+    recognition.continuous = false;
+    recognition.interimResults = false;
   // 음성 입력 기능
   const handleVoiceInput = () => {
     setIsRecording(true);
