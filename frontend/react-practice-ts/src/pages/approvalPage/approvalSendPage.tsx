@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ApprovalHeader } from "../../components/approval/approvalHeader";
 import { ApprovalSearchBar } from "../../components/approval/approvalSearchBar";
@@ -8,6 +7,8 @@ import { ApprovalSendPost } from "../../components/approval/approvalSendPost";
 import { ApprovalFooter } from "../../components/approval/approvalFooter";
 import Header from "../../components/common/Header";
 import Sidebar from "../../components/common/Sidebar";
+import { format, addHours } from "date-fns";
+import { ko } from "date-fns/locale";
 
 export const ApprovalSendPage = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -17,58 +18,45 @@ export const ApprovalSendPage = () => {
   const userNo = useSelector((state: any) => state.user.userNo);
 
   useEffect(() => {
-    if (!userNo) {
-      console.error("❌ 로그인 정보가 없습니다.");
-      return;
-    }
-
-    const fetchData = async () => {
+    const fetchApprovalPosts = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8003/workly/api/approval/sendList/${userNo}`
-        );
+        const response = await axios.get(`http://localhost:8003/workly/api/approval/sendList/${userNo}`);
 
-        console.log("✅ 기안함 응답 데이터:", response.data);
-
-        if (Array.isArray(response.data)) {
-          setPosts(response.data);
-          setFilteredPosts(response.data);
-        } else {
-          console.error("❌ 응답 데이터가 배열이 아닙니다:", response.data);
+        if (!response.data || response.data.length === 0) {
+          console.warn("✅ 가져온 수신 문서가 없습니다.");
+          setPosts([]);
+          setFilteredPosts([]);
+          return;
         }
+
+        console.log("✅ 가져온 수신 문서:", response.data);
+
+        const filteredData = response.data.map((post: any) => ({
+          ...post,
+          startDate: formatKST(post.startDate),
+        }));
+
+        setPosts(filteredData);
+        setFilteredPosts(filteredData);
       } catch (error: any) {
-        console.error("🚨 기안함 목록 조회 실패:", error?.response?.status, error?.response?.data);
+        console.error("🚨 수신함 목록을 불러오는 데 실패했습니다", error);
       }
     };
 
-    fetchData();
+    if (userNo) {
+      fetchApprovalPosts();
+    }
   }, [userNo]);
 
-  const handleSearch = (searchParams: { approvalType: string; year: string; searchText: string }) => {
-    let result = [...posts];
-
-    if (searchParams.approvalType) {
-      result = result.filter(post => post.approvalType === searchParams.approvalType);
+  // ✅ 한국 시간(KST) 변환 함수
+  const formatKST = (timestamp: number | string) => {
+    if (!timestamp) return "N/A";
+    let ts = Number(timestamp);
+    if (ts.toString().length === 10) {
+      ts *= 1000;
     }
-
-    if (searchParams.year) {
-      result = result.filter(post => {
-        const postDate = new Date(post.startDate);
-        return postDate.getFullYear().toString() === searchParams.year;
-      });
-    }
-
-    if (searchParams.searchText) {
-      const searchLower = searchParams.searchText.toLowerCase().trim();
-      result = result.filter(post =>
-        post.approvalTitle?.toLowerCase().includes(searchLower) ||
-        post.approvalNo.toString().includes(searchLower) ||
-        `기안-${post.approvalNo}`.toLowerCase().includes(searchLower) ||
-        post.approvalUser?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    setFilteredPosts(result);
+    const date = addHours(new Date(ts), 9);
+    return format(date, "yyyy. MM. dd. a hh:mm", { locale: ko });
   };
 
   return (
@@ -78,22 +66,49 @@ export const ApprovalSendPage = () => {
         <Header />
         <div className="componentContainer1">
           <ApprovalHeader />
-          <ApprovalSearchBar onSearch={handleSearch} />
-          <ApprovalSendPost 
-            filteredPosts={filteredPosts} 
-            currentPage={currentPage} 
-            postsPerPage={postsPerPage} 
-            setCurrentPage={setCurrentPage} 
+          <ApprovalSearchBar
+            onSearch={(params) => {
+              let result = [...posts];
+
+              if (params.approvalType) {
+                result = result.filter((post) => post.approvalType === params.approvalType);
+              }
+
+              if (params.year) {
+                result = result.filter((post) => {
+                  const postDate = new Date(post.startDate);
+                  return postDate.getFullYear().toString() === params.year;
+                });
+              }
+
+              if (params.searchText) {
+                const searchLower = params.searchText.toLowerCase().trim();
+                result = result.filter((post) =>
+                  post.approvalTitle?.toLowerCase().includes(searchLower) ||
+                  post.approvalNo.toString().includes(searchLower) ||
+                  `기안-${post.approvalNo}`.toLowerCase().includes(searchLower) ||
+                  post.approvalUser?.toLowerCase().includes(searchLower)
+                );
+              }
+
+              setFilteredPosts(result);
+            }}
           />
-          <ApprovalFooter 
+          <ApprovalSendPost
+            filteredPosts={filteredPosts}
+            currentPage={currentPage}
+            postsPerPage={postsPerPage}
+            setCurrentPage={setCurrentPage}
+          />
+          <ApprovalFooter
             pageInfo={{
               listCount: filteredPosts.length,
               currentPage,
               pageLimit: 5,
               contentsLimit: postsPerPage,
               maxPage: Math.ceil(filteredPosts.length / postsPerPage) || 1,
-            }} 
-            setCurrentPage={setCurrentPage} 
+            }}
+            setCurrentPage={setCurrentPage}
           />
         </div>
       </div>
