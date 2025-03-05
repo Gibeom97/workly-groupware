@@ -61,7 +61,7 @@ public class AuthController {
 	    		
 	    		String email = service.selectEmail(m);
 	    		String subject = "[Workly] 비밀번호 변경 알림";
-	    		String text = "안녕하세요. Workly입니다.\n 로그인 시도 횟수 초과로 임시 비밀번호를 안내드리오니 로그인 후 비밀번호를 변경해주세요. \n임시비밀번호: " + changePwd;
+	    		String text = "안녕하세요. Workly입니다.\n로그인 시도 횟수 초과로 임시 비밀번호를 안내드리오니 로그인 후 비밀번호를 변경해주세요. \n임시비밀번호: " + changePwd;
 	    		emailService.sendMail(email, subject, text);
 	    		
 		    	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);

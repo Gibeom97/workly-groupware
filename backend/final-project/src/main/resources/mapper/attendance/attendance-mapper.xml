@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="attendance">
+	<select id="countAttendance" resultType="int">
+		SELECT COUNT(*)
+		FROM ATTENDANCE
+		WHERE USER_NO = #{userNo}
+		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
+	</select>
+	
+	<insert id="insertAttendance">
+		INSERT INTO ATTENDANCE
+		VALUES(
+			SYSDATE,
+			#{userNo},
+			SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul',
+			'',
+			2,
+			''			
+		)
+	</insert>
+	
+	<update id="updateAttendance">
+		UPDATE ATTENDANCE
+		SET WORK_OFF = SYSTIMESTAMP AT TIME ZONE 'Asia/Seoul'
+		WHERE USER_NO = #{userNo}
+	</update>
+	
+	<select id="countAttendance2" resultType="int">
+		SELECT COUNT(WORK_OFF)
+		FROM ATTENDANCE
+		WHERE USER_NO = #{userNo}
+		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

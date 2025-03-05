@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import styles from '../../styles/mainpage/Attendance.module.css';
 import { useSelector } from 'react-redux';
 import profileImg from '../../assets/images/icon/profile.png';
+import axios from '../../utils/CustomAxios';
 
 const Attendance = () => {
     const [time, setTime] = useState(new Date());
     const [preview, setPreview] = useState("");
 
     const url = "http://localhost:8003/workly/uploads/profile/";
-    
+
     let user = useSelector((state) => {
         return state.user;
     });
@@ -30,6 +31,57 @@ const Attendance = () => {
         return `${hours}:${minutes}:${seconds}`;
     };
 
+    const insertAttendance = () => {
+        if (!confirm("출근을 기록하시겠습니까?")) {
+            return;
+        }
+
+        axios.get("http://localhost:8003/workly/insertAttendance", {
+            params: {
+                userNo: user.userNo
+            }
+        }).then((response) => {
+            const date = formatTimestamp(response.data.date);
+            const message = `${response.data.msg}\n${date}`;
+            alert(message);
+        }).catch((error) => {
+            alert(error.response.data.msg)
+        })
+    }
+
+    const updateAttendance = () => {
+        if (!confirm("퇴근을 기록하시겠습니까?")) {
+            return;
+        }
+
+        axios.get("http://localhost:8003/workly/updateAttendance", {
+            params: {
+                userNo: user.userNo
+            }
+        }).then((response) => {
+            const date = formatTimestamp(response.data.date);
+            const message = `${response.data.msg}\n${date}`;
+            alert(message);
+        }).catch((error) => {
+            alert(error.response.data.msg)
+        })
+    }
+
+    const formatTimestamp= (timestamp) =>{
+        const date = new Date(timestamp);
+        
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        
+        const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+        const weekday = weekdays[date.getDay()];
+        
+        const hour = date.getHours();
+        const minute = date.getMinutes();
+        
+        return `${month}/${day}(${weekday}) ${hour}:${minute}분`;
+      }
+
     return (
         <div className={styles.widgetContainer}>
             <div className={styles.dateSection}>
@@ -38,13 +90,13 @@ const Attendance = () => {
             </div>
             <div className={styles.profile}>
                 {!preview && <img src={profileImg} alt="profile" className={styles.avatar} />}
-                {preview && <img src={url + preview} alt="preview" className={styles.avatar} />}            
+                {preview && <img src={url + preview} alt="preview" className={styles.avatar} />}
                 <div className={styles.name}>{user.userName}</div>
                 <div className={styles.position}>{user.deptName} {user.positionName}</div>
             </div>
             <div className={styles.buttons}>
-                <button className={styles.checkIn}>출근</button>
-                <button className={styles.checkOut}>퇴근</button>
+                <button className={styles.checkIn} onClick={insertAttendance}>출근</button>
+                <button className={styles.checkOut} onClick={updateAttendance}>퇴근</button>
             </div>
         </div>
     )
