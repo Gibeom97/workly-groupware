@@ -23,18 +23,27 @@ export const ApprovalSendPost = ({
   const dispatch = useDispatch();
   const userNo = useSelector((state: RootState) => state.user.userNo);
 
+  // ✅ 현재 페이지의 게시글만 표시
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
   // ✅ 13자리 숫자를 한국 시간(KST) 형식으로 변환하는 함수 (중복 제거)
   const formatKST = (timestamp: number | string) => {
-    if (!timestamp) return "N/A";
-
+    if (!timestamp || isNaN(new Date(timestamp).getTime())) {
+      console.error("⛔ Invalid timestamp:", timestamp);
+      return "N/A"; // 날짜가 유효하지 않으면 기본값 반환
+    }
+  
     let ts = Number(timestamp);
     if (ts.toString().length === 10) {
       ts *= 1000; // 초 단위(10자리) → 밀리초(13자리) 변환
     }
-
+  
     const date = addHours(new Date(ts), 9); // UTC → KST 변환 (9시간 추가)
     return format(date, "yyyy. MM. dd. a hh:mm", { locale: ko });
   };
+  
 
   // ✅ 게시글 클릭 시 읽음 처리 & 페이지 이동 (중복 제거)
   const handleRowClick = async (approvalNo: number, event: React.MouseEvent) => {
@@ -60,11 +69,7 @@ export const ApprovalSendPost = ({
     }
   };
 
-  // ✅ 현재 페이지의 게시글만 표시
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
+ 
   return (
     <div style={containerStyle}>
       <table style={tableStyle}>
