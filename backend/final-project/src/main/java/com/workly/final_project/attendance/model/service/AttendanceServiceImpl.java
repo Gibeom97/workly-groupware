@@ -1,10 +1,15 @@
 package com.workly.final_project.attendance.model.service;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.Date;
 
 =======
 >>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
+=======
+import java.util.Date;
+
+>>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 import org.springframework.stereotype.Service;
 
 import com.workly.final_project.attendance.model.dao.AttendanceDao;
@@ -31,6 +36,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	@Override
 	public int updateAttendance(int userNo) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		int result = dao.countAttendance(userNo); 
 		if(result == 0) { 
 			return 2; // 금일 출근 내역이 없습니다. 2번 오류
@@ -44,19 +50,30 @@ public class AttendanceServiceImpl implements AttendanceService {
 		
 		if(result == 0) {
 			return 0;
+=======
+		int result = dao.countAttendance(userNo); 
+		if(result == 0) { 
+			return 2; // 금일 출근 내역이 없습니다. 2번 오류
+>>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 		}
 		
-		result = dao.countAttendance2(userNo);
-		
+		result = dao.countAttendance2(userNo);   
 		if(result > 0) { 
+<<<<<<< HEAD
 			return 0; 
 >>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
+=======
+			return 3;  // 이미 퇴근 처리되었습니다. 3번 오류
+>>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 		}
 		
 		return dao.updateAttendance(userNo);
 		
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 
 	@Override
 	public Date selectWorkOn(int userNo) {
@@ -67,6 +84,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 	public Date selectWorkOff(int userNo) {
 		return dao.selectWorkOff(userNo);
 	}
+<<<<<<< HEAD
 =======
 >>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
+=======
+>>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 }
