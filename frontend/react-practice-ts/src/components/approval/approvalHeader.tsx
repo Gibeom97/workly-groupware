@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { RootState } from "../../store";
-// import { fetchNotifications, clearNotification } from "../../features/approvalNotificationsSlice"; // ✅ 알림 관련 코드 주석 처리
+import { fetchNotifications, clearNotification } from "../../features/approvalNotificationsSlice";
 
 export const ApprovalHeader = () => {
   const navigate = useNavigate();
@@ -11,27 +11,27 @@ export const ApprovalHeader = () => {
   const dispatch = useDispatch();
 
   // ✅ Redux에서 알림 개수 가져오기 (타입 명시)
-  // const notifications = useSelector((state: RootState) => state.notifications); // ✅ 알림 관련 코드 주석 처리
+  const notifications = useSelector((state: RootState) => state.notifications);
   const userNo = useSelector((state: RootState) => state.user.userNo);
 
   // ✅ 알림 데이터 가져오기 (백엔드 연동)
   useEffect(() => {
     if (userNo) {
-      // dispatch(fetchNotifications(userNo) as any); // ✅ 알림 조회 API 호출 주석 처리
+      dispatch(fetchNotifications(userNo) as any);
     }
   }, [userNo, dispatch]);
 
   const handleButtonClick = async (index: number, path: string, page: string) => {
     setActiveIndex(index);
     navigate(path);
-    // dispatch(clearNotification(page)); // ✅ 알림 초기화 코드 주석 처리
+    dispatch(clearNotification(page));
   };
 
   return (
     <header style={headerStyle}>
       {buttons.map((button, index) => {
         const isActive = location.pathname === button.path;
-        // const notificationCount = notifications?.[button.page] ?? 0; // ✅ 알림 개수 관련 코드 주석 처리
+        const notificationCount = notifications?.[button.page] ?? 0; // ✅ undefined 방지 처리
 
         return (
           <button
@@ -40,9 +40,9 @@ export const ApprovalHeader = () => {
             style={isActive ? activeButtonStyle : buttonStyle}
           >
             {button.label}
-            {/* {notificationCount > 0 && ( // ✅ 알림 뱃지 관련 코드 주석 처리 */}
-              {/* <span style={notificationBadgeStyle}>{notificationCount}</span> */}
-            {/* )} */}
+            {notificationCount > 0 && (
+              <span style={notificationBadgeStyle}>{notificationCount}</span>
+            )}
           </button>
         );
       })}

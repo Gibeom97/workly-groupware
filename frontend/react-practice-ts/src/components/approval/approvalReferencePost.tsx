@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { ApprovalMark } from "./approvalMark";
-import { format } from "date-fns";
+import { addHours, format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 
 interface ApprovalReferencePostProps {
@@ -13,7 +15,7 @@ interface ApprovalReferencePostProps {
 }
 
 export const ApprovalReferencePost = ({
-  filteredPosts,
+ filteredPosts,
   currentPage,
   postsPerPage,
   setCurrentPage
@@ -21,21 +23,21 @@ export const ApprovalReferencePost = ({
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-  const handleRowClick = (approvalNo: number) => {
-    window.location.href = `/ApprovalReferencePage/${approvalNo}`;
+  const [/*filteredPosts*/, setFilteredPosts] = useState<any[]>([]);
+  const navigate = useNavigate();
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const postsPerPage = 10;
 
 //export const ApprovalReferencePost = () => {
-//   const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
+
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const postsPerPage = 10;
-//   const navigate = useNavigate();
-
+  
   // 로그인한 유저의 userNO
   const userNo = useSelector((state: any) => state.user.userNo);
   // 게시글 목록
   const [posts, setPosts] = useState([]);
-
+  
   useEffect(() => {
     const fetchApprovalPosts = async () => {
       try{
