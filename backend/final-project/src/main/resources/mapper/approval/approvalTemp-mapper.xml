@@ -1,54 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="ApprovalTemp">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-    <!-- ✅ 임시저장 문서 저장 -->
-    <insert id="saveTempApproval" parameterType="ApprovalTemp">
-        INSERT INTO APPROVAL_TEMP (
-            TEMP_NO,
-            USER_NO,
-            APPROVAL_TYPE,
-            APPROVAL_STATUS,
-            APPROVAL_TITLE,
-            APPROVAL_CONTENT,
-            START_DATE,
-            APPROVAL_NO
-        ) VALUES (
-            SEQ_APPROVAL_TEMP.NEXTVAL,
-            #{userNo},
-            #{approvalType},
-            #{approvalStatus},
-            #{approvalTitle},
-            #{approvalContent},
-            SYSDATE,
-            #{approvalNo, jdbcType=INTEGER}
-        )
-    </insert>
+<mapper namespace="com.workly.final_project.approval.model.dao.ApprovalTempDao">
 
-    <!-- ✅ 사용자별 임시저장 목록 조회 -->
+    <!-- ✅ 특정 사용자 임시저장 목록 조회 -->
     <select id="getTempApprovalsByUser" resultType="ApprovalTemp" parameterType="int">
-        SELECT 
-            TEMP_NO as tempNo,
-            USER_NO as userNo,
-            APPROVAL_TYPE as approvalType,
-            APPROVAL_STATUS as approvalStatus,
-            APPROVAL_TITLE as approvalTitle,
-            APPROVAL_CONTENT as approvalContent,
-            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as createdAt,
-            APPROVAL_NO as approvalNo
-        FROM APPROVAL_TEMP
-        WHERE USER_NO = #{userNo}
-        ORDER BY CREATED_AT DESC, TEMP_NO DESC
+	    SELECT TEMP_NO, USER_NO, APPROVAL_TYPE, APPROVAL_STATUS, APPROVAL_TITLE, APPROVAL_CONTENT, START_DATE, APPROVAL_NO
+	    FROM APPROVAL_TEMP
+	    WHERE USER_NO = #{userNo}
+	    ORDER BY START_DATE DESC
     </select>
 
-    <!-- ✅ 특정 임시저장 문서 조회 -->
-    <select id="getTempApprovalById" resultType="ApprovalTemp" parameterType="int">
+    <!-- ✅ 특정 임시저장 문서 상세 조회 -->
+    <select id="getTempApprovalById" resultType="ApprovalTemp">
         SELECT TEMP_NO, USER_NO, APPROVAL_TYPE, APPROVAL_STATUS, APPROVAL_TITLE, APPROVAL_CONTENT, START_DATE, APPROVAL_NO
         FROM APPROVAL_TEMP
         WHERE TEMP_NO = #{tempNo}
     </select>
+
+    <!-- ✅ 임시저장 문서 저장 -->
+    <insert id="saveTempApproval" parameterType="ApprovalTemp">
+        INSERT INTO APPROVAL_TEMP (USER_NO, APPROVAL_TYPE, APPROVAL_STATUS, APPROVAL_TITLE, APPROVAL_CONTENT, START_DATE, APPROVAL_NO)
+        VALUES (#{userNo}, #{approvalType}, #{approvalStatus}, #{approvalTitle}, #{approvalContent}, NOW(), #{approvalNo});
+        SELECT LAST_INSERT_ID() 
+    </insert>
 
     <!-- ✅ 임시저장 문서 업데이트 -->
     <update id="updateTempApproval" parameterType="ApprovalTemp">
@@ -56,23 +32,18 @@
         SET APPROVAL_TYPE = #{approvalType},
             APPROVAL_STATUS = #{approvalStatus},
             APPROVAL_TITLE = #{approvalTitle},
-            APPROVAL_CONTENT = #{approvalContent}
+            APPROVAL_CONTENT = #{approvalContent},
+            START_DATE = NOW()
         WHERE TEMP_NO = #{tempNo}
     </update>
 
-    <!-- ✅ 선택한 임시저장 문서 삭제 (parameterType 수정) -->
-    <delete id="deleteTempApprovals">
+    <!-- ✅ 임시저장 문서 삭제 -->
+    <delete id="deleteApprovalTemp" parameterType="list">
         DELETE FROM APPROVAL_TEMP
         WHERE TEMP_NO IN
-        <foreach item="tempNo" collection="tempNos" open="(" separator="," close=")">
+        <foreach item="tempNo" collection="list" open="(" separator="," close=")">
             #{tempNo}
         </foreach>
-    </delete>
-
-    <!-- ✅ 특정 임시저장 문서 삭제 -->
-    <delete id="deleteTempApproval" parameterType="int">
-        DELETE FROM APPROVAL_TEMP 
-        WHERE TEMP_NO = #{tempNo}
     </delete>
 
 </mapper>

@@ -10,7 +10,7 @@
 	    VALUES (APPROVAL_SEQ.NEXTVAL, #{userNo}, #{approvalType}, 1, #{approvalTitle}, #{approvalContent}, SYSDATE, #{approvalUser})
 	</insert>
 	
-  <select id="getAllApprovals" resultType="Approval">
+<!--  <select id="getAllApprovals" resultType="Approval">
 	  SELECT 
         APPROVAL_NO as approvalNo,
         USER_NO as userNo,
@@ -24,7 +24,27 @@
         CREATED_AT as createdAt
     FROM APPROVAL
     ORDER BY CREATED_AT DESC
+	</select>-->
+	
+	<!-- 내 문서함 조회 (중복 제거) -->
+	<select id="getApprovalList" resultType="Approval">
+	    SELECT 
+	        M.USER_NAME,
+	        A.APPROVAL_NO,
+	        A.USER_NO,
+	        A.APPROVAL_TYPE,
+	        A.APPROVAL_STATUS,
+	        A.APPROVAL_TITLE,
+	        A.START_DATE,
+	        A.END_DATE
+	    FROM APPROVAL A
+	    JOIN MEMBER M ON A.USER_NO = M.USER_NO
+	    WHERE A.USER_NO = #{userNo}
+	    GROUP BY A.APPROVAL_NO, M.USER_NAME, A.USER_NO, A.APPROVAL_TYPE, 
+	             A.APPROVAL_STATUS, A.APPROVAL_TITLE, A.START_DATE, A.END_DATE
+	    ORDER BY A.START_DATE DESC
 	</select>
+
 	
 	<select id="getDepartmentsWithEmployees" resultType="map">
 		SELECT
@@ -283,6 +303,7 @@
 	    JOIN MEMBER m ON a.user_no = m.user_no
 	    WHERE a.user_no = #{userNo} 
 	    AND a.approval_status = 1
+	    ORDER BY A.START_DATE DESC
 	</select>
 
 

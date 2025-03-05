@@ -45,6 +45,13 @@ public class ApprovalServiceImpl implements ApprovalService {
         System.out.println("ApprovalServiceImpl - 가져온 데이터: " + approvals); // 로그 추가
         return approvals;
     }
+    
+    // 내문서함 조회
+    @Override
+    public List<Approval> getApprovalList(int userNo) {
+        return approvalDao.getApprovalList(userNo);
+    }
+
 
 	@Override
 	@Transactional

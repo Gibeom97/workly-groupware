@@ -4,89 +4,213 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { format, addHours } from "date-fns";
 import { ko } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
-export const ApprovalRejectBody = () => {
+interface ApprovalRejectBodyProps {
+  selectedPosts: number[];
+  setSelectedPosts: (posts: number[]) => void;
+  filteredPosts: any[];
+  setFilteredPosts: (posts: any[]) => void;
+  currentPage: number;
+  postsPerPage: number;
+  onDelete: () => void;
+}
 
-  // 로그인한 유저의 userNO
+export const ApprovalRejectBody = ({ 
+  selectedPosts,
+  setSelectedPosts,
+  filteredPosts,
+  setFilteredPosts,
+  currentPage,
+  postsPerPage,
+  onDelete
+}: ApprovalRejectBodyProps) => {
   const userNo = useSelector((state: any) => state.user.userNo);
-  // 게시글 목록
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const fetchApprovalPosts = async () => {
-      try{
+      try {
         const response = await axios.get(`http://localhost:8003/workly/api/approval/rejectList/${userNo}`);
-
-        // 반려(STATUS=3)인 항목만
-        const filterdPosts = response.data.filter((post: any) => post.approvalStatus === 3)
-                                        .map((post: any) => ({
-                                          ...post,
-                                          startDate: formatKST(post.startDate) // ✅ 한국시간 변환 적용
-                                        }));
-
-
-        setPosts(filterdPosts); 
+        const filterdPosts = response.data
+          .filter((post: any) => post.approvalStatus === 3)
+          .map((post: any) => ({
+            ...post,
+            startDate: formatKST(post.startDate)
+          }));
+        setPosts(filterdPosts);
+        setFilteredPosts(filterdPosts);
       } catch (error) {
-        console.error("결재 반려 목록을 불러오는 데 실패했습니다")
+        console.error("결재 반려 목록을 불러오는 데 실패했습니다", error);
       }
     };
     
-    if(userNo){
+    if(userNo) {
       fetchApprovalPosts();
     }
-  }, [userNo]);
+  }, [userNo, setFilteredPosts]);
 
-  // 게시글 클릭 시 상세 페이지로 이동하는 함수
-  const handleRowClick = (approvalNo: number) => {
+  // 현재 페이지의 게시물만 표시 (배열 체크 추가)
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = Array.isArray(filteredPosts) 
+    ? filteredPosts.slice(indexOfFirstPost, indexOfLastPost)
+    : [];
+
+  // 체크박스 핸들러
+  const handleCheckbox = (approvalNo: number) => {
+    setSelectedPosts(prev => {
+      if (prev.includes(approvalNo)) {
+        return prev.filter(id => id !== approvalNo);
+      } else {
+        return [...prev, approvalNo];
+      }
+    });
+  };
+
+  // 전체 선택 핸들러
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedPosts(posts.map(post => post.approvalNo));
+    } else {
+      setSelectedPosts([]);
+    }
+  };
+
+  // 삭제 핸들러
+  const handleDelete = async () => {
+    if (selectedPosts.length === 0) {
+      alert("삭제할 문서를 선택해주세요.");
+      return;
+    }
+
+    const isConfirmed = window.confirm("선택한 문서를 삭제하시겠습니까?");
+    if (!isConfirmed) return;
+
+    try {
+      await Promise.all(
+        selectedPosts.map(approvalNo => 
+          axios.delete(`http://localhost:8003/workly/api/approval/deleteApproval/${approvalNo}`)
+        )
+      );
+      alert("선택한 문서가 삭제되었습니다.");
+      // 목록 새로고침
+      window.location.reload();
+    } catch (error) {
+      console.error("문서 삭제 실패:", error);
+      alert("문서 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleRowClick = (approvalNo: number, event: React.MouseEvent) => {
+    // 체크박스 클릭 시 상세페이지로 이동하지 않음
+    if ((event.target as HTMLElement).tagName === 'INPUT') return;
     window.location.href = `/ApprovalRejectDetailPage/${approvalNo}`;
   }
 
   return (
-    <div style={containerStyle}>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}></th>
-            <th style={thStyle}>구분</th>
-            <th style={thStyle}>기안번호</th>
-            <th style={thStyle}>기안자</th>
-            <th style={thStyle}>제목</th>
-            <th style={thStyle}>기안일</th>
-            <th style={thStyle}>상태</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {posts.length > 0 ? (
-            posts.map((post, index) => (
-              <tr 
-                  key={index} 
+    <>
+      <div style={containerStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={thStyle}>
+                <input 
+                  type="checkbox"
+                  onChange={handleSelectAll}
+                  checked={posts.length > 0 && selectedPosts.length === posts.length}
+                />
+              </th>
+              <th style={thStyle}>구분</th>
+              <th style={thStyle}>기안번호</th>
+              <th style={thStyle}>기안자</th>
+              <th style={thStyle}>제목</th>
+              <th style={thStyle}>기안일</th>
+              <th style={thStyle}>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentPosts.length > 0 ? (
+              currentPosts.map((post) => (
+                <tr 
+                  key={post.approvalNo} 
                   style={{ ...rowStyle, cursor: "pointer" }}
-                  onClick={() => handleRowClick(post.approvalNo)}
-              >
-                <td style={tdIconStyle}>
-                  <ApprovalMark isUnread={post.isUnread} />
-                </td>
-                <td style={tdStyle}>{post.approvalType}</td>
-                <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
-                <td style={tdStyle}>{post.userName}</td>
-                <td style={tdTitleStyle}>{post.approvalTitle}</td>
-                <td style={tdStyle}>{post.startDate}</td>
-                <td style={tdStyle}>
-                  <span style={getStatusStyle(post.approvalStatus)}>{getStatusText(post.approvalStatus)}</span>
+                  onClick={(e) => handleRowClick(post.approvalNo, e)}
+                >
+                  <td style={tdIconStyle}>
+                    <input
+                      type="checkbox"
+                      checked={selectedPosts.includes(post.approvalNo)}
+                      onChange={() => handleCheckbox(post.approvalNo)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                  <td style={tdStyle}>{post.approvalType}</td>
+                  <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
+                  <td style={tdStyle}>{post.userName}</td>
+                  <td style={tdTitleStyle}>{post.approvalTitle}</td>
+                  <td style={tdStyle}>{post.startDate}</td>
+                  <td style={tdStyle}>
+                    <span style={getStatusStyle(post.approvalStatus)}>
+                      {getStatusText(post.approvalStatus)}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '20px' }}>
+                  검색 결과가 없습니다.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={7} style={emptyRowStyle}>
-                반려된 결재 리스트가 없습니다.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end',
+        padding: '20px',
+        gap: '10px',
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '0 auto'
+      }}>
+        <button
+          style={{
+            width: 75,
+            height: 30,
+            background: "#4880FF",
+            borderRadius: 14,
+            border: "0.30px solid #B9B9B9",
+            color: "white",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+          onClick={() => navigate('/ApprovalWritePage')}
+        >
+          작성하기
+        </button>
+        <button
+          style={{
+            width: 75,
+            height: 30,
+            background: "#FF5C5C",
+            borderRadius: 14,
+            border: "0.30px solid #B9B9B9",
+            color: "white",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+          onClick={onDelete}
+        >
+          삭제
+        </button>
+      </div>
+    </>
   );
 };
 

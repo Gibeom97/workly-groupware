@@ -5,9 +5,13 @@ import { ApprovalWriteHeader } from "../../components/approval/approvalWriteHead
 import Header from "../../components/common/Header"
 import Sidebar from "../../components/common/Sidebar"
 import axios from "axios"
+import { useSearchParams } from "react-router-dom"; // ✅ URL 파라미터 가져오기
 
 export const ApprovalWritePage = () => {
   const [selectedCCUsers, setSelectedCCUsers] = useState([]); // ✅ 참조자 목록 상태 추가
+  const [searchParams] = useSearchParams();
+
+
 
   useEffect(() => {
     console.log("🚀 ApprovalWritePage에서 관리하는 selectedCCUsers:", selectedCCUsers);
