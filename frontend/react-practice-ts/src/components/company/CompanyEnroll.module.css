@@ -1,0 +1,155 @@
+/* 전체 페이지 레이아웃 */
+.pageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 가로 중앙 정렬 */
+    margin-top: 50px;
+}
+
+/* 제목 스타일 (법인 회원가입) */
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px; /* 제목과 폼 사이 간격 조정 */
+}
+
+/* 네모 박스 컨테이너 */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    width: 60%;
+    padding: 40px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+/* 프로필과 입력 폼을 정렬 */
+.formWrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+/* 프로필 영역 */
+.profileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+}
+
+/* 프로필 이미지 */
+.profileImage {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    object-fit: cover;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* 프로필 이미지 호버 효과 */
+.profileImage:hover {
+    opacity: 0.85;
+    border-color: #2563eb;
+}
+
+
+/* input 파일 선택도 숨기기 */
+.inputProfile {
+    display: none;
+}
+
+/* 입력 폼 */
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+    gap: 18px;
+}
+
+/* 입력 필드 정렬 */
+.row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 라벨 */
+.label {
+    width: 140px;
+    font-weight: bold;
+    text-align: right;
+    font-size: 14px;
+    color: #333;
+}
+
+/* 입력 필드 */
+.input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f8f8f8;
+}
+
+/* 버튼 그룹 */
+.buttonGroup {
+    display: flex;
+    justify-content: flex-start; /* 왼쪽 정렬 */
+    gap: 20px;
+    margin-top: 25px;
+}
+
+/* 생성 버튼 */
+.submitButton {
+    width: 110px;
+    height: 42px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.submitButton:hover {
+    background-color: #1d4ed8;
+}
+
+/* 취소 버튼 */
+.cancleButton {
+    width: 110px;
+    height: 42px;
+    background-color: #e5e7eb;
+    color: black;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.cancleButton:hover {
+    background-color: #d1d5db;
+}
+
+/* 입력 필드 숫자 증감 버튼 숨김 */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

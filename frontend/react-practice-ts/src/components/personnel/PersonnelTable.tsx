@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import Pagination from '../common/Pagination';
 import SearchBar from '../common/SearchBar';
 import styles from './PersonnelTable.module.css'
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const PersonnelTable = () => {
+    const companyId = useSelector((state: any) => state.user.companyId);
     const [personnelList, setPersonnelList] = useState([]);
     const [pageInfo, setPageInfo] = useState();
     const [searchMember, setSearchMember] = useState("");
@@ -25,16 +27,21 @@ const PersonnelTable = () => {
                 dept: category.cDept,
                 position: category.cPosi,
                 status: category.cStatus,
-                name: searchMember
+                name: searchMember,
             }
         })
-             .then((response) => {
-                setPersonnelList(response.data.members);
-                setPageInfo(response.data.pageInfo);
-             })
-             .catch(() => alert('사원 정보 조회에 실패하였습니다.'))
-    };
+        .then((response) => {
+            console.log("받아온 데이터:", response.data);
+    
+            const filteredData = response.data.members.filter(
+                (member) => member.member.companyId === companyId
+            );
 
+            setPersonnelList(filteredData);
+            setPageInfo(response.data.pageInfo);
+        })
+        .catch(() => alert('사원 정보 조회에 실패하였습니다.'));
+    };
     const handleSearch = () => {
         fetchPesonnel();
     }

@@ -11,6 +11,7 @@ import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalAttachment;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 import com.workly.final_project.approval.model.vo.ApprovalMemo;
+import com.workly.final_project.leave.model.vo.AnnualLeave;
 import com.workly.final_project.leave.model.vo.LeaveHistory;
 
 @Mapper

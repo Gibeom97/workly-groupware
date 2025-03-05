@@ -5,21 +5,35 @@ const storedUser = localStorage.getItem("user");
 let initialState;
 if (storedUser) {
     const parsed = JSON.parse(storedUser);
-    const { member, department, annualLeave, position, attachment, hireDate } = parsed;
+    const user = parsed;
   
     initialState = {
-        userNo: member?.userNo || 0,
-        userName: member?.userName || "",
-        statusType: member?.statusType || "",
-        totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
-        usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
-        deptNo: member?.deptNo || 0,
-        deptName: department?.deptName || "",
-        positionNo: member.positionNo || 0, 
-        positionName: position?.positionName || "",
-        changeName: attachment?.changeName || "",
-        filePath: attachment?.filePath || "",
-        hireDate: member?.hireDate || ""
+        // userNo: member?.userNo || 0,
+        // userName: member?.userName || "",
+        // statusType: member?.statusType || "",
+        // totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
+        // usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
+        // deptNo: member?.deptNo || 0,
+        // deptName: department?.deptName || "",
+        // positionNo: member?.positionNo || 0, 
+        // positionName: position?.positionName || "",
+        // changeName: attachment?.changeName || "",
+        // filePath: attachment?.filePath || "",
+        // hireDate: member?.hireDate || ""
+        userNo: user.userNo || 0,
+        userName: user.userName || "",
+        statusType: user.statusType || "",
+        totalAnnualLeave : user.totalAnnualLeave || 0,
+        usedAnnualLeave : user.usedAnnualLeave || 0,
+        deptNo: user.deptNo || 0,
+        deptName: user.deptName || "",
+        positionNo: user.positionNo || 0, 
+        positionName: user.positionName || "",
+        changeName: user?.changeName || "",
+        filePath: user.filePath || "",
+        hireDate: user.hireDate || "",
+        role: user.role || "",
+        companyId: user.companyId || 0
     }
 } else {
     // 3) 없으면 기본값
@@ -35,7 +49,9 @@ if (storedUser) {
         positionName: "",
         changeName: "",
         filePath: "",
-        hireDate: ""
+        hireDate: "",
+        role: "",
+        companyId: 0
     };
 }
 const userSlice = createSlice({
@@ -43,21 +59,24 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         loginUser(state, data) {
-            const { member, department, annualLeave, position, attachment, hireDate } = data.payload;
+            const user = data.payload;
+
             localStorage.setItem("user", JSON.stringify(data.payload));
             return {
-                userNo: member.userNo || 0,
-                userName: member?.userName || "",
-                statusType: member?.statusType || "",
-                totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
-                usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
-                deptNo: member?.deptNo || 0,
-                deptName: department?.deptName || "",
-                positionNo: member.positionNo || 0, 
-                positionName: position?.positionName || "",
-                changeName: attachment?.changeName || "",
-                filePath: attachment?.filePath || "",
-                hireDate: member?.hireDate || ""
+                userNo: user.userNo || 0,
+                userName: user.userName || "",
+                statusType: user.statusType || "",
+                totalAnnualLeave : user.totalAnnualLeave || 0,
+                usedAnnualLeave : user.usedAnnualLeave || 0,
+                deptNo: user.deptNo || 0,
+                deptName: user.deptName || "",
+                positionNo: user.positionNo || 0, 
+                positionName: user.positionName || "",
+                changeName: user?.changeName || "",
+                filePath: user.filePath || "",
+                hireDate: user.hireDate || "",
+                role: user.role || "",
+                companyId: user.companyId || 0
             }
         },
         logoutUser(state) {
@@ -74,7 +93,9 @@ const userSlice = createSlice({
                 positionName: "",
                 changeName: "",
                 filePath: "",
-                hireDate: ""
+                hireDate: "",
+                role: "",
+                companyId: 0
             }
         }
     }

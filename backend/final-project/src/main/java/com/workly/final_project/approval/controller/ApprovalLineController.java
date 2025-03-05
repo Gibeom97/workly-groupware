@@ -108,7 +108,15 @@ public class ApprovalLineController {
 	 @PostMapping("/updateFinalApproval")
 	 public ResponseEntity<String> updateFinalApproval(@RequestBody Map<String, Integer> request){
 		 int approvalNo = request.get("approvalNo");
+		 int userNo = service.selectApprovalUserNo(approvalNo);
+		 
 		 service.updateFinalApproval(approvalNo);
+		 
+		 String type = service.selectApprovalType(approvalNo);
+		 if(type.equals("휴가원")) {
+			 service.updateAnnualLeave(userNo, approvalNo);
+		 }
+				 
 		 return ResponseEntity.ok("결재 문서 최종 승인 완료");
 	 }
 	 // 팀원 추가 끝

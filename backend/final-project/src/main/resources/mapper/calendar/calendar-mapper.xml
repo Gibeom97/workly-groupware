@@ -13,11 +13,6 @@
         SELECT * FROM CALENDAR WHERE DEPT_NO = #{deptNo}
     </select>
 
-    <!-- ✅ 회의실 예약 일정 조회 -->
-    <select id="selectMeetingEvents" resultType="Calendar">
-        SELECT * FROM CALENDAR WHERE MR_RES_NO IS NOT NULL
-    </select>
-
     <!-- ✅ 일정 추가 -->
    	<insert id="insertEvent">
     INSERT INTO CALENDAR (CAL_NO, CATEGORY, TITLE, CONTENT, START_DATE, END_DATE, USER_NO, DEPT_NO, COLOR)
@@ -44,33 +39,5 @@
     <delete id="deleteEvent">
         DELETE FROM CALENDAR WHERE CAL_NO = #{calNo}
     </delete>
-
-    <!-- ✅ 회의실 예약 목록 조회 -->
-    <select id="selectMeetingReservations" resultType="MeetingReservation">
-        SELECT * FROM MR_RESERVATION
-    </select>
-
-    <!-- ✅ 회의실 예약 추가 -->
-    <insert id="insertMeetingReservation">
-	    INSERT INTO MR_RESERVATION (MR_RES_NO, MR_NO, USER_NO, START_TIME, END_TIME, MR_RES_TITLE, REASON, MR_STATUS, MR_RES_DATE)
-	    VALUES (MR_RESERVATION_SEQ.NEXTVAL, NVL(#{roomNo}, 1), #{userNo}, #{startTime}, #{endTime}, #{title}, #{reason}, NULL, #{resDate})
-	</insert>
-
-    <!-- ✅ 회의실 예약 수정 -->
-    <update id="updateMeetingReservation">
-	    UPDATE MR_RESERVATION
-	    SET ROOM_NO = NVL(#{roomNo}, 1), 
-	        START_TIME = #{startTime}, 
-	        END_TIME = #{endTime}, 
-	        MR_RES_TITLE = #{title}, 
-	        REASON = #{reason}
-	    WHERE MR_RES_NO = #{mrResNo}
-	</update>
-
-
-    <!-- ✅ 회의실 예약 삭제 -->
-    <delete id="deleteMeetingReservation">
-	    DELETE FROM MR_RESERVATION WHERE MR_RES_NO = #{mrResNo}
-	</delete>
 
 </mapper>

@@ -5,9 +5,11 @@
   height: 100vh;
   background: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  /* border-right: 1px solid #e5e7eb; */
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;         /* 사이드바가 줄어들지 않도록 함 */
+  position: sticky;
+  top: 0;
   min-width: 250px;
   max-width: 100%;
   padding: 20px;

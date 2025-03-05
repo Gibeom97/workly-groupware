@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.approval.model.dao.NotificationDao;
+import com.workly.final_project.approval.model.vo.Approval;
 import com.workly.final_project.approval.model.vo.ApprovalLine;
 
 @Service
@@ -35,6 +36,16 @@ public class NotificationServiceImpl implements NotificationService{
 		
 		// 다음 결재자가 있으면 알림 활성화
 		dao.notifyNextApprover(approvalNo, currentLevel + 1);
+	}
+
+	@Override
+	public List<Approval> getUnreadNotifications2(int userNo) {
+		return dao.getUnreadNotifications2(userNo);
+	}
+
+	@Override
+	public void markAsRead2(int approvalNo, int userNo) {
+		dao.markAsRead2(approvalNo, userNo);
 	}
 
 }

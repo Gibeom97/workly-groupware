@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="NotifiCation">
+<mapper namespace="Notification">
 	
 	<!-- 특정 유저의 읽지 않은 알림 조회 -->
 	<select id="getUnreadNotifications" resultType="ApprovalLine">
@@ -12,10 +12,26 @@
 		AND CONFIRM_STATUS = 'N'
 	</select>
 	
-	<!-- 특정 문서의 알림을 읽음 처리 -->
+	<!-- 특정 유저의 결재완료, 반려 읽음여부 'N'인 상태 조회 -->
+	<select id="getUnreadNotifications2" resultType="Approval">
+	  SELECT *
+	  FROM APPROVAL
+	  WHERE USER_NO = #{userNo}
+	  AND USER_CONFIRM = 'N'
+	</select>
+	
+	<!-- 결재요청, 참소, 수신 문서의 알림을 읽음 처리 -->
 	<update id="markAsRead">
 		UPDATE APPROVAL_LINE
 		SET CONFIRM_STATUS = 'Y'
+		WHERE APPROVAL_NO = #{approvalNo}
+		AND USER_NO = #{userNo}
+	</update>
+	
+	<!-- 결재완료, 반료 문서의 알림을 읽음 처리 -->
+	<update id="markAsRead2">
+		UPDATE APPROVAL
+		SET USER_CONFIRM = 'Y'
 		WHERE APPROVAL_NO = #{approvalNo}
 		AND USER_NO = #{userNo}
 	</update>

@@ -24,6 +24,7 @@ const ApprovalLineModal = ( {onClose, setApprovalData} ) => {
   const [favoriteName, setFavoriteName] = useState(""); // 즐겨찾기 명
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [refresh, setRefresh] = useState(false); //새로고침 트리거
+  const companyId = useSelector((state: any) => state.user.companyId);
   const refreshFavoritList = () => {
     setRefresh(prev => !prev);
   }
@@ -73,7 +74,12 @@ const userNo = useSelector((state: any) => state.user.userNo);
   useEffect(() => {
     axios
       .get<Employee[]>("http://localhost:8003/workly/api/approval/approvalLineList")
-      .then((response) => setEmployees(response.data))
+      .then((response) => {
+        console.log("백엔드 응답 데이터:", response.data);
+
+        const filteredEmployees = response.data.filter(emp => emp.COMPANY_ID === companyId);
+        setEmployees(filteredEmployees); // ✅ 필터링된 직원만 저장
+      })
       .catch((error) => console.error("데이터 가져오기 실패:", error));
   }, []);
 
@@ -122,10 +128,11 @@ const userNo = useSelector((state: any) => state.user.userNo);
     console.log("결재라인 저장 전 데이터:",  approvalLine);
     setApprovalData((prevData) => ({
       ...prevData,
-      approvalLine: approvalLine.map(person => ({
+      approvalLine: approvalLine.map((person, index) => ({
         ...person,
         USER_NO: person.USER_NO,
-        APPROVAL_LINE_TYPE: person.approvalType
+        APPROVAL_LINE_TYPE: person.approvalType,
+        approvalLevel: index + 1, // ✅ 레벨을 다시 1부터 순차적으로 설정
       })), // ✅ approvalData 내부에 approvalLine 속성 추가
     }));
     onClose();
@@ -144,6 +151,7 @@ const userNo = useSelector((state: any) => state.user.userNo);
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        zIndex: 1000
       }}
     >
 
@@ -257,16 +265,19 @@ const userNo = useSelector((state: any) => state.user.userNo);
                     key={index}
                     onClick={() => {
                       if(!approvalLine.some(person => person.USER_NAME === emp.USER_NAME)){
-                        setApprovalLine([...approvalLine,{
-                        id: Date.now(), // 고유한 id 추가
-                        USER_NAME: emp.USER_NAME,
-                        DEPT_NAME: emp.DEPT_NAME,
-                        POSITION_NAME: emp.POSITION_NAME,
-                        approvalType: "승인", // 기본 타입 설정
-                        type: '결재자',
-                        approvalLevel: approvalLine.length + 1, // ✅ 레벨값 자동 부여
-                        USER_NO: emp.USER_NO,
-                        }]);
+                        setApprovalLine((prevApprovalLine) => [
+                          ...prevApprovalLine,
+                          {
+                            id: Date.now(), // 고유한 id 추가
+                            USER_NAME: emp.USER_NAME,
+                            DEPT_NAME: emp.DEPT_NAME,
+                            POSITION_NAME: emp.POSITION_NAME,
+                            approvalType: "승인", // 기본 타입 설정
+                            type: '결재자',
+                            approvalLevel: prevApprovalLine.length + 1, // ✅ 최신 상태 반영
+                            USER_NO: emp.USER_NO,
+                          }
+                        ]);
                       }
                     }}
                     style={{cursor: "pointer"}} // 마우스 커서 변경(클릭 가능 표시)
@@ -388,7 +399,7 @@ const userNo = useSelector((state: any) => state.user.userNo);
             <ol style={{ fontSize: 10, paddingLeft: 10 }}>
                 {approvalLine.map((person, index) => (
                 <li
-                    key={person.id}
+                    key={person.USER_NO}
                     style={{
                     display: "flex",
                     gap: 6,
@@ -402,7 +413,7 @@ const userNo = useSelector((state: any) => state.user.userNo);
                     value={person.approvalType}
                     onChange={(e) => {
                       setApprovalLine(approvalLine.map((item) =>
-                        item.id === person.id ? { ...item, approvalType: e.target.value } : item
+                        item.USER_NO === person.USER_NO ? { ...item, approvalType: e.target.value } : item
                       ));
                     }}
                     style={{

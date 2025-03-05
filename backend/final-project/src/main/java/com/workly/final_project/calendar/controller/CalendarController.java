@@ -105,39 +105,7 @@ public class CalendarController {
         return ResponseEntity.ok("일정이 삭제되었습니다.");
     }
 
-    // ✅ 5. 회의실 예약 조회
-    @GetMapping("/meeting-reservation")
-    public ResponseEntity<List<MeetingReservation>> getAllMeetingReservations() {
-        log.debug("GET /meeting-reservation");
-        return ResponseEntity.ok(calendarService.getMeetingReservations());
-    }
-
-    // ✅ 6. 회의실 예약 추가
-    @PostMapping("/meeting/add")
-    public ResponseEntity<String> addMeetingReservation(@RequestBody MeetingReservation meeting) {
-        log.debug("POST /meeting/add - meeting: {}", meeting);
-        calendarService.addMeetingReservation(meeting);
-        return ResponseEntity.ok("회의실 예약이 추가되었습니다.");
-    }
-
-    // ✅ 7. 회의실 예약 수정
-    @PutMapping("/meeting/update/{id}")
-    public ResponseEntity<String> updateMeetingReservation(
-            @PathVariable("id") int mrResNo, @RequestBody MeetingReservation meeting) {
-        log.debug("PUT /meeting/update/{} - meeting: {}", mrResNo, meeting);
-        calendarService.updateMeetingReservation(mrResNo, meeting);
-        return ResponseEntity.ok("회의실 예약이 수정되었습니다.");
-    }
-
-    // ✅ 8. 회의실 예약 삭제
-    @DeleteMapping("/meeting/delete/{id}")
-    public ResponseEntity<String> deleteMeetingReservation(@PathVariable("id") int mrResNo) {
-        log.debug("DELETE /meeting/delete/{} - meeting", mrResNo);
-        calendarService.deleteMeetingReservation(mrResNo);
-        return ResponseEntity.ok("회의실 예약이 삭제되었습니다.");
-    }
-
-    // ✅ 9. 메모 조회 (CalendarService -> CalendarMemoService 사용)
+    // ✅ 5. 메모 조회 (CalendarService -> CalendarMemoService 사용)
     @GetMapping("/memo/{userNo}")
     public ResponseEntity<CalendarMemoDTO> getMemo(@PathVariable("userNo") int userNo) {
         log.debug("GET /memo/{}", userNo);
@@ -152,7 +120,7 @@ public class CalendarController {
         return ResponseEntity.ok(memoDTO);
     }
     
-    // ✅ 10. 메모 저장 (CalendarService -> CalendarMemoService 사용)
+    // ✅ 6. 메모 저장 (CalendarService -> CalendarMemoService 사용)
     @PostMapping("/memo/add")
     public ResponseEntity<String> saveMemo(@RequestBody CalendarMemoDTO memoDTO) {
         log.debug("POST /memo/add - memo: {}", memoDTO);
@@ -160,7 +128,7 @@ public class CalendarController {
         return ResponseEntity.ok("메모가 저장되었습니다.");
     }
     
-    // ✅ 11. 메모 수정 (CalendarService -> CalendarMemoService 사용)
+    // ✅ 7. 메모 수정 (CalendarService -> CalendarMemoService 사용)
     @PutMapping("/memo/update/{userNo}")
     public ResponseEntity<String> updateMemo(@PathVariable("userNo") int userNo, @RequestBody CalendarMemoDTO memoDTO) {
         log.debug("PUT /memo/update/{} - memo: {}", userNo, memoDTO);

@@ -2,6 +2,7 @@ package com.workly.final_project.chat.model.vo;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,8 +16,10 @@ public class Chat {
 	private int chatNo;
 	private int chatRoomNo;
 	private String message;
-	private Timestamp receviedDate;
+	private LocalDateTime receviedDate;
+	private String receivedDate;
+	private String receivedTime;
 	private int userNo;
 	private String userName;
-	private ChatFile chatFile; // 파일 ㅁ세ㅔ지 연결 추가 
+	private String fileUrl; // 파일 url 저장 필드 추가
 }

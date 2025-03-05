@@ -2,6 +2,7 @@ package com.workly.final_project.member.model.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -9,6 +10,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.workly.final_project.common.model.vo.Attachment;
 import com.workly.final_project.common.model.vo.PageInfo;
 import com.workly.final_project.member.model.dao.MemberDao;
+import com.workly.final_project.member.model.dto.ChangePwd;
 import com.workly.final_project.member.model.dto.MemberDTO;
 import com.workly.final_project.member.model.vo.CategoryFilter;
 import com.workly.final_project.member.model.vo.Department;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberServiceImpl implements MemberService {
 	
 	private final MemberDao dao;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	public MemberDTO loginMember(Member m) {
@@ -38,41 +41,6 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public List<Member> selectMemberList(PageInfo pi, CategoryFilter filter) {
 		return dao.selectMemberList(pi, filter);
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	@Override
-	public int insertMember(Member m) {
-		int result = dao.insertMember(m);
-		log.debug("m: {}", m);
-		
-		result = dao.insertLeave(m);
-	    if(result == 0) {
-	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-	        return 0;
-	    }
-		
-		return result; 
-	}
-	
-	@Transactional(rollbackFor = Exception.class)
-	@Override
-	public int insertMember(Member m, Attachment at) {
-		int result = dao.insertMember(m);
-		
-		result = dao.insertLeave(m);
-		if(result == 0) {
-		    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-		    return 0;
-		}
-		
-		at.setRefUserNo(m.getUserNo());
-		result = dao.insertAttachment(at);
-	    if(result == 0) {
-	        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-	        return 0;
-	    }
-		return result;
 	}
 
 	@Override
@@ -141,6 +109,19 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public List<MemberDTO> selectModalMemberList() {
 		return dao.selectModalMemberList();
+	}
+
+	@Override
+	public boolean currentPwdCheck(int userNo, String currentPwd) {
+		Member member = dao.currentPwdCheck(userNo);
+        return passwordEncoder.matches(currentPwd, member.getUserPwd());
+	}
+
+	@Override
+	public int updatePassword(ChangePwd changePwd) {
+		String newPassword = passwordEncoder.encode(changePwd.getNewPwd());
+		changePwd.setNewPwd(newPassword);
+		return dao.updatePassword(changePwd);
 	}
 
 }

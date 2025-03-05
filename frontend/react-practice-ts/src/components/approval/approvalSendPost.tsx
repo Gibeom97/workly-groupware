@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { addHours, format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ApprovalMark } from "./approvalMark";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import axios from "axios";
 
 interface ApprovalSendPostProps {
   filteredPosts: any[];
@@ -17,25 +20,50 @@ export const ApprovalSendPost = ({
   setCurrentPage,
 }: ApprovalSendPostProps) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userNo = useSelector((state: RootState) => state.user.userNo);
 
-  // // ✅ 날짜 포맷 함수
-  // const formatDate = (dateString: string) => {
-  //   try {
-  //     return format(new Date(dateString), "yyyy.MM.dd a hh:mm", { locale: ko });
-  //   } catch (error) {
-  //     console.error("날짜 포맷팅 오류:", error);
-  //     return dateString;
-  //   }
-  // };
+  // ✅ 13자리 숫자를 한국 시간(KST) 형식으로 변환하는 함수 (중복 제거)
+  const formatKST = (timestamp: number | string) => {
+    if (!timestamp) return "N/A";
+
+    let ts = Number(timestamp);
+    if (ts.toString().length === 10) {
+      ts *= 1000; // 초 단위(10자리) → 밀리초(13자리) 변환
+    }
+
+    const date = addHours(new Date(ts), 9); // UTC → KST 변환 (9시간 추가)
+    return format(date, "yyyy. MM. dd. a hh:mm", { locale: ko });
+  };
+
+  // ✅ 게시글 클릭 시 읽음 처리 & 페이지 이동 (중복 제거)
+  const handleRowClick = async (approvalNo: number, event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).tagName === "INPUT") return; // 체크박스 클릭 시 무시
+
+    if (!userNo) {
+      console.error("❌ 로그인된 사용자 정보 없음");
+      return;
+    }
+
+    try {
+      await axios.post(`http://localhost:8003/workly/notifications/read`, null, {
+        params: { approvalNo, userNo },
+      });
+
+      // ✅ Redux 상태 업데이트 (알림 개수 줄이기)
+      // dispatch(markNotificationAsRead({ approvalNo, userNo }));
+
+      // ✅ 페이지 이동
+      navigate(`/approvalCompletePage/${approvalNo}`);
+    } catch (error) {
+      console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
+    }
+  };
 
   // ✅ 현재 페이지의 게시글만 표시
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-  const handleRowClick = (approvalNo: number) => {
-    window.location.href = `/ApprovalSendPage/${approvalNo}`;
-  };
 
   return (
     <div style={containerStyle}>
@@ -56,8 +84,8 @@ export const ApprovalSendPost = ({
             currentPosts.map((post) => (
               <tr
                 key={post.approvalNo}
-                style={{ ...rowStyle, cursor: "pointer" }}
-                onClick={() => handleRowClick(post.approvalNo)}
+                style={{ borderBottom: "1px solid #E0E0E0", cursor: "pointer" }}
+                onClick={(e) => handleRowClick(post.approvalNo, e)}
               >
                 <td style={tdIconStyle}>
                   <ApprovalMark isUnread={post.isUnread} />
@@ -66,7 +94,7 @@ export const ApprovalSendPost = ({
                 <td style={tdStyle}>{`기안-${post.approvalNo}`}</td>
                 <td style={tdStyle}>{post.userName}</td>
                 <td style={tdTitleStyle}>{post.approvalTitle}</td>
-                <td style={tdStyle}>{post.startDate}</td>
+                <td style={tdStyle}>{formatKST(post.startDate)}</td>
                 <td style={tdStyle}>
                   <span style={getStatusStyle(post.approvalStatus)}>
                     {getStatusText(post.approvalStatus)}
@@ -87,27 +115,7 @@ export const ApprovalSendPost = ({
   );
 };
 
-// ✅ 스타일 정의
-
-const emptyRowStyle = {
-  padding: "20px",
-  textAlign: "center" as const,
-  fontSize: "14px",
-  color: "#888",
-};
-
-const formatKST = (timestamp: number | string) => {
-  if (!timestamp) return "N/A";
-
-  let ts = Number(timestamp);
-  if (ts.toString().length === 10) {
-    ts *= 1000;
-  }
-
-  const date = addHours(new Date(ts), 9);
-  return format(date, "yyyy. MM. dd. a hh:mm", { locale: ko });
-};
-
+// ✅ 상태 텍스트 변환 함수 (중복 제거)
 const getStatusText = (status: number) => {
   switch (status) {
     case 1: return "진행중";
@@ -117,6 +125,7 @@ const getStatusText = (status: number) => {
   }
 };
 
+// ✅ 상태 스타일 함수 (중복 제거)
 const getStatusStyle = (status: number) => {
   let baseStyle = {
     padding: "5px 10px",
@@ -125,12 +134,12 @@ const getStatusStyle = (status: number) => {
     fontWeight: 700,
     minWidth: "60px",
     display: "inline-block",
-    textAlign: "center",
+    textAlign: "center" as const,
   };
 
   switch (status) {
     case 2:
-      return { ...baseStyle, background: "#4c93ff", color: "white" };
+      return { ...baseStyle, background: "#3E7BE6", color: "white" };
     case 1:
       return { ...baseStyle, background: "#ffa500", color: "white" };
     case 3:
@@ -140,18 +149,19 @@ const getStatusStyle = (status: number) => {
   }
 };
 
+// ✅ 스타일 정의 (중복 제거)
 const containerStyle = {
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    padding: "20px",
-  };
-  
+  width: "100%",
+  display: "flex",
+  justifyContent: "center",
+  padding: "20px",
+};
+
 const tableStyle = {
-    width: "90%",
-    borderCollapse: "collapse",
-    textAlign: "center",
-    justifyContent: "center"
+  width: "90%",
+  borderCollapse: "collapse",
+  textAlign: "center",
+  justifyContent: "center",
 };
 
 const thStyle = {
@@ -159,10 +169,6 @@ const thStyle = {
   borderBottom: "2px solid #202224",
   fontSize: "13px",
   fontWeight: 700,
-};
-
-const rowStyle = {
-  borderBottom: "1px solid #E0E0E0",
 };
 
 const tdStyle = {
@@ -179,4 +185,11 @@ const tdTitleStyle = {
 const tdIconStyle = {
   width: "20px",
   textAlign: "center",
+};
+
+const emptyRowStyle = {
+  padding: "20px",
+  textAlign: "center" as const,
+  fontSize: "14px",
+  color: "#888",
 };

@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../features/userSlice";
 import { openChat } from "../../features/sidebarSlice";
+import { removeCookie } from "../../utils/Cookie";
 
 const Sidebar = () => {
 
@@ -27,6 +28,8 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     if(confirm("로그아웃하시겠습니까?")) {
+      removeCookie("user");
+      removeCookie("accessToken")
       dispatch(logoutUser());
       navigate("/");
     }
@@ -65,7 +68,6 @@ const Sidebar = () => {
               <img src={icon4} alt="전자결재" />
             </span>
             <span>전자결재</span>
-            <span className={styles.badge}>6</span>
           </li>
           <li onClick={() => dispatch(openChat())} style={{ cursor: "pointer" }}>
             <span>
@@ -82,21 +84,21 @@ const Sidebar = () => {
             <span>연차관리</span>
           </li>
           </Link>
-          <li>
+          <li onClick={() => navigate('/AIAssistantPage')} style={{ cursor: "pointer" }}>
             <span>
-              <img src={icon7} alt="근태관리" />
+              <img src={icon7} alt="회사규정Q&A" />
             </span>
-            <span>근태관리</span>
+            <span>회사규정Q&A</span>
           </li>
         </ul>
-        <hr className={styles.firstHr} />
         <ul>
-          <li>
+          {/* <li>
             <span>
               <img src={icon8} alt="급여관리" />
             </span>
             <span>급여관리</span>
-          </li>
+          </li> */}
+          { user.role === "ROLE_HR" &&
           <Link to={"/personnel"} className={styles.link}>
           <li>
             <span>
@@ -105,6 +107,13 @@ const Sidebar = () => {
             <span>인사관리</span>
           </li>
           </Link>
+          }
+        <li onClick={() => navigate('/AdminPolicyManagerPage')} style={{ cursor: "pointer" }}>
+          <span>
+            <img src={icon7} alt="근태관리" />
+          </span>
+          <span>회사규정Q&A 관리</span>
+      </li>
         </ul>
       </nav>
       </div>

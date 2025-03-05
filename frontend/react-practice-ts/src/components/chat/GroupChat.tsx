@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import axios from "axios";
 import profile from "../../assets/Images/chat/profile.png";
-import file from "../../assets/Images/chat/file.png";
-import bell from "../../assets/Images/chat/bellGray.png";
+import bell from "../../assets/Images/chat/bell.png";
 import personplus from "../../assets/Images/chat/personPlus.png";
 import exit from "../../assets/Images/chat/exit.png";
 import { Member } from "../../type/chatType";
@@ -12,7 +11,10 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ko'; 
 import utc from "dayjs/plugin/utc";
 
+
+
 dayjs.extend(utc);
+
 
 interface ChatRoom {
   chatRoomNo: number;
@@ -34,9 +36,11 @@ interface GroupChatProps {
   room: ChatRoom;
   currentUser: { userNo: number; userName: string };
   currentMembers: Member[];
+  onChangeRoom: (newRoom: ChatRoom) => void;
   onClose: () => void;
   messages?: ChatMessage[];
   onToggleAlarm: (ChatRoom: number, bellSetting: string) => void;
+  setIsAddMemberPanelOpen: (isOpen: boolean) => void;
 }
 
 const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps) => {
@@ -46,51 +50,118 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [lastReadChatNo, setLastReadChatNo] = useState<number | null>(null);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
+
 
   // ✅ 날짜 및 시간 변환 함수
   const formatDate = (dateString: string) => {
-    return dayjs.utc(dateString).local().locale("ko").format("YYYY년 MM월 DD일 dddd");
+    if (!dateString) return "";
+    return dayjs(dateString).format("YYYY년 MM월 DD일 dddd"); // UTC 변환 제거
   };
-
+  
   const formatTime = (dateString: string) => {
-    return dayjs.utc(dateString).local().format("HH:mm");
+    if (!dateString) return "";
+    return dayjs(dateString).format("HH:mm");
   };
 
-  // ✅ 채팅 메시지 불러오기 (비동기 함수)
+  // 채팅 메시지 불러오기 (비동기 함수)
   const fetchMessages = async () => {
     try {
-      await axios.post(`/chat/enter/${room.chatRoomNo}/${currentUser.userNo}`);
-      const response = await axios.get(`/chat/messages/${room.chatRoomNo}`);
-
-      if (Array.isArray(response.data)) {
-        setChatMessages(response.data.map(msg => ({
-          ...msg,
-          isMine: Number(msg.userNo) === Number(currentUser.userNo),
-        })));
-      } else {
-        console.error("❌ 서버에서 반환된 데이터가 배열이 아님:", response.data);
-      }
+      const response = await axios.get(`http://localhost:8003/workly/api/chat/messages/${room.chatRoomNo}`);
+      const profileMap = await fetchOtherProfiles(); // ✅ 나 제외 프로필 정보 가져오기
+  
+      // ✅ 각 메시지에 프로필 이미지 추가
+      const messagesWithProfile = response.data.map((msg: ChatMessage) => ({
+        ...msg,
+        profileImg: profileMap[msg.userNo] || profile, // 기본 이미지 설정
+        isMine: msg.userNo === currentUser.userNo, // ✅ 내 메시지 여부
+      }));
+  
+      setChatMessages(messagesWithProfile);
     } catch (error) {
-      console.error("❌ 채팅 메시지 불러오기 실패", error);
+      console.error("❌ 채팅 메시지 불러오기 실패:", error);
+    }
+  };
+
+  
+  useEffect(() => {
+    fetchMessages(); 
+  }, [room.chatRoomNo]);
+
+  // 나를 제외한 멤버들의 프로필 정보 가져오기
+  const fetchOtherProfiles = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8003/workly/api/chat/membersWithoutMe`, {
+        params: { chatRoomNo: room.chatRoomNo, userNo: currentUser.userNo },
+      });
+  
+      console.log("📸 프로필 데이터:", response.data);
+      
+      // userNo를 key로 하는 객체 생성 (예: { 2: 'image_url', 3: 'image_url' })
+      return response.data.reduce((acc: { [key: number]: string }, member: any) => {
+        acc[member.userNo] = member.profileImg || profile;
+        return acc;
+      }, {});
+  
+    } catch (error) {
+      console.error("❌ 프로필 이미지 가져오기 실패:", error);
+      return {};
+    }
+  };
+  
+  
+  // 다른 방으로 이동
+  const leaveChatRoom = async () => {
+    try {
+        await axios.post(`http://localhost:8003/workly/api/chat/leave/${room.chatRoomNo}/${currentUser.userNo}`);
+        console.log("🚪 [프론트엔드] leaveChatRoom 요청 완료");
+
+        // WebSocket 구독 해제
+        if (subscriptionRef.current && client) {
+            client.unsubscribe(subscriptionRef.current);
+        }
+
+    } catch (error) {
+        console.error("❌ [프론트엔드] leaveChatRoom 요청 실패:", error);
     }
 };
 
+// 다른 채팅방으로 이동 시 호출
+// const handleRoomChange = async (newRoom: ChatRoom) => {
+//   try {
+//     await leaveChatRoom();  // 기존 방에서 나가기 (WebSocket 구독 해제)
+//     onChangeRoom(newRoom);  // ✅ 새로운 채팅방으로 변경
+//   } catch (error) {
+//     console.error("🚨 채팅방 변경 중 오류 발생:", error);
+//   }
+// };
+
+// ✅ 안 읽은 메시지 개수 가져오는 함수
+const fetchUnreadMessages = async () => {
+  try {
+      const response = await axios.get(`http://localhost:8003/workly/api/chat/unread/${room.chatRoomNo}/${currentUser.userNo}`);
+      setUnreadCount(response.data);
+  } catch (error) {
+      console.error("❌ [프론트엔드] 안 읽은 메시지 개수 불러오기 실패", error);
+  }
+};
+
+// ✅ 채팅방 입장 시 안 읽은 메시지 수 업데이트
+useEffect(() => {
+  fetchUnreadMessages();
+}, [room.chatRoomNo, currentUser.userNo]);
 
   // ✅ 마지막 읽은 메시지 가져오기
   useEffect(() => {
     axios.get(`http://localhost:8003/workly/api/chat/lastRead/${room.chatRoomNo}/${currentUser.userNo}`)
       .then(response => {
-        setLastReadChatNo(response.data.lastReadChatNo);
+        setLastReadChatNo(response.data); // ✅ 데이터가 바로 정수값이므로 그대로 사용
       })
       .catch(() => setLastReadChatNo(null));
-  }, [room.chatRoomNo, currentUser.userNo]);
-  
+}, [room.chatRoomNo, currentUser.userNo]);
 
-  // // ✅ 채팅 메시지 및 마지막 읽은 메시지 불러오기 (useEffect)
-  // useEffect(() => {
-  //   fetchMessages();
-  //   fetchLastReadChatNo();
-  // }, [room.chatRoomNo]);
+
 
   // 프론트엔드 채팅 메세지 저장 로직 추가
   useEffect(() => {
@@ -105,100 +176,174 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
   }, [room.chatRoomNo]);
   
   useEffect(() => {
-    axios.get(`http://localhost:8003/workly/api/chat/messages/${room.chatRoomNo}`)
-      .then(response => {
-        if (Array.isArray(response.data)) {
-          setChatMessages(response.data);
-        }
-      })
-      .catch(error => console.error("❌ 채팅 메시지 불러오기 실패", error));
-  }, [room.chatRoomNo]);
+    fetchMessages();
+  }, []); // ✅ room.chatRoomNo 의존성 제거
   
-
+  
   // ✅ WebSocket 연결 및 메시지 수신
   useEffect(() => {
     const sock = new SockJS("http://localhost:8003/workly/ws-stomp");
     const stompClient = new Client({
-      webSocketFactory: () => sock,
-      reconnectDelay: 5000,
-      onConnect: () => {
-        console.log("🟢 [프론트엔드] WebSocket Connected");
+        webSocketFactory: () => new SockJS("http://localhost:8003/workly/ws-stomp"),
+        reconnectDelay: 5000,
+        debug: (str) => console.log("🛠 [WebSocket Debug]:", str),
+        connectHeaders: {
+            userNo: currentUser.userNo.toString(),
+        },
+        onConnect: () => {
+            console.log("🟢 WebSocket Connected");
 
-        if (subscriptionRef.current) {
-          stompClient.unsubscribe(subscriptionRef.current);
-        }
-
-        const subscription = stompClient.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
-          const newMessage: ChatMessage = JSON.parse(message.body);
-          console.log("📩 [프론트엔드] 새 메시지 수신:", newMessage);
-
-          if (!newMessage.userNo) {
-            console.error("❌ [프론트엔드] 서버에서 userNo가 없음!", newMessage);
-          }
-
-          setChatMessages((prevMessages) => {
-            if (prevMessages.some(msg => msg.chatNo === newMessage.chatNo)) {
-              return prevMessages;
+            // ✅ 기존 채팅방 구독 해제 후 새 구독
+            if (subscriptionRef.current) {
+                stompClient.unsubscribe(subscriptionRef.current);
             }
-            return [...prevMessages, { ...newMessage, isMine: Number(newMessage.userNo) === Number(currentUser.userNo) }];
-          });
 
-          setTimeout(() => {
-            chatContainerRef.current?.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
-          }, 100);
-        });
+            const subscription = stompClient.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
+                console.log("📩 새 메시지 수신:", message.body);
+                const newMessage = JSON.parse(message.body);
+                setChatMessages((prev) => [
+                    ...prev,
+                    { ...newMessage, isMine: newMessage.userNo === currentUser.userNo },
+                ]);
+            });
 
-        subscriptionRef.current = subscription.id;
-        setClient(stompClient);
-      },
-
-      onDisconnect: () => {
-        console.log("🔴 [프론트엔드] WebSocket Disconnected");
-      },
-      onStompError: (frame) => {
-        console.error("❌ [프론트엔드] WebSocket STOMP Error:", frame);
-      },
+            subscriptionRef.current = subscription.id;
+            setClient(stompClient);
+        },
+        onDisconnect: () => console.log("🔴 WebSocket Disconnected"),
     });
 
     stompClient.activate();
 
     return () => {
-      if (subscriptionRef.current && stompClient) {
-        stompClient.unsubscribe(subscriptionRef.current);
-      }
-      stompClient.deactivate();
+        if (subscriptionRef.current) {
+            stompClient.unsubscribe(subscriptionRef.current);
+        }
+        stompClient.deactivate();
     };
-  }, [room.chatRoomNo]);
+}, [room.chatRoomNo]);
 
+  
+
+  // 채팅방을 구독하는 모두에게 전송?
+  const subscribeToChatRoom = () => {
+    if (!client || !client.connected) return;
+
+    client.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
+        console.log("📩 [프론트엔드] 새 메시지 수신:", message.body);
+        const newMessage = JSON.parse(message.body);
+
+        setChatMessages((prev) => [
+            ...prev,
+            { ...newMessage, isMine: newMessage.userNo === currentUser.userNo },
+        ]);
+
+        // ✅ 안 읽은 메시지 개수 다시 가져오기
+        fetchUnreadMessages();
+    }, { userNo: currentUser.userNo.toString(), roomId: room.chatRoomNo.toString() });
+};
+
+  
+  
+useEffect(() => {
+  if (!client || !client.connected) return;
+
+  if (subscriptionRef.current) {
+      console.log("🔄 기존 구독 해제:", subscriptionRef.current);
+      client.unsubscribe(subscriptionRef.current);
+  }
+
+  // 채팅 메시지 구독
+  const chatSubscription = client.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
+      console.log("📩 새 메시지 수신:", message.body);
+      const newMessage = JSON.parse(message.body);
+
+      setChatMessages((prev) => [
+          ...prev,
+          { ...newMessage, isMine: newMessage.userNo === currentUser.userNo },
+      ]);
+
+      if (newMessage.userNo !== currentUser.userNo) {
+          updateUserChatStatus(newMessage.chatNo);
+      }
+  });
+
+  // 안 읽은 메시지 개수 업데이트 구독
+  const unreadSubscription = client.subscribe(`/sub/chat/unread/${room.chatRoomNo}`, (message) => {
+      console.log("📩 안 읽은 메시지 개수 업데이트:", message.body);
+      setUnreadCount(JSON.parse(message.body));
+  });
+
+  subscriptionRef.current = chatSubscription.id;
+
+  return () => {
+      chatSubscription.unsubscribe();
+      unreadSubscription.unsubscribe();
+  };
+}, [room.chatRoomNo, client]);
+
+  
+  
+
+  
   // ✅ 메시지 전송 함수
   const sendMessage = () => {
     if (!client || !client.connected || !inputMessage.trim()) return;
-  
-    const newMessage = {
-      chatNo: chatMessages.length > 0 ? chatMessages[chatMessages.length - 1].chatNo + 1 : 1,
-      userNo: currentUser.userNo,
-      userName: currentUser.userName,
-      chatRoomNo: room.chatRoomNo,
-      message: inputMessage,
-      receivedDate: new Date().toISOString(),
-      isMine: true,
+
+    const chatMessage = {
+        chatRoomNo: room.chatRoomNo,
+        userNo: currentUser.userNo,
+        userName: currentUser.userName,
+        message: inputMessage,
     };
-  
-    // ✅ WebSocket으로 전송
-    client.publish({
-      destination: `/pub/chat/sendMessage/${room.chatRoomNo}`,
-      body: JSON.stringify(newMessage),
-    });
-  
-    // ✅ DB에도 저장 요청
-    axios.post(`http://localhost:8003/workly/api/chat/saveMessage`, newMessage)
-      .catch(error => console.error("❌ 채팅 메시지 저장 실패", error));
-  
-    setChatMessages(prev => [...prev, newMessage]);
-    setInputMessage("");
-  };
-  
-  
+
+    console.log("📤 [프론트엔드] WebSocket으로 메시지 전송:", chatMessage);
+
+    try {
+        client.publish({
+            destination: `/pub/chat/sendMessage/${room.chatRoomNo}`,
+            body: JSON.stringify(chatMessage),
+        });
+
+        console.log("✅ [프론트엔드] WebSocket 메시지 전송 성공");
+
+        setInputMessage(""); // 입력 필드 초기화
+
+        // ✅ 내가 메시지를 보낸 경우 lastReadChatNo 업데이트
+        updateUserChatStatus();
+    } catch (error) {
+        console.error("❌ [프론트엔드] WebSocket 메시지 전송 실패", error);
+    }
+};
+
+
+const handleClose = () => {
+  leaveChatRoom();
+  localStorage.removeItem(`chatMessages_${room.chatRoomNo}`);  // ✅ 채팅방 변경 시 메시지 초기화
+  setChatMessages([]);
+  setLastReadChatNo(null); // ✅ lastReadChatNo 초기화
+  onClose();
+};
+
+
+const updateUserChatStatus = async () => {
+  try {
+      await axios.put(`http://localhost:8003/workly/api/chat/updateStatus/${room.chatRoomNo}/${currentUser.userNo}`);
+      console.log("✅ [프론트엔드] updateUserChatStatus 요청 완료");
+  } catch (error) {
+      console.error("❌ [프론트엔드] updateUserChatStatus 요청 실패:", error);
+  }
+};
+
+// ✅ 채팅방 입장 시 업데이트 실행
+useEffect(() => {
+    updateUserChatStatus();
+}, [room.chatRoomNo, currentUser.userNo]);  // ✅ 채팅방이 변경될 때마다 실행
+
+
+const isUnread = (msg: ChatMessage) => {
+  return lastReadChatNo !== null && msg.chatNo > lastReadChatNo;
+};  
 
   
 
@@ -211,21 +356,23 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
         {room.roomTitle}
       </div>
 
-      <div className="groupchat-close-icon" style={{ left: 359, top: 22, position: "absolute", cursor: "pointer" }} onClick={onClose}>✕</div>
+      <div className="groupchat-close-icon" style={{ left: 359, top: 22, position: "absolute", cursor: "pointer" }}  onClick={handleClose}>✕</div>
 
       <div ref={chatContainerRef} style={{ position: "absolute", top: 100, left: 20, display: "flex", flexDirection: "column", gap: 10, width: 360, overflowY: "auto", height: 360 }}>
       {chatMessages.map((msg, index) => {
+        
         const prevMsg = chatMessages[index - 1];
         const nextMsg = chatMessages[index + 1];
         const isSameUserAsBefore = prevMsg && prevMsg.userNo === msg.userNo;
         const isNewDate = !prevMsg || formatDate(prevMsg.receivedDate) !== formatDate(msg.receivedDate);
-        const isUnread = lastReadChatNo !== null && msg.chatNo > lastReadChatNo;
+        // const isUnread = lastReadChatNo !== null && msg.chatNo > lastReadChatNo;
+        const unread = isUnread(msg);  
 
         // 이전 메시지와 시간이 같은지 확인하여 시간 중복 표시 방지
-        const showTime = !nextMsg || formatTime(nextMsg.receivedDate) !== formatTime(msg.receivedDate);
+        const showTime = !nextMsg || formatTime(nextMsg.receivedTime) !== formatTime(msg.receivedDate);
 
         return (
-          <div key={msg.chatNo} style={{ display: "flex", flexDirection: "column", alignItems: msg.isMine ? "flex-end" : "flex-start", marginBottom: 10}}>
+          <div key={msg.chatNo ? msg.chatNo : `msg-${index}`} style={{ display: "flex", flexDirection: "column", alignItems: msg.isMine ? "flex-end" : "flex-start", marginBottom: 10 }}>
             {isNewDate && (
               <div
                 className="dividerDate"
@@ -256,6 +403,11 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
                 </div>
                 <div className="right-divider" style={{ flex: 1, height: "1px", background: "#E0E0E0" }} />
               </div>
+            )}
+
+            {/* ✅ 안 읽은 메시지 표시 */}
+            {unread && (
+                <div style={{ fontSize: 10, color: "red", marginTop: 2, alignSelf: "flex-end" }}>{unreadCount > 0 && `안 읽은 메시지: ${unreadCount}개`}</div>
             )}
 
             {!msg.isMine && !isSameUserAsBefore && (
@@ -292,22 +444,13 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
                       maxWidth: "230px",
                       marginLeft: !msg.isMine ? "50px" : "0px",
                       marginRight: msg.isMine ? "5px" : "0px",
-                      marginBottom: "-2px"
+                      marginBottom: "-5px"
                     }}
                   >
                     {msg.message}
                   </div>
                 )}
-
-                
-
-
-
-
-새 항목
-
-2:14
-{msg.isMine && (
+                {msg.isMine && (
                   <div
                     style={{
                       background: "#D2E3FF",
@@ -335,7 +478,7 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
                       color: "#B3B3B3",
                       position: "absolute",
                       bottom: -20,
-                      right: msg.isMine ? "0px" : "-30",
+                      right: msg.isMine ? "0px" : "0",
                       left: msg.isMine ? "0px" : "50px",
                     }}
                   >
@@ -344,22 +487,39 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
                 )}
               </div>
 
-              {isUnread && (
+              {/* {isUnread && (
                 <div style={{ fontSize: 10, color: "red", marginTop: 2, alignSelf: "flex-end" }}>안 읽음</div>
-              )}
+              )} */}
             </div>
           );
         })}
       </div>
+      
+      
 
-      <img className="file" style={{ width: 30, height: 30, left: 31, top: 545, position: "absolute" }} src={file} alt="icon" />
       <img className="bell" 
       //onClick={handleBellClick} 
-      style={{ cursor: "pointer", width: 30, height: 30, left: 75, top: 545, position: "absolute" }} src={bell} alt="icon" />
-      <img className="personplus" 
-      //onClick={() => setIsAddMemberPanelOpen(true)}
-       style={{ width: 30, height: 30, left: 121, top: 545, position: "absolute", cursor: "pointer" }} src={personplus} alt="icon" />
-      <img className="exit" style={{ width: 30, height: 30, left: 168, top: 545, position: "absolute" }} src={exit} alt="icon" />
+      style={{ cursor: "pointer", width: 30, height: 30, left: 23, top: 545, position: "absolute" }} src={bell} alt="icon" />
+        <img
+          className="personplus"
+          onClick={() => {
+            console.log("멤버 추가 버튼 클릭됨"); // 디버깅 로그 추가
+            setIsAddMemberPanelOpen(true); // ✅ 상태 업데이트
+          }}
+          style={{
+            width: 30,
+            height: 30,
+            left: 69,
+            top: 545,
+            position: "absolute",
+            cursor: "pointer",
+          }}
+          src={personplus}
+          alt="icon"
+        />
+
+
+      <img className="exit" style={{ width: 30, height: 30, left: 116, top: 545, position: "absolute" }} src={exit} alt="icon" />
 
       <textarea value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} placeholder="메세지 입력" maxLength={5000} style={{ position: "absolute", bottom: 70, left: "20px", width: "350px", height: "60px", borderRadius: "5px", border: "1.5px solid #ccc", padding: "10px", fontSize: "14px", resize: "none", overflowY: "auto" }} />
 

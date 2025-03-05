@@ -61,39 +61,4 @@ public class CalendarServiceImpl implements CalendarService {
         calendarDao.deleteEvent(calNo);
     }
 
-    // ✅ 6. 회의실 예약 조회
-    @Override
-    public List<MeetingReservation> getMeetingReservations() {
-        return calendarDao.selectMeetingReservations();
-    }
-
-    // ✅ 7. 회의실 예약 추가🚀
-    @Transactional
-    @Override
-    public void addMeetingReservation(MeetingReservation meeting) {
-        if (meeting.getRoomNo() == 0) {
-            meeting.setRoomNo(1);  // 기본값 설정
-        }
-        calendarDao.insertMeetingReservation(meeting);
-    }
-
-
-    // ✅ 8. 회의실 예약 수정🚀
-    @Transactional
-    @Override
-    public void updateMeetingReservation(int mrResNo, MeetingReservation meeting) {
-        if (meeting.getRoomNo() == 0) {
-            meeting.setRoomNo(1);  // 기본값 설정
-        }
-        calendarDao.updateMeetingReservation(mrResNo, meeting);
-    }
-
-
-    // ✅ 9. 회의실 예약 삭제🚀
-    @Transactional
-    @Override
-    public void deleteMeetingReservation(int mrResNo) {
-        calendarDao.deleteMeetingReservation(mrResNo);
-    }
-
 }

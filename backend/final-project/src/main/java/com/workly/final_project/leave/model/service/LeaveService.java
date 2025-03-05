@@ -19,4 +19,6 @@ public interface LeaveService {
 	List<LeavePolicy> selectLeavePolicy();
 
 	int updatePolicy(LeavePolicy policy);
+	
+	void insertAnnualLeave();
 }

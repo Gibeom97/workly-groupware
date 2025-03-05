@@ -20,6 +20,8 @@ import Alarm from "./components/chat/Alarm";
 //import { useSelector } from "react-redux";
 //import { RootState } from "./store"; 
 import { ChatMessage } from "./type/chatType"; 
+import AddMemberPanel from "./components/chat/AddMemberPanel";
+import axios from "axios";
 
 
 
@@ -82,6 +84,9 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
   const [isAlarmListOpen, setIsAlarmListOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [chatList, setChatList] = useState<ChatRoom[]>([]);
+  const [currentRoom, setCurrentRoom] = useState<ChatRoom | null>(null);
+  const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
+  const [currentMembers, setCurrentMembers] = useState<Member[]>([]);
 
 
   const toggleSearch = () => {
@@ -101,6 +106,10 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     setIsInfoModalOpen(false);
     setSelectedMember(null); // 모달 닫을 때 초기화
   };
+
+  const handleRoomChange = (newRoom: ChatRoom) => {
+    setCurrentRoom(newRoom);
+};
 
 
   const closeMyInfoModal = () => setIsMyInfoModalOpen(false);
@@ -215,8 +224,22 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     );
   };
   
+  // Chat.tsx에서 currentMembers 상태를 selectedChatRoom에 따라 업데이트
+  useEffect(() => {
+    if (selectedChatRoom) {
+      fetchChatMembers(selectedChatRoom.chatRoomNo);
+    }
+  }, [selectedChatRoom]);
   
-
+  const fetchChatMembers = async (chatRoomNo: number) => {
+    try {
+      const response = await axios.get(`http://localhost:8003/workly/api/chat/members/${chatRoomNo}`);
+      setCurrentMembers(response.data); // ✅ 현재 채팅방의 멤버 업데이트
+    } catch (error) {
+      console.error("❌ 채팅방 멤버 불러오기 실패", error);
+    }
+  };
+  
   
 
   // ✅ 1. LocalStorage에서 chatList 불러오기
@@ -251,18 +274,35 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
              <MyInfo myinfo={currentUser}  onClose={closeMyInfoModal} />
           </InfoContainer>
         ) : selectedChatRoom ? (
-            <GroupChat
-            room={selectedChatRoom!}
-            currentUser={currentUser}  
-            messages={chatMessages}
-            onClose={() => {
-              setSelectedChatRoom(null);
-              setIsChatListOpen(true);
-            }}
-            onToggleAlarm={onToggleAlarm} 
-            currentMembers={[]}
-          />
+          <>
+    <GroupChat
+      room={selectedChatRoom}
+      currentUser={currentUser}
+      messages={chatMessages}
+      onClose={() => {
+        setSelectedChatRoom(null);
+        setIsChatListOpen(true);
+      }}
+      onToggleAlarm={onToggleAlarm}
+      currentMembers={currentMembers} // ✅ 현재 채팅방 멤버 전달
+      onChangeRoom={handleRoomChange}
+      setIsAddMemberPanelOpen={setIsAddMemberPanelOpen} // ✅ 추가
+    />
 
+    {isAddMemberPanelOpen && (
+      <AddMemberPanel
+        allEmployees={[]} // 🔥 백엔드 API에서 전체 직원 목록 불러와야 함
+        currentMembers={currentMembers} // ✅ 현재 채팅방 멤버 전달
+        room={selectedChatRoom} // ✅ 현재 선택된 채팅방 정보
+        onClose={() => setIsAddMemberPanelOpen(false)}
+        onConfirm={(newMembers) => {
+          console.log("✅ 멤버 추가됨:", newMembers);
+          setCurrentMembers([...currentMembers, ...newMembers]); // ✅ 새로운 멤버 업데이트
+          setIsAddMemberPanelOpen(false); // ✅ 패널 닫기
+        }}
+      />
+    )}
+  </>
 
           ) : isInfoModalOpen ? (
           <InfoContainer>

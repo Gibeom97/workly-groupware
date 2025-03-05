@@ -21,7 +21,9 @@ public class Approval {
 	private Date startDate;//요청 날짜
 	private Date endDate;// 최종승인 날짜
 	private String approvalUser;//기안자
+	private String userConfirm;// 기안자가 완료, 반려 문서 읽었는지 여부
 	
+	// 다른 테이블 컬럼 필요하여 추가
 	private int status;
 	private String type;
 	

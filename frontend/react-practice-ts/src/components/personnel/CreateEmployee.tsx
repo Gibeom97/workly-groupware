@@ -1,10 +1,11 @@
 import { FormEvent, useRef, useState } from "react";
 import styles from "./CreateEmployee.module.css";
 import defaultImg from "../../assets/images/icon/default-profile.png"
-import axios from "axios";
+import axios from "../../utils/CustomAxios";
 import { useNavigate } from "react-router-dom";
 import AddressForm from "./AddressForm";
 import DeptPositionSelect from "./DeptPositionSelect";
+import { useSelector } from "react-redux";
 
 const CreateEmployee = () => {
     const [member, setMember] = useState({
@@ -24,6 +25,7 @@ const CreateEmployee = () => {
     const [profileImg, setProfileImg] = useState(null); // 프로필 이미지
     const [preview, setPreview] = useState(null); // 프로필 이미지 미리보기
     const fileInputRef = useRef(null);
+    const companyId = useSelector((state: any) => state.user.companyId);
 
     const navigate = useNavigate();
 
@@ -63,6 +65,7 @@ const CreateEmployee = () => {
 
         const updateMember = {
             ...member,
+            companyId: companyId,
             hireDate : new Date(member.hireDate).toISOString().split("T")[0], // 날짜 string -> Date로 변환
             address : addressApi,
         };
@@ -80,10 +83,12 @@ const CreateEmployee = () => {
         await axios.post("http://localhost:8003/workly/enroll", formData)
              .then(response => {
                 navigate("/personnel");
+                console.log("등록 성공")
                 alert(response.data.msg);
             })
              .catch(error => {
                 navigate("/personnel");
+                console.log("등록 실패")
                 alert(error.response.data.msg);
              });
     };
@@ -112,11 +117,16 @@ const CreateEmployee = () => {
                 </div>
                 <div className={styles.row}>
                     <label className={styles.label}>비밀번호</label>
-                    <input type="password" name="userPwd" className={`${styles.input} ${styles.pwInput}`} onChange={handleChange} required />
+                    <input type="password" name="userPwd" className={styles.input} required 
+                    onChange={handleChange} 
+                    pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$"
+                    placeholder="영문, 숫자, 특수문자 포함 8~20자 입력"/>
                 </div>
                 <div className={styles.row}>
                     <label className={styles.label}>연락처</label>
-                    <input type="number" name="phone" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" required/>
+                    <input type="number" name="phone" className={styles.input} onChange={handleChange} placeholder="숫자만 입력해주세요(- 제외)" required
+                    pattern="^01(0|1|[6-9])[0-9]{3,4}[0-9]{4}$"
+                    />
                 </div>
                 <div className={styles.row} >
                     <label className={styles.label}>주소</label>
@@ -129,7 +139,8 @@ const CreateEmployee = () => {
                 </div>
                 <div className={styles.row}>
                     <label className={styles.label}>이메일</label>
-                    <input type="email" name="email" className={styles.input} onChange={handleChange} required pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" />
+                    <input type="email" name="email" className={styles.input} onChange={handleChange} required 
+                    pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" />
                 </div>
                 <div className={styles.row}>
                     <label className={styles.label}>내선번호</label>

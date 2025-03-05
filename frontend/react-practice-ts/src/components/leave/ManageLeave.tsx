@@ -2,7 +2,7 @@ import styles from './ManageLeave.module.css'
 import search from '../../assets/images/icon/search.png';
 import { useEffect, useState } from 'react';
 import MemberSearchModal from './MemberSearchModal';
-import axios from 'axios';
+import axios from '../../utils/CustomAxios';
 import { format } from 'date-fns';
 
 const ManageLeave = () => {
@@ -87,10 +87,6 @@ const ManageLeave = () => {
 
     useEffect(() => {
         handleLeaveDetail();
-        console.log("상위컴포넌트 memberList: ", memberList);
-        console.log("상위컴포넌트 user: ", user);
-        console.log("상위컴포넌트 annualLeave: ", annualLeave);
-        console.log("상위컴포넌트 leaveHistory: ", leaveHistory);
     }, [user, year])
 
     return (
@@ -175,11 +171,11 @@ const ManageLeave = () => {
                         {leaveHistory.length > 0 && leaveHistory[0].leaveHistory !== null && leaveHistory.map((e, i) => (
                             <tr key={i} className={styles.rowStyle}>
                                 <td className={styles.tdStyle}>{i + 1}</td>
-                                <td className={styles.tdStyle}>{e.leaveHistory.leaveType === "1" ? "연차" : (e.leaveHistory.leaveType === "2" ? "오전 반차" : "오후 반차")}</td>
+                                <td className={styles.tdStyle}>{e.leaveHistory.leaveType}</td>
                                 <td className={styles.tdStyle}>{new Date(e.leaveHistory.startDate).toISOString().split("T")[0]}</td>
                                 <td className={styles.tdStyle}>{new Date(e.leaveHistory.endDate).toISOString().split("T")[0]}</td>
                                 <td className={styles.tdStyle}>{e.leaveHistory.leaveDays}</td>
-                                <td className={styles.tdStyle}>{e.leaveHistory.leaveStatus === "1" ? "대기" : (e.leaveHistory.leaveStatus === "2" ? "승인" : "반려")}</td>
+                                <td className={styles.tdStyle}>{e.leaveHistory.approvalStatus === 1 ? "신청" : (e.leaveHistory.approvalStatus === 2 ? "승인" : "반려")}</td>
                             </tr>
                         ))}
                         {leaveHistory.length === 0 && user.userName === "" &&

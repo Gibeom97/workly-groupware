@@ -11,7 +11,8 @@
 		LEFT JOIN PROFILE_ATTACHMENT ON USER_NO = REF_USER_NO AND ATTACH_STATUS = 'Y'
         LEFT JOIN ANNUAL_LEAVE USING(USER_NO) 
 			WHERE USER_NO = #{userNo} AND USER_PWD = #{userPwd} AND YEAR = EXTRACT(YEAR FROM SYSDATE) AND MEMBER.STATUS ='Y'
-	</select> 
+	</select>
+
 
 	<select id="selectCategoryMemberCount" resultType="int" parameterType="CategoryFilter">
 	    SELECT COUNT(*) FROM MEMBER
@@ -34,7 +35,7 @@
 	<select id="selectMemberList" resultMap="memberDTOListMap" parameterType="CategoryPrDTO">
 		SELECT *
 		FROM (SELECT ROWNUM RNUM, A.*
-		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, ADDRESS, ADDRESS_DETAIL
+		      FROM (SELECT USER_NO, USER_NAME, EMAIL, EXTENSION, PHONE, DEPT_NO, DEPT_NAME, POSITION_NO, POSITION_NAME, HIRE_DATE, UPDATE_DATE, ADDRESS, ADDRESS_DETAIL, COMPANY_ID
 		            FROM MEMBER
                     JOIN DEPARTMENT USING(DEPT_NO)
                     JOIN POSITION USING(POSITION_NO)
@@ -69,6 +70,7 @@
 			<result property="updateDate" column="UPDATE_DATE" />
 			<result property="address" column="ADDRESS" />
 			<result property="addressDetail" column="ADDRESS_DETAIL" />
+			<result property="companyId" column="COMPANY_ID"/>
 		</association>
 		
 		<association property="department" javaType="Department">
@@ -79,12 +81,11 @@
 			<result property="positionName" column="POSITION_NAME"/>
 		</association>
 	</resultMap>
-	
+
 	<insert id="insertMember" useGeneratedKeys="true">
 		<selectKey keyProperty="userNo" resultType="int" order="BEFORE">
 			SELECT (TO_CHAR(SYSDATE, 'YYYY') || LPAD(USER_NO_SEQ.NEXTVAL, 2, '0')) FROM DUAL
 		</selectKey>
-		
 		INSERT INTO MEMBER
 		VALUES (
 			#{userNo},  
@@ -97,7 +98,7 @@
 			#{addressDetail}
 			)
 	</insert>
-	
+
 	<insert id="insertLeave" parameterType="Member">
 		INSERT INTO ANNUAL_LEAVE (USER_NO, YEAR, TOTAL_ANNUAL_LEAVE, USED_ANNUAL_LEAVE)
 		SELECT 
@@ -202,7 +203,8 @@
 			ADDRESS = #{address},
 			HIRE_DATE = #{hireDate},
 			ADDRESS_DETAIL = #{addressDetail},
-			UPDATE_DATE = #{updateDate}
+			UPDATE_DATE = #{updateDate},
+			ROLE = #{role}
 		WHERE USER_NO = #{userNo}
 	</update>
 	
@@ -213,6 +215,19 @@
 		JOIN POSITION USING(POSITION_NO)
 		ORDER BY DEPT_NO, HIRE_DATE DESC
 	</select>
+	
+	<select id="currentPwdCheck" resultType="Member">
+		SELECT USER_PWD
+		FROM MEMBER
+		WHERE USER_NO = #{userNo}
+	</select>
+	
+	
+	<update id="updatePassword">
+		UPDATE MEMBER
+		SET USER_PWD = #{newPwd}
+		WHERE USER_NO = #{userNo}
+	</update>
 </mapper>
 
 

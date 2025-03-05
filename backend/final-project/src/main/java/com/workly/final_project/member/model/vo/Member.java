@@ -26,4 +26,6 @@ public class Member {
 	private Date hireDate;
 	private Date updateDate;
 	private String addressDetail;
+	private String role;
+	private int companyId;
 }

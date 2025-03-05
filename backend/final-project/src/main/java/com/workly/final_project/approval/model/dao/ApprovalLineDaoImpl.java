@@ -94,6 +94,35 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 		sqlSession.update("ApprovalLine.updateFinalApproval", approvalNo);
 	}
 
+	// 결재라인 1번인 사람이 수신일경우 결재문서 바로 승인완료로 저장
+	@Override
+	public void updateApprovalTypeToApproved(List<Integer> approvalNosToUpdate) {
+		sqlSession.update("ApprovalLine.updateApprovalTypeToApproved", approvalNosToUpdate);
+	}
+
+	@Override
+	public String selectApprovalType(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.selectApprovalType", approvalNo);
+	}
+
+	@Override
+	public double selectLeaveDays(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.selectLeaveDays", approvalNo);
+	}
+
+	@Override
+	public void updateAnnualLeave(int userNo, double leaveDays) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("userNo", userNo);
+		map.put("leaveDays", leaveDays);
+		sqlSession.update("ApprovalLine.updateAnnualLeave", map);		
+	}
+
+	@Override
+	public int selectApprovalUserNo(int approvalNo) {
+		return sqlSession.selectOne("ApprovalLine.selectApprovalUserNo", approvalNo);
+	}
+
 	
 }
 

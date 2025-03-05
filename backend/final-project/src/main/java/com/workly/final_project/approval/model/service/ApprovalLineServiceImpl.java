@@ -1,8 +1,10 @@
 package com.workly.final_project.approval.model.service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,16 @@ public class ApprovalLineServiceImpl implements ApprovalLineService{
 	@Override
 	public void saveApprovalLine(List<ApprovalLine> approvalLines) {
 		dao.saveApprovalLine(approvalLines);
+		
+		List<Integer> approvalNosToUpdate = approvalLines.stream()
+			    .filter(line -> line.getApprovalLevel() == 1 && "수신".equals(line.getApprovalLineType()))
+			    .map(ApprovalLine::getApprovalNo)
+			    .distinct()
+			    .collect(Collectors.toList());
+		
+		if (!approvalNosToUpdate.isEmpty()) {
+		    dao.updateApprovalTypeToApproved(approvalNosToUpdate);
+		}
 		
 	}
 
@@ -96,6 +108,21 @@ public class ApprovalLineServiceImpl implements ApprovalLineService{
 		dao.updateFinalApproval(approvalNo);
 	}
 
+	@Override
+	public String selectApprovalType(int approvalNo) {
+		return dao.selectApprovalType(approvalNo);
+	}
+
+	@Override
+	public void updateAnnualLeave(int userNo, int approvalNo) {
+		double leaveDays = dao.selectLeaveDays(approvalNo);
+		dao.updateAnnualLeave(userNo, leaveDays);
+	}
+
+	@Override
+	public int selectApprovalUserNo(int approvalNo) {
+		return dao.selectApprovalUserNo(approvalNo);
+	}
 }
 
 

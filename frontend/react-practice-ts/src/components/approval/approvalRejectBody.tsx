@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { ApprovalMark } from "./approvalMark";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { format, addHours } from "date-fns";
 import { ko } from "date-fns/locale";
+import { isNil } from "lodash";
 import { useNavigate } from "react-router-dom";
+import { fetchApprovalStatus } from "../../features/approvalNotificationsSlice";
 
 interface ApprovalRejectBodyProps {
   selectedPosts: number[];
@@ -25,6 +27,13 @@ export const ApprovalRejectBody = ({
   postsPerPage,
   onDelete
 }: ApprovalRejectBodyProps) => {
+
+ // 깃 이전 
+// export const ApprovalRejectBody = () => {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+  
+  // 로그인한 유저의 userNO
   const userNo = useSelector((state: any) => state.user.userNo);
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
@@ -103,11 +112,27 @@ export const ApprovalRejectBody = ({
     }
   };
 
-  const handleRowClick = (approvalNo: number, event: React.MouseEvent) => {
-    // 체크박스 클릭 시 상세페이지로 이동하지 않음
-    if ((event.target as HTMLElement).tagName === 'INPUT') return;
-    window.location.href = `/ApprovalRejectDetailPage/${approvalNo}`;
+const handleRowClick = async (approvalNo: number, event: React.MouseEvent) => {
+  // 체크박스 클릭한 경우 상세 페이지로 이동 방지
+  if ((event.target as HTMLElement).tagName === "INPUT") return;
+
+  if (!userNo) {
+    console.log("❌ 로그인된 사용자 정보 없음");
+    return;
   }
+
+  try {
+    await axios.post(`http://localhost:8003/workly/notifications/read2`, null, {
+      params: { approvalNo, userNo },
+    });
+
+    dispatch(fetchApprovalStatus(userNo) as any); // Redux 상태 즉시 반영
+    navigate(`/ApprovalRejectDetailPage/${approvalNo}`);
+  } catch (error) {
+    console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
+  }
+};
+
 
   return (
     <>
