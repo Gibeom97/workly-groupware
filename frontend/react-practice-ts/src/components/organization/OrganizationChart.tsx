@@ -10,10 +10,10 @@ const baseProfileUrl = "http://localhost:8003/workly";
 interface MemberMap {
   userNo: number;
   userName?: string;  // 소문자 키
-  USERNAME?: string; // 대문자 키
-  positionNo: number;
+  USERNAME?: string;  // 대문자 키
+  positionNo: number; // 직급 번호
   positionName?: string;
-  deptNo: number;
+  deptNo: number;     // 부서 번호
   companyId: number;
   phone?: string;
   extension?: string;
@@ -32,8 +32,10 @@ interface DepartmentMap {
 // 화면에서 사용하는 직원 정보
 interface Employee {
   userNo: number;
-  userName: string; // 항상 소문자로 통일
+  userName: string;    
+  positionNo: number;  
   positionName?: string;
+  deptNo: number;      // 추가
   deptName: string;
   companyId: number;
   phone?: string;
@@ -46,9 +48,6 @@ const OrganizationChart: React.FC = () => {
   // 1) Redux user 가져오기
   const user = useSelector((state: any) => state.user);
   const companyId = user?.companyId;
-
-  console.log("Redux user:", user);
-  console.log("Redux user companyId:", companyId);
 
   // 2) 상태 정의
   const [departments, setDepartments] = useState<DepartmentMap[]>([]);
@@ -64,7 +63,6 @@ const OrganizationChart: React.FC = () => {
     axios
       .get("http://localhost:8003/workly/organization/map")
       .then((response) => {
-        console.log("✅ 조직도 데이터 (Map):", response.data);
         setDepartments(response.data);
       })
       .catch((error) => {
@@ -76,14 +74,14 @@ const OrganizationChart: React.FC = () => {
   const flattenEmployees = (depts: DepartmentMap[]): Employee[] => {
     let empList: Employee[] = [];
     depts.forEach((dept) => {
-      // dept.members (MemberMap[]) → Employee[]
       const deptMembers = dept.members.map((m) => {
-        // userName은 소문자(userName) 또는 대문자(USERNAME) 중 존재하는 값
         const name = m.userName || m.USERNAME || "";
         return {
           userNo: m.userNo,
           userName: name,
+          positionNo: m.positionNo,
           positionName: m.positionName,
+          deptNo: m.deptNo,               // 추가
           deptName: dept.deptName,
           companyId: m.companyId,
           phone: m.phone,
@@ -105,21 +103,25 @@ const OrganizationChart: React.FC = () => {
   useEffect(() => {
     const flatList = flattenEmployees(departments);
     setEmployees(flatList);
-    console.log("flattened employees:", flatList); // ★ 모든 사원 정보 확인
   }, [departments]);
 
-  // 6) 검색 + 회사ID 필터
-  const filteredEmployees = employees.filter((emp) => {
-    // userName fallback
-    const name = emp.userName || "";
-    return (
-      name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      emp.companyId === companyId
-    );
-  });
-
-  console.log("searchTerm:", searchTerm);
-  console.log("filteredEmployees:", filteredEmployees);
+  // 6) 검색 + 회사ID 필터 후, deptNo → positionNo 순으로 정렬
+  const filteredEmployees = employees
+    .filter((emp) => {
+      const name = emp.userName || "";
+      return (
+        name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        emp.companyId === companyId
+      );
+    })
+    .sort((a, b) => {
+      // 1) deptNo 오름차순
+      if (a.deptNo !== b.deptNo) {
+        return a.deptNo - b.deptNo;
+      }
+      // 2) positionNo 오름차순
+      return a.positionNo - b.positionNo;
+    });
 
   // 모달 닫기
   const closeModal = () => {
@@ -194,7 +196,7 @@ const OrganizationChart: React.FC = () => {
                 src={
                   selectedEmployee.profileImage
                     ? baseProfileUrl + selectedEmployee.profileImage
-                    : `/src/assets/Images/icon/profile.png`
+                    : "/src/assets/Images/icon/profile.png"
                 }
                 alt="Profile"
                 className={styles.profileImage}
@@ -213,7 +215,8 @@ const OrganizationChart: React.FC = () => {
                 {selectedEmployee.extension ?? "정보 없음"}
               </p>
               <p className={styles.modalDetail}>
-                <strong>이메일:</strong> {selectedEmployee.email ?? "정보 없음"}
+                <strong>이메일:</strong>{" "}
+                {selectedEmployee.email ?? "정보 없음"}
               </p>
             </div>
             <button className={styles.modalCloseButton} onClick={closeModal}>
