@@ -49,7 +49,7 @@ const Login = () => {
                 console.log("cookie user확인: ", getCookie("user"));
                 console.log("cookie token확인: ", getCookie("accessToken"));
                 console.log("localStorage 확인: ", localStorage.getItem("user"));
-                navigate("/main");
+                navigate("/main", {replace: true});
             }).catch((error) => {
                 
                 console.log(error.response.data);
