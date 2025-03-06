@@ -48,7 +48,6 @@
 		WHERE USER_NO = #{userNo}
 		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
 	</select>
-	
 </mapper>
 
 

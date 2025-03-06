@@ -15,5 +15,4 @@ public interface AttendanceDao {
 	Date selectWorkOn(int userNo);
 
 	Date selectWorkOff(int userNo);
-
 }

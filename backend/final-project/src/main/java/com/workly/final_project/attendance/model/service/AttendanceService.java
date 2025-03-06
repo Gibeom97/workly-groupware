@@ -11,5 +11,4 @@ public interface AttendanceService {
 	Date selectWorkOn(int userNo);
 
 	Date selectWorkOff(int userNo);
-
 }

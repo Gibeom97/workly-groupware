@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.workly.final_project.attendance.model.service.AttendanceService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin("http://localhost:5173")
