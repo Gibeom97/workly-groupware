@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import styles from './MyInfomation.module.css'
+import styles from '../../styles/myPage/MyInfomation.module.css'
 import { useNavigate, useParams } from 'react-router-dom';
 import defaultImg from "../../assets/images/icon/profile.png"
 import axios from '../../utils/CustomAxios';

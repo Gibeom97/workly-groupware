@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './MeetingRoom.module.css';
+import styles from '../../styles/mainpage/MeetingRoom.module.css';
 import search from '../../assets/images/icon/search.png';
 
 // 예약 정보 타입 정의

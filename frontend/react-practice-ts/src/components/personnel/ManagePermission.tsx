@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./ManagePermission.module.css";
+import styles from "../../styles/personnel/ManagePermission.module.css"
 
 const ManagePermission = () => {
   const [openSections, setOpenSections] = useState({ inhumanResources: true });

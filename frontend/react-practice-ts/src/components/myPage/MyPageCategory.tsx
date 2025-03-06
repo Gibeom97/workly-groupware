@@ -1,4 +1,4 @@
-import styles from './MyPageCategory.module.css'
+import styles from '../../styles/myPage/MyPageCategory.module.css';
 import { useLocation, useNavigate } from "react-router-dom";
 
 const MyPageCategory = () => {

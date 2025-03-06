@@ -3,6 +3,7 @@ package com.workly.final_project.member.model.dao;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
 import com.workly.final_project.common.model.vo.Attachment;
@@ -96,5 +97,11 @@ public class MemberDaoImpl implements MemberDao {
 	@Override
 	public int updatePassword(ChangePwd changePwd) {
 		return session.update("member.updatePassword", changePwd);
+	}
+
+	@Override
+	@Scheduled(cron = "0 0 0 1 1 *")
+	public void initUserNoSeq() {
+		session.update("member.initUserNoSeq");
 	}
 }

@@ -22,11 +22,9 @@ import com.workly.final_project.leave.model.vo.AnnualLeave;
 import com.workly.final_project.leave.model.vo.LeavePolicy;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 public class LeaveController {
 	
 	private final LeaveService service;
@@ -81,6 +79,7 @@ public class LeaveController {
 				  								   .build();
 		
 		List<AnnualHistoryDTO> list = service.selectLeaveDetail(history);
+		System.out.println("list: " + list);
 		
 		return list;
 	}
@@ -92,10 +91,6 @@ public class LeaveController {
 			@RequestParam int year,
 			@RequestParam int updateLeave
 			) {
-		log.debug("userNo : {}", userNo);
-		log.debug("year : {}", year);
-		log.debug("updateLeave : {}", updateLeave);
-		
 		AnnualLeave leave = AnnualLeave.builder()
 									   .userNo(userNo)
 									   .year(year)
@@ -103,7 +98,6 @@ public class LeaveController {
 									   .build();
 		
 		int result = service.updateLeave(leave);
-		log.debug("result : {}", result);
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		
 		if(result > 0) {
@@ -122,8 +116,6 @@ public class LeaveController {
 	@GetMapping("/leavePolicy")
 	public List<LeavePolicy> selectLeavePolicy() {
 		List<LeavePolicy> list = service.selectLeavePolicy();
-		log.debug("list: {}", list);
-		
 		return list;
 	}
 	
@@ -132,8 +124,6 @@ public class LeaveController {
 	public ResponseEntity<Map<String, String>> updatePolicy(
 			@RequestBody LeavePolicy policy
 			) {
-		log.debug("policy: {}", policy);
-		
 		int result = service.updatePolicy(policy); 
 		
 		ResponseEntity<Map<String, String>> responseEntity = null;

@@ -78,7 +78,6 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 	public int findApprovalLevel(int approvalNo, int userNo) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("approvalNo", approvalNo);
-		params.put("usreNo", userNo);
 		params.put("userNo", userNo);
 		
 		return sqlSession.selectOne("ApprovalLine.findApprovalLevel", params);
@@ -122,8 +121,6 @@ public class ApprovalLineDaoImpl implements ApprovalLineDao{
 	public int selectApprovalUserNo(int approvalNo) {
 		return sqlSession.selectOne("ApprovalLine.selectApprovalUserNo", approvalNo);
 	}
-
-	
 }
 
 

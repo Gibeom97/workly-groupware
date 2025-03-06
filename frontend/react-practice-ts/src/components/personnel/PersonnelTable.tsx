@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Pagination from '../common/Pagination';
 import SearchBar from '../common/SearchBar';
-import styles from './PersonnelTable.module.css'
+import styles from '../../styles/personnel/PersonnelTable.module.css'
 import axios from '../../utils/CustomAxios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -36,6 +36,7 @@ const PersonnelTable = () => {
             const filteredData = response.data.members.filter(
                 (member) => member.member.companyId === companyId
             );
+            console.log(filteredData);
 
             setPersonnelList(filteredData);
             setPageInfo(response.data.pageInfo);
