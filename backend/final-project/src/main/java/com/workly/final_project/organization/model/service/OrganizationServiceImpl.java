@@ -27,7 +27,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     /**
      * flat(평면) 형태로 모든 부서를 반환,
-     * 각 부서에는 Map<String,Object> 형태의 members(직급명, 프로필 이미지, 등등) 포함
+     * 각 부서에는 Map<String,Object> 형태의 members(직급명, 프로필 이미지 등) 포함
      * children은 빈 배열로 설정.
      */
     @Override
@@ -64,7 +64,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             deptMap.put("deptNo", dept.getDeptNo());
             deptMap.put("deptName", dept.getDeptName());
             deptMap.put("topDeptCode", dept.getTopDeptCode());
-            deptMap.put("children", new ArrayList<>()); // flat 구조 → children는 빈 배열
+            deptMap.put("children", new ArrayList<>()); // flat 구조 → children은 빈 배열
 
             // 해당 부서에 속한 사원 목록 (Map 형태)
             List<Map<String, Object>> membersInDept = deptMembersMap.getOrDefault(dept.getDeptNo(), new ArrayList<>());
@@ -85,7 +85,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 }
                 m.put("userNo", userNo);
 
-                // 2) userName(대소문자 통일)
+                // 2) userName (대소문자 통일)
                 String userName = (String) m.get("userName");
                 if (userName == null) {
                     userName = (String) m.get("USER_NAME");
@@ -109,28 +109,38 @@ public class OrganizationServiceImpl implements OrganizationService {
                 m.put("companyId", compId);
 
                 // 4) phone, extension, email → 문자열 통일
-                // phone
                 String phone = (String) m.get("phone");
                 if (phone == null) {
                     phone = (String) m.get("PHONE");
                 }
                 m.put("phone", phone);
 
-                // extension
                 String extension = (String) m.get("extension");
                 if (extension == null) {
                     extension = (String) m.get("EXTENSION");
                 }
                 m.put("extension", extension);
 
-                // email
                 String email = (String) m.get("email");
                 if (email == null) {
                     email = (String) m.get("EMAIL");
                 }
                 m.put("email", email);
 
-                // 5) positionNo → positionName
+                // 추가: deptNo → 숫자로 변환 후 다시 put
+                Object deptNoObj = m.get("deptNo");
+                if (deptNoObj == null) {
+                    deptNoObj = m.get("DEPTNO");
+                }
+                int deptNo = 0;
+                if (deptNoObj instanceof Number) {
+                    deptNo = ((Number) deptNoObj).intValue();
+                } else if (deptNoObj instanceof String) {
+                    deptNo = Integer.parseInt((String) deptNoObj);
+                }
+                m.put("deptNo", deptNo);
+
+                // 5) positionNo → positionName 매핑
                 Object posObj = m.get("positionNo");
                 if (posObj == null) {
                     posObj = m.get("POSITIONNO");
@@ -143,6 +153,11 @@ public class OrganizationServiceImpl implements OrganizationService {
                 }
                 String posName = positionMap.getOrDefault(posNo, "");
                 m.put("positionName", posName);
+                // positionNo 값도 다시 put
+                m.put("positionNo", posNo);
+
+                // 디버깅 로그 출력
+                log.debug("Processed member map: {}", m);
 
                 // 6) changeName + filePath → profileImage
                 String changeName = (String) m.get("changeName");
