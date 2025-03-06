@@ -25,6 +25,7 @@ import ApprovalConfirmPage from "./pages/approvalPage/approvalConfirmPage";
 import Chat from "./Chat";
 import { RootState } from "./store";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 import { closeChat } from "./features/sidebarSlice";
 import { ApprovalCompletePage2 } from "./pages/approvalPage/approvalCompletePage2";
 import { ApprovalSendPage } from "./pages/approvalPage/approvalSendPage";
@@ -38,29 +39,51 @@ import AIAssistantPage from "./pages/AIAssistantPage";
 import CompanyEnrollPage from "./pages/CompanyEnrollPage";
 import RoleRoute from "./components/common/RoleRoute";
 import OrganizationChartPage from "./pages/OrganizationChartPage";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 function App() {
   // 전자결재 알림서비스 추가
   const userNo = useSelector((state: RootState) => state.user.userNo);
   useFetchNotifications(userNo);
 
-
   const currentUser = useSelector((state: RootState) => state.user);
   const { isChatOpen } = useSelector((state: RootState) => state.sidebar);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      // localStorage에서 파싱한 정보를 Redux에 업데이트
+      dispatch(loginUser(JSON.parse(storedUser)));
+    }
+  }, [dispatch]);
+
   return (
     <div>
 
       {/* 전자결재 알림 모달 (모든 페이지에서 표시) */}
       <NotificationModal />
 
-      {/* 🔹 Chat 열기 버튼 */}
-      {/* <button onClick={() => setIsChatOpen(true)}>채팅 열기</button> */}
 
       {/* 🔹 Chat 모달 (유저 정보 전달) */}
       {isChatOpen && (
         <Chat currentUser={currentUser} onClose={() => dispatch(closeChat())} />
       )}
+
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover
+        />
 
       <Routes>
         <Route path="/" element={<Login />} />

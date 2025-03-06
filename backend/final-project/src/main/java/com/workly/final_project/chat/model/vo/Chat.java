@@ -16,9 +16,8 @@ public class Chat {
 	private int chatNo;
 	private int chatRoomNo;
 	private String message;
-	private LocalDateTime receviedDate;
+	//private LocalDateTime receivedDate;
 	private String receivedDate;
-	private String receivedTime;
 	private int userNo;
 	private String userName;
 	private String fileUrl; // 파일 url 저장 필드 추가

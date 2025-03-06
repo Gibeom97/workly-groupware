@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from "axios";
 import profileIcon from "../../assets/Images/chat/profile.png";
+import totalprofileIcon from "../../assets/Images/chat/totalprofile.png";
 import dropdownIcon from "../../assets/Images/chat/dropdown2.png";
 import plusIcon from "../../assets/Images/chat/Plus circle.png";
 import SearchClick from "./SearchClick";
@@ -26,13 +27,31 @@ const OrgChart = ({ onOpenCreateOrg }: OrgChartProps) => {
         const memberResponse = await axios.get("http://localhost:8003/workly/api/chat/members");
         const members: Member[] = memberResponse.data;
 
-        // ✅ 3. 부서별 사원 매칭
+        // ✅ 3. 부서별 사원 매칭 및 프로필 이미지 추가 (ChatMain과 유사한 방식)
         const deptMap: { [key: string]: Member[] } = {};
         allDepartments.forEach((deptName) => {
           deptMap[deptName] = [];
         });
 
-        members.forEach((member) => {
+        // 각 사원별 프로필 이미지 요청 (Promise.all 사용)
+        const membersWithProfile = await Promise.all(
+          members.map(async (member) => {
+            try {
+              const profileResponse = await axios.get(
+                `http://localhost:8003/workly/api/user/profile/${member.userNo}`
+              );
+              return {
+                ...member,
+                profileImg: profileResponse.data.profileImg || profileIcon,
+              };
+            } catch {
+              return { ...member, profileImg: profileIcon };
+            }
+          })
+        );
+
+        // 사원들을 부서별로 분류
+        membersWithProfile.forEach((member) => {
           if (deptMap[member.deptName]) {
             deptMap[member.deptName].push(member);
           }
@@ -86,8 +105,12 @@ const OrgChart = ({ onOpenCreateOrg }: OrgChartProps) => {
       {/* 그룹 추가 */}
       <div>
         <span style={{ fontWeight: 'bold', color: '#4880FF' }}>그룹</span>
-        <img src={plusIcon} onClick={handleCreateDeptClick}
-          style={{ width: '15px', height: '15px', marginLeft: '5px', marginTop: '15px', cursor: 'pointer' }} />
+        <img
+          src={plusIcon}
+          onClick={handleCreateDeptClick}
+          style={{ width: '15px', height: '15px', marginLeft: '5px', marginTop: '15px', cursor: 'pointer' }}
+          alt="group add"
+        />
       </div>
 
       {/* 회사명 */}
@@ -113,8 +136,8 @@ const OrgChart = ({ onOpenCreateOrg }: OrgChartProps) => {
           {openDept === dept.deptName && (
             <div style={{ marginLeft: '18px', marginTop: '5px' }}>
               {dept.members.length > 0 ? (
-                dept.members.map((member, nox) => (
-                  <div key={nox} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                dept.members.map((member, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                     <div style={{
                       width: '40px',
                       height: '40px',
@@ -125,10 +148,20 @@ const OrgChart = ({ onOpenCreateOrg }: OrgChartProps) => {
                       alignItems: 'center',
                       marginRight: '8px'
                     }}>
-                      <img src={profileIcon} alt="user" style={{ width: '22px', height: '22px', objectFit: 'cover' }} />
+                      <img 
+                        src={member.profileImg || profileIcon} 
+                        alt="user" 
+                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = totalprofileIcon;
+                        }}
+                      />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 'bold' }}>{member.userName} ({member.positionName})</div>
+                      <div style={{ fontWeight: 'bold' }}>
+                        {member.userName} ({member.positionName})
+                      </div>
                       <div style={{ color: '#4880FF', fontSize: '12px' }}>활성화</div>
                     </div>
                   </div>

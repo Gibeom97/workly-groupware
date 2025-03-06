@@ -10,9 +10,15 @@ import { Member } from "../../type/chatType";
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko'; 
 import utc from "dayjs/plugin/utc";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
-const backendHost = "192.168.130.8";
+
+
+const backendHost = "192.168.130.8"; // 학원
+//const backendHost = "192.168.0.11"; // 테스트용 - 방
+//const backendHost ="192.168.200.102"; // 거실
 dayjs.extend(utc);
 
 
@@ -32,6 +38,10 @@ interface ChatMessage {
   lastReadChatNo?: number;
 }
 
+interface NotificationData {
+  message: string;
+}
+
 interface GroupChatProps {
   room: ChatRoom;
   currentUser: { userNo: number; userName: string };
@@ -40,10 +50,16 @@ interface GroupChatProps {
   onClose: () => void;
   messages?: ChatMessage[];
   onToggleAlarm: (ChatRoom: number, bellSetting: string) => void;
-  setIsAddMemberPanelOpen: (isOpen: boolean) => void;
+  setIsAddMemberPanelOpen: (isOpen: boolean) => void; // 이미 선언됨
 }
 
-const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps) => {
+const GroupChat = ({
+  room,
+  currentUser,
+  onClose,
+  messages = [],
+  setIsAddMemberPanelOpen
+}: GroupChatProps) => {
   const [client, setClient] = useState<Client | null>(null);
   const [inputMessage, setInputMessage] = useState("");
   const subscriptionRef = useRef<string | null>(null);
@@ -51,7 +67,80 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [lastReadChatNo, setLastReadChatNo] = useState<number | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
+  
+
+  const showNotification = (notification : NotificationData) => {
+    toast.info(`알림: ${notification.message}`, {
+      position: "top-center",
+      autoClose: 3000, // 3초 후 자동 종료
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
+  
+  // 스크롤 하단으로
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
+  
+
+  // ✅ WebSocket 연결 및 메시지 수신
+  useEffect(() => {
+    
+    const sock = new SockJS(`http://${backendHost}:8003/workly/ws-stomp`);
+
+    const stompClient = new Client({
+      webSocketFactory: () => sock,
+      reconnectDelay: 5000,
+      debug: (str) => console.log("🛠 [WebSocket Debug]:", str),
+      connectHeaders: {
+        userNo: currentUser.userNo.toString(),
+      },
+      onConnect: () => {
+        console.log("🟢 WebSocket Connected");
+    
+        if (subscriptionRef.current) {
+          stompClient.unsubscribe(subscriptionRef.current);
+        }
+    
+        const subscription = stompClient.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
+          console.log("📩 새 메시지 수신:", message.body);
+          const newMessage = JSON.parse(message.body);
+          setChatMessages((prev) => [
+            ...prev,
+            { ...newMessage, isMine: newMessage.userNo === currentUser.userNo },
+          ]);
+        });
+    
+        subscriptionRef.current = subscription.id;
+        
+        // 알림용 구독 추가 (개별 사용자 알림)
+        stompClient.subscribe('/user/queue/notifications', (message) => {
+          console.log("알림 수신:", message.body);
+          const notification = JSON.parse(message.body);
+          showNotification(notification);
+        });
+    
+        setClient(stompClient);
+    },
+    
+      onDisconnect: () => console.log("🔴 WebSocket Disconnected"),
+    });
+    
+    stompClient.activate();
+
+    return () => {
+        if (subscriptionRef.current) {
+            stompClient.unsubscribe(subscriptionRef.current);
+        }
+        stompClient.deactivate();
+    };
+}, [room.chatRoomNo]);
+
 
   // ✅ WebSocket 연결 및 메시지 수신
   useEffect(() => {
@@ -98,16 +187,30 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
 }, [room.chatRoomNo]);
 
   // ✅ 날짜 및 시간 변환 함수
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "";
-    return dayjs(dateString).format("YYYY년 MM월 DD일 dddd"); // UTC 변환 제거
-  };
   
-  const formatTime = (dateString: string) => {
-    if (!dateString) return "";
-    return dayjs(dateString).format("HH:mm");
+  const formatTime = (dateTimeString: string) => {
+    if (!dateTimeString) return "";
+    // 입력 문자열을 UTC로 해석하고, 현지 시간으로 변환한 후 HH:mm 형식으로 출력
+    return dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("HH:mm");
   };
 
+ // 날짜만 비교하기 위한 헬퍼 함수 (중복 제거)
+function getDateKey(dateString: string): string|null {
+  if (!dateString) return null;
+  const parsed = dayjs.utc(dateString, "YYYY-MM-DD HH:mm:ss");
+
+  if (!parsed.isValid()) return null;
+  return parsed.local().format("YYYY-MM-DD");
+}
+
+  
+  
+// 스크롤 하단으로
+useEffect(() => {
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+}, [chatMessages]);
   // 채팅 메시지 불러오기 (비동기 함수)
   const fetchMessages = async () => {
     try {
@@ -153,6 +256,8 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
     }
   };
   
+
+
   
   // 다른 방으로 이동
   const leaveChatRoom = async () => {
@@ -180,6 +285,13 @@ const GroupChat = ({ room, currentUser, onClose, messages = [] }: GroupChatProps
 //   }
 // };
 
+
+// 스크롤 하단으로
+useEffect(() => {
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+}, [chatMessages]);
 // ✅ 안 읽은 메시지 개수 가져오는 함수
 const fetchUnreadMessages = async () => {
   try {
@@ -189,7 +301,12 @@ const fetchUnreadMessages = async () => {
       console.error("❌ [프론트엔드] 안 읽은 메시지 개수 불러오기 실패", error);
   }
 };
-
+// 스크롤 하단으로
+useEffect(() => {
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+}, [chatMessages]);
 // ✅ 채팅방 입장 시 안 읽은 메시지 수 업데이트
 useEffect(() => {
   fetchUnreadMessages();
@@ -205,7 +322,12 @@ useEffect(() => {
 }, [room.chatRoomNo, currentUser.userNo]);
 
 
-
+// 스크롤 하단으로
+useEffect(() => {
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+}, [chatMessages]);
   // 프론트엔드 채팅 메세지 저장 로직 추가
   useEffect(() => {
     axios.get(`/chat/messages/${room.chatRoomNo}`)
@@ -227,7 +349,12 @@ useEffect(() => {
 
 
   
-
+// 스크롤 하단으로
+useEffect(() => {
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+}, [chatMessages]);
   // 채팅방을 구독하는 모두에게 전송?
   const subscribeToChatRoom = () => {
     if (!client || !client.connected) return;
@@ -298,6 +425,7 @@ useEffect(() => {
         userNo: currentUser.userNo,
         userName: currentUser.userName,
         message: inputMessage,
+        receivedDate: dayjs().format("YYYY-MM-DD HH:mm:ss")
     };
 
     console.log("📤 [프론트엔드] WebSocket으로 메시지 전송:", chatMessage);
@@ -319,14 +447,42 @@ useEffect(() => {
     }
 };
 
+// exitChatRoom API 호출 함수
+const exitChatRoomAPI = async () => {
+  try {
+    await axios.post(`http://localhost:8003/workly/api/chat/exit`, {
+      chatRoomNo: room.chatRoomNo,
+      userNo: currentUser.userNo,
+      userName: currentUser.userName,
+    });
+    console.log("🚪 [프론트엔드] exitChatRoom 요청 완료");
+    if (subscriptionRef.current && client) {
+      client.unsubscribe(subscriptionRef.current);
+    }
+  } catch (error) {
+    console.error("❌ [프론트엔드] exitChatRoom 요청 실패:", error);
+  }
+};
 
-const handleClose = () => {
-  leaveChatRoom();
-  localStorage.removeItem(`chatMessages_${room.chatRoomNo}`);  // ✅ 채팅방 변경 시 메시지 초기화
+// 채팅방 나가기 (Exit) 처리 – exit 아이콘 클릭 시
+const handleExit = async () => {
+  if (window.confirm("채팅방을 나가시겠습니까?")) {
+    
+    await exitChatRoomAPI();
+    alert("채팅방을 나갔습니다.");
+    onClose(); // 채팅방 닫기 처리 (ChatList에서 해당 방 제거)
+  }
+};
+
+// 채팅방 창 닫기 시 처리 – close 아이콘 클릭 시 (exit와 별개로 단순 창 닫기)
+const handleClose = async () => {
+  localStorage.removeItem(`chatMessages_${room.chatRoomNo}`);
   setChatMessages([]);
-  setLastReadChatNo(null); // ✅ lastReadChatNo 초기화
+  setLastReadChatNo(null);
   onClose();
 };
+
+
 
 
 const updateUserChatStatus = async () => {
@@ -352,61 +508,122 @@ const isUnread = (msg: ChatMessage) => {
 
   return (
     <div className="group-chat" style={{ width: 390, height: 600, position: "relative" }}>
-      <div className="groupchat-background" style={{ width: 390, height: 600, position: "absolute", background: "white", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)", borderRadius: 5 }} />
+    {/* ToastContainer는 페이지 어딘가에 있어야 함 */}
+    <ToastContainer />
+      <div className="groupchat-background" style={{ width: 390, height: 600, position: "absolute", background: "white", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)"}} />
         
        {/* 채팅방 이름 표시 */}
        <div className="groupchat-title" style={{ left: 20, top: 26, position: "absolute", color: "black", fontSize: 20, fontWeight: "700" }}>
         {room.roomTitle}
       </div>
 
-      <div className="groupchat-close-icon" style={{ left: 359, top: 22, position: "absolute", cursor: "pointer" }}  onClick={handleClose}>✕</div>
+      <div className="groupchat-close-icon" style={{ left: 359, top: 22, position: "absolute", cursor: "pointer" }}  onClick={handleClose}>←</div>
 
-      <div ref={chatContainerRef} style={{ position: "absolute", top: 100, left: 20, display: "flex", flexDirection: "column", gap: 10, width: 360, overflowY: "auto", height: 360 }}>
+      <div ref={chatContainerRef} style={{ position: "absolute", top: 75, left: 20, display: "flex", flexDirection: "column", gap: 10, width: 360, overflowY: "auto", height: 380 }}>
       {chatMessages.map((msg, index) => {
-        
-        const prevMsg = chatMessages[index - 1];
-        const nextMsg = chatMessages[index + 1];
-        const isSameUserAsBefore = prevMsg && prevMsg.userNo === msg.userNo;
-        const isNewDate = !prevMsg || formatDate(prevMsg.receivedDate) !== formatDate(msg.receivedDate);
-        // const isUnread = lastReadChatNo !== null && msg.chatNo > lastReadChatNo;
-        const unread = isUnread(msg);  
+    // (2) 시스템 메시지 처리
+    if (msg.userName === "SYSTEM") {
+      return (
+        <div
+          key={msg.chatNo ? msg.chatNo : `sys-${index}`}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "10px 0",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              height: "1px",
+              backgroundColor: "#D3D3D3",
+              marginRight: "10px",
+            }}
+          />
+          <span style={{ color: "#999", fontSize: "12px" }}>{msg.message}</span>
+          <div
+            style={{
+              flex: 1,
+              height: "1px",
+              backgroundColor: "#D3D3D3",
+              marginLeft: "10px",
+            }}
+          />
+        </div>
+      );
+    }
 
-        // 이전 메시지와 시간이 같은지 확인하여 시간 중복 표시 방지
-        const showTime = !nextMsg || formatTime(nextMsg.receivedTime) !== formatTime(msg.receivedDate);
+    // 이전 메시지 / 현재 메시지
+    const prevMsg = chatMessages[index - 1];
+    // 날짜 키(YYYY-MM-DD)만 뽑아서 비교
+    const prevDateKey = prevMsg ? getDateKey(prevMsg.receivedDate) : null;
+    const currentDateKey = getDateKey(msg.receivedDate);
 
-        return (
-          <div key={msg.chatNo ? msg.chatNo : `msg-${index}`} style={{ display: "flex", flexDirection: "column", alignItems: msg.isMine ? "flex-end" : "flex-start", marginBottom: 10 }}>
-            {isNewDate && (
-              <div
-                className="dividerDate"
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginBottom: "15px",
-                  width: "100%",
-                }}
-              >
-                <div className="left-divider" style={{ flex: 1, height: "1px", background: "#E0E0E0" }} />
-                <div
-                  className="noticechat-date"
-                  style={{
-                    margin: "0 10px",
-                    color: "#4880FF",
-                    fontSize: "11px",
-                    fontFamily: "Roboto",
-                    fontWeight: "500",
-                    lineHeight: "10px",
-                    letterSpacing: "0.5px",
-                    whiteSpace: "nowrap",
-                    width: "auto",
-                  }}
-                >
-                  {formatDate(msg.receivedDate)}
-                </div>
-                <div className="right-divider" style={{ flex: 1, height: "1px", background: "#E0E0E0" }} />
-              </div>
-            )}
+    // 이전 메시지가 없거나, 날짜 키가 달라졌으면 새로운 날
+    const isNewDay = !prevMsg || (prevDateKey !== currentDateKey && currentDateKey);
+
+    const nextMsg = chatMessages[index + 1];
+    const isSameUserAsBefore = prevMsg && prevMsg.userNo === msg.userNo;
+    const unread = isUnread(msg);
+
+    // 시간을 표시할지 여부 (다음 메시지와 시간이 같으면 표시 생략)
+    const showTime =
+      !nextMsg ||
+      formatTime(nextMsg.receivedDate) !== formatTime(msg.receivedDate);
+
+    return (
+      <div
+        key={msg.chatNo ? msg.chatNo : `msg-${index}`}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: msg.isMine ? "flex-end" : "flex-start",
+          marginBottom: 10,
+        }}
+      >
+        {/* 날짜가 바뀌었을 때만 divider + 날짜 */}
+        {isNewDay && currentDateKey && (
+          <div
+            className="dividerDate"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "15px",
+              width: "100%",
+            }}
+          >
+            <div
+              className="left-divider"
+              style={{ flex: 1, height: "1px", background: "#E0E0E0" }}
+            />
+            <div
+              className="noticechat-date"
+              style={{
+                margin: "0 10px",
+                color: "#4880FF",
+                fontSize: "11px",
+                fontFamily: "Roboto",
+                fontWeight: "500",
+                lineHeight: "10px",
+                letterSpacing: "0.5px",
+                whiteSpace: "nowrap",
+                width: "auto",
+              }}
+            >
+              {/* 원하는 형식으로 날짜 표시 (예: YYYY년 MM월 DD일 dddd) */}
+              {dayjs
+                .utc(msg.receivedDate, "YYYY-MM-DD HH:mm:ss")
+                .local()
+                .format("YYYY년 MM월 DD일 dddd")}
+            </div>
+            <div
+              className="right-divider"
+              style={{ flex: 1, height: "1px", background: "#E0E0E0" }}
+            />
+          </div>
+        )}
 
             {/* ✅ 안 읽은 메시지 표시 */}
             {unread && (
@@ -428,11 +645,19 @@ const isUnread = (msg: ChatMessage) => {
                     marginRight: "8px",
                   }}
                 >
-                  <img style={{ width: "22px", height: "22px", objectFit: "cover" }} src={profile} alt="profile" />
+                  {/* 서버에서 받은 프로필 이미지가 있으면 사용, 없으면 기본 이미지 사용 */}
+                  <img
+                    style={{ width: "22px", height: "22px", objectFit: "cover" }}
+                    src={msg.profileImg || profile}
+                    alt="profile"
+                  />
                 </div>
-                <div style={{  marginTop: "0", fontSize: "15px", fontWeight: "bold", color: "#333" }}>{msg.userName}</div>
+                <div style={{ marginTop: "0", fontSize: "15px", fontWeight: "bold", color: "#333" }}>
+                  {msg.userName}
+                </div>
               </div>
-              )}
+            )}
+
 
               <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
                 {!msg.isMine && (
@@ -504,32 +729,62 @@ const isUnread = (msg: ChatMessage) => {
       //onClick={handleBellClick} 
       style={{ cursor: "pointer", width: 30, height: 30, left: 23, top: 545, position: "absolute" }} src={bell} alt="icon" />
         <img
-          className="personplus"
-          onClick={() => {
-            console.log("멤버 추가 버튼 클릭됨"); // 디버깅 로그 추가
-            setIsAddMemberPanelOpen(true); // ✅ 상태 업데이트
-          }}
-          style={{
-            width: 30,
-            height: 30,
-            left: 69,
-            top: 545,
-            position: "absolute",
-            cursor: "pointer",
-          }}
-          src={personplus}
-          alt="icon"
-        />
+        className="personplus"
+        onClick={() => {
+          console.log("personplus 클릭: 부모 상태 업데이트 호출");
+          // 부모에서 전달받은 setIsAddMemberPanelOpen 함수 호출
+          setIsAddMemberPanelOpen(true);
+        }}
+        style={{
+          width: 30,
+          height: 30,
+          left: 69,
+          top: 545,
+          position: "absolute",
+          cursor: "pointer",
+        }}
+        src={personplus}
+        alt="icon"
+      />
 
+          <img
+            className="exit"
+            onClick={handleExit}
+            style={{ width: 30, height: 30, left: 116, top: 545, position: "absolute", cursor: "pointer" }}
+            src={exit}
+            alt="icon"
+          />
 
-      <img className="exit" style={{ width: 30, height: 30, left: 116, top: 545, position: "absolute" }} src={exit} alt="icon" />
-
-      <textarea value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} placeholder="메세지 입력" maxLength={5000} style={{ position: "absolute", bottom: 70, left: "20px", width: "350px", height: "60px", borderRadius: "5px", border: "1.5px solid #ccc", padding: "10px", fontSize: "14px", resize: "none", overflowY: "auto" }} />
-
+          <textarea
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={(e) => {
+              // Shift+Enter는 줄바꿈 허용, 단순 Enter면 전송
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="메세지 입력"
+            maxLength={5000}
+            style={{
+              position: "absolute",
+              bottom: 70,
+              left: "20px",
+              width: "350px",
+              height: "60px",
+              borderRadius: "5px",
+              border: "1.5px solid #ccc",
+              padding: "10px",
+              fontSize: "14px",
+              resize: "none",
+              overflowY: "auto",
+            }}
+          />
       <div onClick={sendMessage} style={{ position: "absolute", bottom: 23, left: 300, width: "70px", height: "35px", background: "#4880FF", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "14px", borderRadius: "5px", cursor: "pointer" }}>전송</div>
       
     </div>
   );
 };
 
-export default GroupChat;
+export default GroupChat;  
