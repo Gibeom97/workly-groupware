@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.workly.final_project.chat.model.dto.ChatStatusUpdateDTO;
 import com.workly.final_project.chat.model.dto.FavoriteDTO;
 import com.workly.final_project.chat.model.service.ChatService;
 import com.workly.final_project.chat.model.vo.ChatRoom;
@@ -32,12 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatController {
 		
 		private final ChatService chatService;
+		private final SimpMessagingTemplate messagingTemplate;
 
 	    
-		@Autowired
-		public ChatController(ChatService chatService) {
-			this.chatService = chatService;
-		}
+		 @Autowired
+		    public ChatController(ChatService chatService, SimpMessagingTemplate messagingTemplate) {
+		        this.chatService = chatService;
+		        this.messagingTemplate = messagingTemplate;
+		    }
 		
 		// 사원 목록
 		@GetMapping("/members")
@@ -184,7 +188,7 @@ public class ChatController {
 		}
 		
 		// 채팅방 멤버 추가하기
-		@PostMapping("/chat/addMembers")
+		@PostMapping("/addMembers")
 		public ResponseEntity<String> addMembersToChatRoom(@RequestBody Map<String, Object> requestData) {
 		    int chatRoomNo = (int) requestData.get("chatRoomNo");
 		    List<Integer> userNos = (List<Integer>) requestData.get("userNos");
@@ -205,6 +209,49 @@ public class ChatController {
 		        System.out.println("검색 결과: " + members); // 확인용
 		        return ResponseEntity.ok(members);
 		    }
+		 
+		// 채팅방 나가기
+		 @PostMapping("/exit")
+		 public ResponseEntity<?> exitChatRoom(@RequestBody Map<String, Object> requestData) {
+		     int chatRoomNo = (int) requestData.get("chatRoomNo");
+		     int userNo = (int) requestData.get("userNo");
+		     String userName = (String) requestData.get("userName"); // 실제 사용자 이름
+		     chatService.exitChatRoom(userNo, chatRoomNo, userName);
+		     return ResponseEntity.ok(Map.of("message", "채팅방을 성공적으로 나갔습니다."));
+		 }
+		 
+		 // 상태값
+		// 상태값 업데이트 엔드포인트
+		 @PutMapping("/status/{userNo}")
+		 public ResponseEntity<String> updateMemberStatus(
+		     @PathVariable int userNo,
+		     @RequestBody Map<String, Object> requestBody) {
+
+		     int newStatusType = Integer.parseInt(requestBody.get("statusType").toString());
+
+		     try {
+		         int result = chatService.updateMemberStatus(userNo, newStatusType);
+		         if(result > 0) {
+		             String statusString = (newStatusType == 2) ? "활성화" : "비활성";
+		             // ChatStatusDTO 생성 (즐겨찾기와 겹치지 않는 채팅 상태 전용 DTO)
+		             ChatStatusUpdateDTO statusDTO = new ChatStatusUpdateDTO (userNo, newStatusType, statusString);
+		             // 실시간 업데이트 브로드캐스트
+		             messagingTemplate.convertAndSend("/sub/status", statusDTO);
+		             return ResponseEntity.ok("회원 상태 업데이트 성공");
+		         } else {
+		             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                     .body("회원 상태 업데이트 실패");
+		         }
+		     } catch(Exception e) {
+		         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                 .body("회원 상태 업데이트 오류: " + e.getMessage());
+		     }
+		 }
+
+
+
+
+
 
 
 

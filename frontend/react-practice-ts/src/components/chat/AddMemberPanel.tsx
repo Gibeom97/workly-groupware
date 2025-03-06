@@ -1,129 +1,133 @@
 import { useEffect, useState } from 'react';
-import { Member } from '../../type/chatType';
-//import { departments, Member, positions } from '../../type/chatType';
 import SearchClick from './SearchClick';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setMemberInvite } from "../../features/chatSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store"; // RootState 임포트 필요
+import { RootState } from "../../store";
 import axios from 'axios';
+import { Member } from '../../type/chatType';
 
+interface ChatRoomProps {
+  chatRoomNo: number;  // 백엔드 API와 일치하는 필드명
+}
 
 interface AddMemberPanelProps {
-  allEmployees: Member[];
-  currentMembers: Member[];
-  room: {chatRoom:number};
+  currentMembers: Member[];    // 이미 채팅방에 있는 멤버들
+  room: ChatRoomProps;         // room.chatRoomNo로 접근
   onClose: () => void;
   onConfirm: (newMembers: Member[]) => void;
 }
 
-
-
 const AddMemberPanel = ({
-  allEmployees,
   currentMembers,
+  room,
   onClose,
   onConfirm,
-  room,
 }: AddMemberPanelProps) => {
-  const currentMemberuserNos = currentMembers.map((m) => m.userNo);
-
-  const [checkedMembers, setCheckedMembers] = useState<number[]>(currentMemberuserNos);
-
+  // 전체 사원 목록 상태
+  const [allEmployees, setAllEmployees] = useState<Member[]>([]);
+  const dispatch = useDispatch();
   const memberInvite = useSelector((state: RootState) => state.chat.memberInvite);
-  // 나중에 없애기
+
+  // 백엔드에서 전체 사원 목록 불러오기
   useEffect(() => {
-    console.log("백엔드에서 받은 사원 목록:", allEmployees);
-  }, [allEmployees]);
-  
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get("http://localhost:8003/workly/api/chat/members");
+        setAllEmployees(response.data);
+      } catch (error) {
+        console.error("사원 목록 불러오기 실패:", error);
+      }
+    };
+    fetchEmployees();
+  }, []);
 
-  // ✅ currentMembers가 바뀔 때마다 checkedMembers 초기화
-  useEffect(() => {
-    // ✅ 현재 멤버와 Redux에서 가져온 초대 멤버 합치기 (중복 제거)
-    const invitedUserNos = allEmployees
-      .filter(member => memberInvite.includes(member.userName))
-      .map(member => member.userNo);
-  
-    setCheckedMembers([...new Set([...currentMemberuserNos, ...invitedUserNos])]);
-  }, [allEmployees, memberInvite, currentMembers]);
+  // 이미 채팅방에 있는 멤버의 userNo 배열
+  const currentMemberUserNos = currentMembers.map(m => m.userNo);
 
+  // 이미 들어온 멤버는 목록에서 제외
+  const filteredEmployees = allEmployees.filter(
+    (member) => !currentMemberUserNos.includes(member.userNo)
+  );
 
+  // 새로 선택한 멤버의 userNo 배열
+  const [checkedMembers, setCheckedMembers] = useState<number[]>([]);
+
+  // 만약 Redux의 memberInvite가 있다면, 그것도 체크 상태에 포함 (원하는 경우)
+  // useEffect(() => {
+  //   const invitedUserNos = filteredEmployees
+  //     .filter(member => memberInvite.includes(member.userName))
+  //     .map(member => member.userNo);
+  //   setCheckedMembers(invitedUserNos);
+  // }, [filteredEmployees, memberInvite]);
+
+  // 체크박스 토글 함수
   const handleToggle = (userNo: number) => {
-    if (currentMemberuserNos.includes(userNo)) return;
-    setCheckedMembers((prev) =>
-      prev.includes(userNo) ? prev.filter((m) => m !== userNo) : [...prev, userNo]
+    setCheckedMembers(prev =>
+      prev.includes(userNo)
+        ? prev.filter((m) => m !== userNo)
+        : [...prev, userNo]
     );
   };
 
+  // 확인 버튼 클릭 시, 선택된 멤버 객체 추출 후 백엔드에 요청
+  const handleConfirm = async () => {
+    const selectedMembersObjects = filteredEmployees.filter((member) =>
+      checkedMembers.includes(member.userNo)
+    );
 
-const dispatch = useDispatch(); // Redux Dispatch 추가
+    if (selectedMembersObjects.length === 0) {
+      alert("추가할 멤버를 선택해주세요.");
+      return;
+    }
 
-const handleConfirm = async () => {
-  const selectedMembersObjects = allEmployees.filter((member) =>
-    checkedMembers.includes(member.userNo)
-  );
+    const newUserNos = selectedMembersObjects.map(member => member.userNo);
 
-  // ✅ 기존 멤버 제외하고 새로 초대된 멤버만 추출
-  const newUserNos = selectedMembersObjects
-    .filter(member => !currentMembers.some(m => m.userNo === member.userNo))
-    .map(member => member.userNo);
-
-  if (newUserNos.length === 0) {
-    alert("새로 추가할 멤버가 없습니다.");
-    return;
-  }
-
-  try {
-    // ✅ 백엔드에 새로운 멤버 추가 요청
-    await axios.post(`http://localhost:8003/workly/api/chat/addMembers`, {
-      chatRoomNo: room.chatRoom,
-      userNos: newUserNos
-    });
-
-    console.log("✅ 멤버 추가 성공");
-    
-    // Redux 업데이트
-    dispatch(setMemberInvite(selectedMembersObjects.map(m => m.userName)));
-
-    // ✅ 프론트엔드 상태 업데이트
-    onConfirm(selectedMembersObjects);
-    onClose();
-  } catch (error) {
-    console.error("❌ 멤버 추가 실패", error);
-    alert("멤버 추가에 실패했습니다.");
-  }
-};
-
+    try {
+      await axios.post("http://localhost:8003/workly/api/chat/addMembers", {
+        chatRoomNo: room.chatRoomNo,
+        userNos: newUserNos,
+      });
+      console.log("✅ 멤버 추가 성공");
+      dispatch(setMemberInvite(selectedMembersObjects.map(m => m.userName)));
+      onConfirm(selectedMembersObjects);
+      onClose();
+    } catch (error) {
+      console.error("❌ 멤버 추가 실패", error);
+      alert("멤버 추가에 실패했습니다.");
+    }
+  };
 
   return (
     <div
       style={{
-        width: '390px',
-        height: '600px',
+        width: '388px',
+        height: '590px',
         backgroundColor: 'white',
-        position: 'absolute',
+        position: 'fixed',
         top: '50%',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translate(-50%, -45%)',
         borderRadius: '3px',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
         fontFamily: 'Inter, sans-serif',
         display: 'flex',
         flexDirection: 'column',
+        zIndex: 1000,
       }}
     >
+      {/* 상단: 이미 채팅방에 있는 멤버 표시 */}
       <div
-        style={{
-          backgroundColor: '#F5F7FA',
-          padding: '10px',
-          borderTopLeftRadius: '3px',
-          borderTopRightRadius: '3px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '5px',
-        }}
+        // style={{
+        //   backgroundColor: '#E9EBF1',
+        //   padding: '10px',
+        //   borderTopLeftRadius: '3px',
+        //   borderTopRightRadius: '3px',
+        //   display: 'flex',
+        //   flexWrap: 'wrap',
+        //   gap: '5px',
+        //   position: 'relative',
+        // }}
       >
-        {currentMembers.map((member) => (
+        {currentMembers.map(member => (
           <span
             key={member.userNo}
             style={{
@@ -137,11 +141,11 @@ const handleConfirm = async () => {
             {member.userName}
           </span>
         ))}
-        <button
+        {/* <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            left: 360,
+            right: 10,
             background: 'transparent',
             border: 'none',
             fontSize: 15,
@@ -149,41 +153,43 @@ const handleConfirm = async () => {
           }}
         >
           ✕
-        </button>
+        </button> */}
       </div>
 
+      {/* 검색 컴포넌트 (필요시) */}
       <div style={{ padding: '10px' }}>
-        <SearchClick onProfileClick={() => console.log("프로필 클릭됨")}/>
+        <SearchClick onProfileClick={() => console.log("프로필 클릭됨")} />
       </div>
 
+      {/* 테이블: 필터된 사원 목록 */}
       <div style={{ overflowY: 'auto', flex: 1, padding: '0 10px' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#F5F7FA', borderBottom: '2px solid #4880FF' }}>
-              <th style={{ width: '50%', padding: '8px', textAlign: 'center', color: '#4880FF' }}>부서명</th>
-              <th style={{ width: '50%', padding: '8px', textAlign: 'center', color: '#4880FF' }}>성명</th>
+              <th style={{ width: '50%', padding: '8px', textAlign: 'center', color: '#4880FF' }}>
+                부서명
+              </th>
+              <th style={{ width: '50%', padding: '8px', textAlign: 'center', color: '#4880FF' }}>
+                성명
+              </th>
             </tr>
           </thead>
           <tbody>
-            {allEmployees.map((member) => {
-              const isAlreadyAdded = currentMemberuserNos.includes(member.userNo);
+            {filteredEmployees.map(member => {
               const isSelected = checkedMembers.includes(member.userNo);
-
               return (
                 <tr key={member.userNo} style={{ borderBottom: '1px solid #E0E0E0' }}>
-                  <td style={{ padding: '8px', textDecoration:"bold" }}>
+                  <td style={{ padding: '8px', fontWeight: "bold" }}>
                     {member.deptName || "알 수 없음"}
-                    </td>
+                  </td>
                   <td style={{ padding: '8px', display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
-                      checked={isSelected || isAlreadyAdded}
+                      checked={isSelected}
                       onChange={() => handleToggle(member.userNo)}
-                      disabled={isAlreadyAdded}
                       style={{ marginRight: '8px', accentColor: '#4880FF' }}
                     />
-                    {member.userName} 
-                    ({member.positionName})
+                    {member.userName} ({member.positionName})
                   </td>
                 </tr>
               );
@@ -192,6 +198,7 @@ const handleConfirm = async () => {
         </table>
       </div>
 
+      {/* 하단 확인 버튼 */}
       <div
         style={{
           padding: '10px',
