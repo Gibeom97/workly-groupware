@@ -42,7 +42,7 @@ const SearchClick: React.FC<SearchClickProps> = ({ onProfileClick }) => {
   };
 
   return (
-    <div className="searchClick" style={{ width: "274px", position: "relative" }}>
+    <div className="searchClick" style={{ width: "264px", position: "relative" }}>
       {/* 🔹 검색 입력창 */}
       <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
         <input
@@ -52,7 +52,7 @@ const SearchClick: React.FC<SearchClickProps> = ({ onProfileClick }) => {
           onKeyDown={handleKeyDown}
           placeholder="이름 검색"
           style={{
-            width: "205px",
+            width: "255px",
             height: "32px",
             padding: "0 40px 0 12px",
             borderRadius: "16px",

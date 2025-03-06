@@ -49,6 +49,15 @@ public interface ChatService {
 		
 		// 채팅방 멤버 추가하기
 		void addMembersToChatRoom(int chatRoomNo, List<Integer> userNos);
+		
+		// 채팅방 멤버 나가기
+		void exitChatRoom(int userNo, int chatRoomNo, String userName);
+		
+		// 상태값 변경
+		int updateMemberStatus(int userNo, int newStatusType);
+
+		// 사내공지 채팅방
+		void createDefaultChatRoom();
 
 		
 

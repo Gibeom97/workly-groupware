@@ -15,15 +15,12 @@ import SearchMember from "./components/chat/SearchMember";
 import GroupChat from "./components/chat/GroupChat";
 import OrgChart from "./components/chat/OrgChart";
 import CreateOrg from "./components/chat/CreateOrg";
-import { Department,  Member, defaultMember  } from "./type/chatType";
+import { Department, Member, defaultMember } from "./type/chatType";
 import Alarm from "./components/chat/Alarm";
-//import { useSelector } from "react-redux";
-//import { RootState } from "./store"; 
 import { ChatMessage } from "./type/chatType"; 
 import AddMemberPanel from "./components/chat/AddMemberPanel";
 import axios from "axios";
-
-
+import ChatModal from "./ChatModal";
 
 interface ChatRoom {
   chatRoomNo: number;
@@ -35,14 +32,14 @@ interface ChatRoom {
   createdChat?: string;
 }
 
-interface CurrentUser{
-  userNo : number;
-  userName : string;
-  statusType : string;
-  totalAnnualLeave : number;
-  usedAnnualLeave : number;
-  deptName : string;
-  positionName : string;
+interface CurrentUser {
+  userNo: number;
+  userName: string;
+  statusType: string;
+  totalAnnualLeave: number;
+  usedAnnualLeave: number;
+  deptName: string;
+  positionName: string;
 }
 
 interface ChatProps {
@@ -50,14 +47,13 @@ interface ChatProps {
   onClose: () => void;
 }
 
+const Chat: React.FC<ChatProps> = ({ currentUser, onClose }) => {
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
-const Chat = ({ currentUser, onClose }: ChatProps) => {
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]); // ✅ 초기값 빈 배열 설정
-
+  // ---------- 초기 메시지 isMine 여부 세팅 ----------
   useEffect(() => {
     console.log("📌 유저 변경 감지:", currentUser.userNo);
-
-    setChatMessages((prevMessages = []) =>  // ✅ prevMessages가 undefined일 경우 빈 배열 처리
+    setChatMessages((prevMessages = []) =>
       prevMessages.map(msg => ({
         ...msg,
         isMine: Number(msg.userNo) === Number(currentUser.userNo),
@@ -65,18 +61,18 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     );
   }, [currentUser.userNo]);
 
+  // ---------- 여러 UI 상태 ----------
   const [isOpen, setIsOpen] = useState(true);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("비활성화");
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isMyInfoModalOpen, setIsMyInfoModalOpen] = useState(false);
   const [isFirstChatOpen, setIsFirstChatOpen] = useState(false);
   const [isChatListOpen, setIsChatListOpen] = useState(false);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSearchMemberOpen, setIsSearchMemberOpen] = useState(false);
-  const [searchChatType, setSearchChatType] = useState<string>("");
-  const [searchRoomTitle, setsearchRoomTitle] = useState<string>("");
+  const [searchChatType, setSearchChatType] = useState("");
+  const [searchRoomTitle, setsearchRoomTitle] = useState("");
   const [selectedChatRoom, setSelectedChatRoom] = useState<ChatRoom | null>(null);
   const [isOrgOpen, setIsOrgOpen] = useState(false);
   const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
@@ -88,39 +84,61 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
   const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
   const [currentMembers, setCurrentMembers] = useState<Member[]>([]);
 
+  // ---------- 공지방 or 일반방 (초기값 0번 방) ----------
+  const [activeChatRoom, setActiveChatRoom] = useState<ChatRoom | null>({
+    chatRoomNo: 0,
+    roomTitle: "사내 공지 톡방",
+    chatType: "NOTICE",
+    bellSetting: "Y",
+  });
 
+  // ---------- 검색창 토글 ----------
   const toggleSearch = () => {
-    setIsSearchVisible((prev) => !prev);
+    setIsSearchVisible(prev => !prev);
   };
 
-  const handleProfileClick = (member: Member) => {  
+  // ---------- 프로필 클릭 ----------
+  const handleProfileClick = (member: Member) => {
     if (member.userNo === currentUser.userNo) {
-      setIsMyInfoModalOpen(true); // 로그인한 사용자 (나) myinfo열기
+      setIsMyInfoModalOpen(true); // 내 정보
     } else {
       setSelectedMember(member);
-      setIsInfoModalOpen(true); // 다른 사용자면 memberinfo 열기
+      setIsInfoModalOpen(true);  // 다른사람 정보
     }
   };
 
   const closeInfoModal = () => {
     setIsInfoModalOpen(false);
-    setSelectedMember(null); // 모달 닫을 때 초기화
+    setSelectedMember(null);
   };
 
+  // ---------- 채팅방 변경 ----------
   const handleRoomChange = (newRoom: ChatRoom) => {
     setCurrentRoom(newRoom);
-};
+  };
 
+  // ---------- 모달 전체 닫기 ----------
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   const closeMyInfoModal = () => setIsMyInfoModalOpen(false);
-  const closeNoticeChat = () => setIsNoticeOpen(false);
 
-  const openNoticeChat = () => setIsNoticeOpen(true);
+  // ---------- 사내공지 열기: selectedChatRoom을 0번으로 세팅 ----------
+  const openNoticeChat = () => {
+    setSelectedChatRoom({
+      chatRoomNo: 0,
+      roomTitle: "사내 공지 톡방",
+      chatType: "NOTICE",
+      bellSetting: "Y",
+    });
+  };
 
+  // ---------- 채팅 탭 클릭 ----------
   const handleChatClick = () => {
     setIsInfoModalOpen(false);
-    setIsNoticeOpen(false);
     setIsMyInfoModalOpen(false);
+    // 채팅방이 하나도 없으면 최초 채팅
     if (chatList.length === 0) {
       setIsFirstChatOpen(true);
       setIsChatListOpen(false);
@@ -135,29 +153,27 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     setIsCreateOrgOpen(false);
   };
 
+  // ---------- 초대하기 (ChatCreate에서 호출) ----------
   const invitePeople = (chatType: string, roomTitle: string) => {
-    console.log('Chat.tsx - invitePeople 실행됨!', chatType, roomTitle);
-
+    console.log("Chat.tsx - invitePeople 실행됨!", chatType, roomTitle);
     setIsCreatingChat(false);
-    setIsInfoModalOpen(false); // MemberInfo 모달이 열리지 않도록 설정
-    setIsMyInfoModalOpen(false); // MyInfo 모달이 열리지 않도록 설정
-    setSelectedMember(null); // ✅ selectedMember 초기화 추가
-
+    setIsInfoModalOpen(false);
+    setIsMyInfoModalOpen(false);
+    setSelectedMember(null);
     setTimeout(() => {
       setIsSearchMemberOpen(true);
       setSearchChatType(chatType);
       setsearchRoomTitle(roomTitle);
-      
     }, 0);
   };
-  
 
+  // ---------- 초대 완료 (SearchMember에서 호출) ----------
   const handleChatRoomComplete = (newChatRoom: {
     roomTitle: string;
     chatType: string;
     selectedMembers: Member[];
   }) => {
-    setChatList((prev) => [
+    setChatList(prev => [
       ...prev,
       {
         chatRoomNo: prev.length + 1,
@@ -165,16 +181,16 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
         chatType: newChatRoom.chatType,
         unreadCount: 0,
         isActive: true,
-        bellSetting: 'Y',
+        bellSetting: "Y",
       },
     ]);
     setIsSearchMemberOpen(false);
     setIsChatListOpen(true);
   };
 
+  // ---------- 왼쪽 프로필 아이콘 클릭 ----------
   const handleProfileClickIcon = () => {
     setIsInfoModalOpen(false);
-    setIsNoticeOpen(false);
     setIsMyInfoModalOpen(false);
     setIsFirstChatOpen(false);
     setIsChatListOpen(false);
@@ -182,14 +198,15 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     setIsSearchMemberOpen(false);
   };
 
+  // ---------- 채팅방 열기 ----------
   const handleOpenChatRoom = (room: ChatRoom) => {
     console.log(`${room.roomTitle} 채팅방 열림!`);
     setSelectedChatRoom(room);
   };
 
+  // ---------- 조직도 열기 ----------
   const handleOpenOrg = () => {
     setIsInfoModalOpen(false);
-    setIsNoticeOpen(false);
     setIsMyInfoModalOpen(false);
     setIsFirstChatOpen(false);
     setIsChatListOpen(false);
@@ -200,9 +217,9 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     setIsCreateOrgOpen(false);
   };
 
+  // ---------- 알림 패널 열기 ----------
   const handleAlarmClick = () => {
     setIsInfoModalOpen(false);
-    setIsNoticeOpen(false);
     setIsMyInfoModalOpen(false);
     setIsFirstChatOpen(false);
     setIsChatListOpen(false);
@@ -214,35 +231,33 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     setIsAlarmListOpen(true);
   };
 
+  // ---------- 벨 세팅 ----------
   const onToggleAlarm = (chatRoomNo: number, bellSetting: string) => {
-    const validBellSetting = (bellSetting === 'Y' || bellSetting === 'N') ? bellSetting : 'N';
-  
-    setChatList((prev) =>
-      prev.map((room): ChatRoom =>
+    const validBellSetting = bellSetting === "Y" || bellSetting === "N" ? bellSetting : "N";
+    setChatList(prev =>
+      prev.map(room =>
         room.chatRoomNo === chatRoomNo ? { ...room, bellSetting: validBellSetting } : room
       )
     );
   };
-  
-  // Chat.tsx에서 currentMembers 상태를 selectedChatRoom에 따라 업데이트
+
+  // ---------- 특정 방의 멤버 목록 가져오기 ----------
   useEffect(() => {
     if (selectedChatRoom) {
       fetchChatMembers(selectedChatRoom.chatRoomNo);
     }
   }, [selectedChatRoom]);
-  
+
   const fetchChatMembers = async (chatRoomNo: number) => {
     try {
       const response = await axios.get(`http://localhost:8003/workly/api/chat/members/${chatRoomNo}`);
-      setCurrentMembers(response.data); // ✅ 현재 채팅방의 멤버 업데이트
+      setCurrentMembers(response.data);
     } catch (error) {
       console.error("❌ 채팅방 멤버 불러오기 실패", error);
     }
   };
-  
-  
 
-  // ✅ 1. LocalStorage에서 chatList 불러오기
+  // ---------- chatList를 로컬스토리지에서 불러오기 ----------
   useEffect(() => {
     const savedChatList = localStorage.getItem("chatList");
     if (savedChatList) {
@@ -250,7 +265,7 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
     }
   }, []);
 
-  // ✅ 2. chatList가 변경될 때마다 LocalStorage에 저장
+  // ---------- chatList 변경 시 로컬스토리지 저장 ----------
   useEffect(() => {
     localStorage.setItem("chatList", JSON.stringify(chatList));
   }, [chatList]);
@@ -258,138 +273,186 @@ const Chat = ({ currentUser, onClose }: ChatProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="chat-modal-overlay">
-      <div className="chat-modal-content">
-        { isSearchMemberOpen ? ( // ✅ 우선순위 맨 위로 변경!
-          <>
-            <SearchMember 
-              chatType={searchChatType} 
-              roomTitle={searchRoomTitle}
-              member={selectedMember ?? defaultMember} // ✅ 이제 오류 없음!
-              onComplete={handleChatRoomComplete} 
-            />
-          </>
-        ) : isMyInfoModalOpen ? (
-         <InfoContainer> 
-             <MyInfo myinfo={currentUser}  onClose={closeMyInfoModal} />
-          </InfoContainer>
-        ) : selectedChatRoom ? (
-          <>
-    <GroupChat
-      room={selectedChatRoom}
-      currentUser={currentUser}
-      messages={chatMessages}
-      onClose={() => {
-        setSelectedChatRoom(null);
-        setIsChatListOpen(true);
-      }}
-      onToggleAlarm={onToggleAlarm}
-      currentMembers={currentMembers} // ✅ 현재 채팅방 멤버 전달
-      onChangeRoom={handleRoomChange}
-      setIsAddMemberPanelOpen={setIsAddMemberPanelOpen} // ✅ 추가
-    />
-
-    {isAddMemberPanelOpen && (
-      <AddMemberPanel
-        allEmployees={[]} // 🔥 백엔드 API에서 전체 직원 목록 불러와야 함
-        currentMembers={currentMembers} // ✅ 현재 채팅방 멤버 전달
-        room={selectedChatRoom} // ✅ 현재 선택된 채팅방 정보
-        onClose={() => setIsAddMemberPanelOpen(false)}
-        onConfirm={(newMembers) => {
-          console.log("✅ 멤버 추가됨:", newMembers);
-          setCurrentMembers([...currentMembers, ...newMembers]); // ✅ 새로운 멤버 업데이트
-          setIsAddMemberPanelOpen(false); // ✅ 패널 닫기
-        }}
-      />
-    )}
-  </>
-
-          ) : isInfoModalOpen ? (
-          <InfoContainer>
-            <MemberInfo 
-              member={selectedMember ?? defaultMember}
-              onClose={closeInfoModal}
-            />
-          </InfoContainer>
-        ) : isNoticeOpen ? (
-          <NoticeChat onClose={closeNoticeChat} 
-          // currentMembers={noticeChatMembers} // 공지방 멤버 내려줌
-          //   onAddMembers={(newMembers) => {
-          //     setNoticeChatMembers((prev) => [...prev, ...newMembers]);
-          //   }} // 백엔드 연결시 풀기
-          />
-        ) : isCreateOrgOpen ? (
-          <CreateOrg
-          onClose={() => setIsCreateOrgOpen(false)}
-          onComplete={(dept) => {
-            console.log(`${dept.deptName} 부서 생성됨, 멤버:`, dept.members);
-            setDepartments((prev) => [...prev, dept]); // 🔥부서와 멤버 추가
-            setIsCreateOrgOpen(false);
-            setIsOrgOpen(true); // 생성 후 다시 조직도로 돌아가게
+    <ChatModal isOpen={isOpen} onClose={handleClose}>
+      {/** 1) 멤버 검색창 열림 */}
+      {isSearchMemberOpen ? (
+        <SearchMember
+          chatType={searchChatType}
+          roomTitle={searchRoomTitle}
+          member={selectedMember ?? defaultMember}
+          onComplete={handleChatRoomComplete}
+        />
+      ) : /** 2) 내 정보 모달 */
+      isMyInfoModalOpen ? (
+        <InfoContainer>
+          <MyInfo myinfo={currentUser} onClose={closeMyInfoModal} />
+        </InfoContainer>
+      ) : /** 3) 채팅방이 선택된 경우 */
+      selectedChatRoom ? (
+        selectedChatRoom.chatRoomNo === 0 ? (
+          // ---------- 3-A) 사내 공지 톡방 ----------
+          <NoticeChat
+            onClose={() => {
+              // 닫으면 목록으로 복귀
+              setSelectedChatRoom(null);
+              setIsChatListOpen(true);
             }}
           />
-        ) : isOrgOpen ? (
-          <ChatContainer onClose={() => setIsOpen(false)} onChatClick={handleChatClick} 
-          onProfileClick={handleProfileClickIcon} onOrgClick={handleOpenOrg} OnAlarmClick={handleAlarmClick}>
-          <OrgChart departments={departments}
-           onOpenCreateOrg={() => {
-            setIsOrgOpen(false);
-            setIsCreateOrgOpen(true);
-          }} />
-          </ChatContainer>
-        )  : isFirstChatOpen ? (
-          <ChatContainer onClose={() => setIsOpen(false)} onChatClick={handleChatClick} 
-           onProfileClick={handleProfileClickIcon} OnAlarmClick={handleAlarmClick} onOrgClick={handleOpenOrg} >
-            <ChatNewList setIsCreatingChat={setIsCreatingChat} setIsFirstChatOpen={setIsFirstChatOpen} />
-          </ChatContainer>
-        ) : isCreatingChat ? (
-          <ChatCreate
-            invitePeople={invitePeople}
-            onClose={() => setIsCreatingChat(false)}
-          />
-        ) : isChatListOpen ? (
-          <ChatContainer onClose={() => setIsOpen(false)} onOrgClick={handleOpenOrg} OnAlarmClick={handleAlarmClick} onProfileClick={handleProfileClickIcon}>
-            <ChatList
-              chatRooms={chatList}
-              setChatList={setChatList}
-              setIsCreatingChat={setIsCreatingChat}
-              setIsFirstChatOpen={setIsFirstChatOpen}
-              openNoticeChat={() => setIsNoticeOpen(true)}
-              openChatRoom={(room) => handleOpenChatRoom({ ...room, bellSetting: 'Y' })}
+        ) : (
+          // ---------- 3-B) 일반 그룹 채팅 ----------
+          <>
+            <GroupChat
+              room={selectedChatRoom}
+              currentUser={currentUser}
+              messages={chatMessages}
+              onClose={() => {
+                setSelectedChatRoom(null);
+                setIsChatListOpen(true);
+              }}
+              onToggleAlarm={onToggleAlarm}
+              currentMembers={currentMembers}
+              onChangeRoom={handleRoomChange}
+              setIsAddMemberPanelOpen={setIsAddMemberPanelOpen}
             />
-          </ChatContainer>
-        ) :  isAlarmListOpen ? (
-          <ChatContainer
-            onClose={() => setIsOpen(false)}
-            onChatClick={handleChatClick}
-            onProfileClick={handleProfileClickIcon}
-            onOrgClick={handleOpenOrg}
-            OnAlarmClick={handleAlarmClick}
+            {isAddMemberPanelOpen && (
+              <AddMemberPanel
+                allEmployees={[]} // TODO: 백엔드 API에서 전체 사원 목록 가져오기
+                currentMembers={currentMembers}
+                room={selectedChatRoom}
+                onClose={() => setIsAddMemberPanelOpen(false)}
+                onConfirm={newMembers => {
+                  console.log("✅ 멤버 추가됨:", newMembers);
+                  setCurrentMembers([...currentMembers, ...newMembers]);
+                  setIsAddMemberPanelOpen(false);
+                }}
+              />
+            )}
+          </>
+        )
+      ) : /** 4) 다른 사람 정보 모달 */
+      isInfoModalOpen ? (
+        <InfoContainer>
+          <MemberInfo member={selectedMember ?? defaultMember} onClose={closeInfoModal} />
+        </InfoContainer>
+      ) : /** 5) 부서 생성 */
+      isCreateOrgOpen ? (
+        <CreateOrg
+          onClose={() => setIsCreateOrgOpen(false)}
+          onComplete={dept => {
+            console.log(`${dept.deptName} 부서 생성됨, 멤버:`, dept.members);
+            setDepartments(prev => [...prev, dept]);
+            setIsCreateOrgOpen(false);
+            setIsOrgOpen(true);
+          }}
+        />
+      ) : /** 6) 조직도 열림 */
+      isOrgOpen ? (
+        <ChatContainer
+          onClose={() => setIsOpen(false)}
+          onChatClick={handleChatClick}
+          onProfileClick={handleProfileClickIcon}
+          onOrgClick={handleOpenOrg}
+          OnAlarmClick={handleAlarmClick}
+        >
+          <OrgChart
+            departments={departments}
+            onOpenCreateOrg={() => {
+              setIsOrgOpen(false);
+              setIsCreateOrgOpen(true);
+            }}
+          />
+        </ChatContainer>
+      ) : /** 7) 채팅방이 0개일 때 */
+      isFirstChatOpen ? (
+        <ChatContainer
+          onClose={() => setIsOpen(false)}
+          onChatClick={handleChatClick}
+          onProfileClick={handleProfileClickIcon}
+          OnAlarmClick={handleAlarmClick}
+          onOrgClick={handleOpenOrg}
+        >
+          <ChatNewList setIsCreatingChat={setIsCreatingChat} setIsFirstChatOpen={setIsFirstChatOpen} />
+        </ChatContainer>
+      ) : /** 8) 새 채팅 생성중 */
+      isCreatingChat ? (
+        <ChatCreate invitePeople={invitePeople} onClose={() => setIsCreatingChat(false)} />
+      ) : /** 9) 채팅방 목록 */
+      isChatListOpen ? (
+        <ChatContainer
+          onClose={() => setIsOpen(false)}
+          onOrgClick={handleOpenOrg}
+          OnAlarmClick={handleAlarmClick}
+          onProfileClick={handleProfileClickIcon}
+        >
+          <ChatList
+            chatRooms={chatList}
+            setChatList={setChatList}
+            setIsCreatingChat={setIsCreatingChat}
+            setIsFirstChatOpen={setIsFirstChatOpen}
+            // 사내 공지 버튼 클릭 시, roomNo=0 방을 선택
+            openNoticeChat={() =>
+              setSelectedChatRoom({
+                chatRoomNo: 0,
+                roomTitle: "사내 공지 톡방",
+                chatType: "NOTICE",
+                bellSetting: "Y",
+              })
+            }
+            openChatRoom={room => handleOpenChatRoom({ ...room, bellSetting: "Y" })}
+          />
+        </ChatContainer>
+      ) : /** 10) 알림창 */
+      isAlarmListOpen ? (
+        <ChatContainer
+          onClose={() => setIsOpen(false)}
+          onChatClick={handleChatClick}
+          onProfileClick={handleProfileClickIcon}
+          onOrgClick={handleOpenOrg}
+          OnAlarmClick={handleAlarmClick}
+        >
+          <Alarm chatRooms={chatList} setChatList={setChatList} onNoticeClick={openNoticeChat} />
+        </ChatContainer>
+      ) : (
+        /** 11) 기본 화면 (ChatMain) */
+        <ChatContainer
+          onClose={() => setIsOpen(false)}
+          onOrgClick={handleOpenOrg}
+          OnAlarmClick={handleAlarmClick}
+          onChatClick={handleChatClick}
+          onProfileClick={handleProfileClickIcon}
+        >
+          <button
+            className="chat-close-button"
+            onClick={() => setIsOpen(false)}
+            style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10 }}
           >
-            <Alarm 
-            chatRooms={chatList} setChatList={setChatList} onNoticeClick={openNoticeChat} />
-          </ChatContainer>
-        ): 
-        (
-          <ChatContainer onClose={() => setIsOpen(false)} onOrgClick={handleOpenOrg} OnAlarmClick={handleAlarmClick} onChatClick={handleChatClick} onProfileClick={handleProfileClickIcon}>
-            <button className="chat-close-button" onClick={() => setIsOpen(false)} style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10 }}>
-              ×
-            </button>
-            <div className="chat-containerContent">
-              <div className="chat-search-section">
-                <div onClick={toggleSearch} style={{ cursor: "pointer" }}>
-                  <ChatIconSearch />
-                </div>
+            ×
+          </button>
+          <div className="chat-containerContent">
+            <div className="chat-search-section">
+              <div onClick={toggleSearch} style={{ cursor: "pointer" }}>
+                <ChatIconSearch />
               </div>
-
-              {isSearchVisible && <SearchClick onProfileClick={handleProfileClick} />}
-
-              <ChatMain selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onProfileClick={handleProfileClick} onNoticeClick={openNoticeChat} />
             </div>
-          </ChatContainer>
-        )}
-      </div>
-    </div>
+            {isSearchVisible && <SearchClick onProfileClick={handleProfileClick} />}
+            <ChatMain
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
+              onProfileClick={handleProfileClick}
+              // 공지방 열기
+              onNoticeClick={() =>
+                setSelectedChatRoom({
+                  chatRoomNo: 0,
+                  roomTitle: "사내 공지 톡방",
+                  chatType: "NOTICE",
+                  bellSetting: "Y",
+                })
+              }
+            />
+          </div>
+        </ChatContainer>
+      )}
+    </ChatModal>
   );
 };
 

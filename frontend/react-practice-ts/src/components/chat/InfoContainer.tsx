@@ -16,18 +16,18 @@ const InfoContainer = ({ children }: { children: React.ReactNode }) => {
       <div 
         className="containerBackground" 
         style={{ 
-          width: "390px", height: "600px", left: "0px", top: "0px", position: "absolute", 
+          width: "390px", height: "560px", left: "0px", top: "0px", position: "absolute", 
           background: "white",borderRadius: "5px" 
         }}
       ></div>
 
       {/* 헤더 영역 */}
-      <div 
+      {/* <div 
         className="containerHeader" 
         style={{ width: "390px", height: "30px", left: "0px", top: "0px", position: "absolute", background: "#4880FF" }}
-      ></div>
+      ></div> */}
 
-      <div 
+      {/* <div 
         className="containerHeaderLogoWrapper" 
         style={{ 
           position: "absolute", 
@@ -45,7 +45,7 @@ const InfoContainer = ({ children }: { children: React.ReactNode }) => {
           }}  > 
             ✕
           </div>
-      </div>
+      </div> */}
 
       
       {/*  자식 컴포넌트가 들어가는 영역 */}

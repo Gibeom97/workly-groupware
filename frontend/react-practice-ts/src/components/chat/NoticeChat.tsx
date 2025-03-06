@@ -1,118 +1,148 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { setMemberInvite } from "../../features/chatSlice";
-import { Member } from "../../type/chatType";
-import AddMemberPanel from "./AddMemberPanel";
+import { Client } from "@stomp/stompjs";
+import { useEffect, useRef, useState } from "react";
+import SockJS from "sockjs-client";
 import axios from "axios";
-import speaker from "../../assets/Images/chat/loud-speaker 11.png";
-import profile from "../../assets/Images/chat/profile.png";
-import bell from "../../assets/Images/chat/bell.png";
-import personplus from "../../assets/Images/chat/personPlus.png";
-import exit from "../../assets/Images/chat/exit.png";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import "dayjs/locale/ko";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
+// 아이콘 이미지 import (경로는 실제 프로젝트에 맞게 수정)
+import speaker from "../../assets/Images/chat/loud-speaker 11.png";
+import profileDefault from "../../assets/Images/chat/profile.png";
+
+const backendHost = "192.168.130.8"; // 학원
+dayjs.extend(utc);
+
+interface ChatMessage {
+  chatNo: number;
+  chatRoomNo: number;
+  userNo: number;
+  userName: string;
+  message: string;
+  receivedDate: string;
+  profileImg?: string;
+}
+
+const DEFAULT_CHATROOM_NO = 0;
 
 interface NoticeChatProps {
   onClose: () => void;
 }
 
-const NoticeChat = ({ onClose }: NoticeChatProps) => {
-  const dispatch = useDispatch();
-  const [isAddMemberPanelOpen, setIsAddMemberPanelOpen] = useState(false);
-  const [chatMembers, setChatMembers] = useState<Member[]>([]);
-  const [allEmployees, setAllEmployees] = useState<Member[]>([]);
+const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
+  const currentUser = useSelector((state: RootState) => state.user);
+  
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState("");
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const stompClientRef = useRef<Client | null>(null);
 
-  // 🔹 Redux에서 초대된 멤버 목록 가져오기
-  const memberInvite = useSelector((state: RootState) => state.chat.memberInvite);
+  const formatTime = (dateTimeString: string) =>
+    dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("HH:mm");
 
-  // 🔹 DB에서 전체 사원 목록 가져오기
+  const formatDate = (dateTimeString: string) =>
+    dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("YYYY년 MM월 DD일 dddd");
+
+  // 초기 메시지 로딩 (axios)
   useEffect(() => {
-    axios.get("http://localhost:8003/workly/api/chat/members")
-      .then((res) => setAllEmployees(res.data))
-      .catch((err) => console.error("멤버 목록 불러오기 실패", err));
+    axios
+      .get(`http://${backendHost}:8003/workly/api/chat/messages/${DEFAULT_CHATROOM_NO}`)
+      .then((res) => setMessages(res.data))
+      .catch((error) => console.error("❌ 채팅 메시지 불러오기 실패", error));
   }, []);
 
-  // 🔹 Redux의 초대 멤버와 현재 채팅 멤버 동기화
+  // STOMP 클라이언트 설정 및 "/sub/noticeChat" 구독
   useEffect(() => {
-    const invitedMembers = allEmployees.filter(member => memberInvite.includes(member.userName));
-    setChatMembers([...invitedMembers]);
-  }, [memberInvite, allEmployees]);
+    const sock = new SockJS(`http://${backendHost}:8003/workly/ws-stomp`);
+    const client = new Client({
+      webSocketFactory: () => sock,
+      reconnectDelay: 5000,
+      debug: (str) => console.log("STOMP:", str),
+      onConnect: () => {
+        console.log("STOMP 연결 성공");
+        client.subscribe("/sub/noticeChat", (message) => {
+          if (message.body) {
+            const receivedMsg: ChatMessage = JSON.parse(message.body);
+            setMessages((prev) => [...prev, receivedMsg]);
+          }
+        });
+      },
+    });
+    client.activate();
+    stompClientRef.current = client;
 
-  const handlePersonPlusClick = () => {
-    setIsAddMemberPanelOpen(true);
-  };
+    return () => {
+      if (stompClientRef.current) {
+        stompClientRef.current.deactivate();
+      }
+    };
+  }, []);
 
-  const handleAddMemberConfirm = (newMembers: Member[]) => {
-    const filteredNewMembers = newMembers.filter(
-      (newMember) => !chatMembers.some((member) => member.userNo === newMember.userNo)
-    );
-
-    if (filteredNewMembers.length === 0) {
-      alert("이미 참여 중인 멤버입니다.");
-      setIsAddMemberPanelOpen(false);
-      return;
+  // 메시지 업데이트 시 스크롤 하단 이동
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
+  }, [messages]);
 
-    // 🔹 Redux 상태 업데이트 (초대된 멤버 Redux에 저장)
-    dispatch(setMemberInvite([...memberInvite, ...filteredNewMembers.map(m => m.userName)]));
+  // STOMP를 이용한 메시지 전송 함수
+  const sendMessage = () => {
+    if (
+      !inputMessage.trim() ||
+      !stompClientRef.current ||
+      !stompClientRef.current.connected
+    )
+      return;
 
-    setIsAddMemberPanelOpen(false);
+    const newMessage: Omit<ChatMessage, "chatNo"> = {
+      chatRoomNo: DEFAULT_CHATROOM_NO,
+      userNo: currentUser.userNo,
+      userName: currentUser.userName,
+      message: inputMessage,
+      receivedDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+      profileImg: currentUser.profileImg || profileDefault,
+    };
+
+    stompClientRef.current.publish({
+      destination: "/pub/noticeChat/sendMessage",
+      body: JSON.stringify(newMessage),
+    });
+    setInputMessage("");
   };
 
   return (
-    
     <div
-      className="noticechat-container"
       style={{
         width: 390,
         height: 600,
         position: "relative",
+        background: "white",
+        boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+        borderRadius: 5,
       }}
     >
-      <div
-        className="noticechat-background"
-        style={{
-          width: 390,
-          height: 600,
-          position: "absolute",
-          background: "white",
-          boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-          borderRadius: 5,
-        }}
-      />
-
-      <div
-        className="noticechat-close-icon"
-        style={{
-          left: 359,
-          top: 22,
-          position: "absolute",
-          cursor: "pointer",
-        }}
-        onClick={onClose}
-      >
-        ✕
-      </div>
-
+      <ToastContainer />
+      {/* 톡방 제목 및 아이콘 영역 */}
       <img
-        className="speaker1"
+        src={speaker}
+        alt="speaker icon"
         style={{
           width: 30,
           height: 30,
+          position: "absolute",
           left: 185,
           top: 20,
-          position: "absolute",
         }}
-        src={speaker}
-        alt="icon"
       />
-
       <div
-        className="noticechat-title"
         style={{
+          position: "absolute",
           left: 85,
           top: 26,
-          position: "absolute",
           color: "black",
           fontSize: 16,
           fontFamily: "Nunito Sans",
@@ -121,15 +151,13 @@ const NoticeChat = ({ onClose }: NoticeChatProps) => {
       >
         사내공지 톡방
       </div>
-
       <div
-        className="noticechat-avatar"
         style={{
           width: 40,
           height: 40,
+          position: "absolute",
           left: 28,
           top: 21,
-          position: "absolute",
           background: "#D9D9D9",
           borderRadius: 10,
           display: "flex",
@@ -138,110 +166,151 @@ const NoticeChat = ({ onClose }: NoticeChatProps) => {
         }}
       >
         <img
-          className="profile1"
+          src={profileDefault}
+          alt="profile"
           style={{
-            width: "22px",
-            height: "22px",
+            width: 22,
+            height: 22,
             objectFit: "cover",
           }}
-          src={profile}
-          alt="profile"
         />
       </div>
-
-      {/* 🔹 공지 내용 */}
+      {/* 닫기 화살표 (그룹 채팅과 동일하게 onClose 호출) */}
       <div
-        className="noticechat-content-group"
+        className="noticechat-close-icon"
         style={{
           position: "absolute",
-          top: "100px",
-          left: "20px",
+          left: 359,
+          top: 22,
+          cursor: "pointer",
+          fontSize: 20,
+          fontWeight: "bold",
+        }}
+        onClick={onClose}
+      >
+        ←
+      </div>
+      
+      {/* 채팅 메시지 영역 */}
+      <div
+        ref={chatContainerRef}
+        style={{
+          position: "absolute",
+          top: 70,
+          left: 20,
+          right: 20,
+          bottom: 90,
+          overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          width: "350px",
+          gap: 5,
         }}
       >
-        <div
-          className="dividerDate"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: "15px",
-            width: "100%",
-          }}
-        >
-          <div
-            className="left-divider"
-            style={{ flex: 1, height: "1px", background: "#E0E0E0" }}
-          />
-          <div
-            className="noticechat-date"
-            style={{
-              margin: "0 10px",
-              color: "#4880FF",
-              fontSize: "11px",
-              fontFamily: "Roboto",
-              fontWeight: "500",
-              lineHeight: "5px",
-              letterSpacing: "0.5px",
-              whiteSpace: "nowrap",
-              width: "auto",
-            }}
-          >
-            2025년 2월 6일 목요일
-          </div>
-          <div
-            className="right-divider"
-            style={{ flex: 1, height: "1px", background: "#E0E0E0" }}
-          />
-        </div>
-        <div>공지 내용 출력 부분</div>
+        {messages.map((msg, index) => {
+          const isNewDay =
+            index === 0 ||
+            formatDate(messages[index - 1].receivedDate) !==
+              formatDate(msg.receivedDate);
+          return (
+            <div key={msg.chatNo}>
+              {isNewDay && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginBottom: 10,
+                    color: "#4880FF",
+                    fontSize: 11,
+                  }}
+                >
+                  {formatDate(msg.receivedDate)}
+                </div>
+              )}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 3 }}>
+                  <img
+                    src={msg.profileImg || profileDefault}
+                    alt="sender profile"
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      marginRight: 5,
+                    }}
+                  />
+                  <span style={{ fontSize: "12px", fontWeight: "600", color: "#333" }}>
+                    {msg.userName}
+                  </span>
+                </div>
+                <div
+                  style={{
+                    background: "#D2E3FF",
+                    padding: "10px",
+                    borderRadius: "7px",
+                    fontSize: "14px",
+                    color: "black",
+                    maxWidth: "230px",
+                  }}
+                >
+                  {msg.message}
+                </div>
+                <div style={{ fontSize: "10px", color: "#B3B3B3", marginTop: 2 }}>
+                  {formatTime(msg.receivedDate)}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* 🔹 멤버 초대 아이콘 */}
-      <img
-        className="personplus"
-        onClick={handlePersonPlusClick}
-        style={{
-          width: 30,
-          height: 30,
-          left: 81,
-          top: 545,
-          position: "absolute",
-          cursor: "pointer",
+      {/* 채팅 입력 영역 */}
+      <textarea
+        value={inputMessage}
+        onChange={(e) => setInputMessage(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
         }}
-        src={personplus}
-        alt="icon"
+        placeholder="메세지 입력"
+        maxLength={5000}
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          width: 350,
+          height: 60,
+          borderRadius: "5px",
+          border: "1px solid #ccc",
+          padding: "10px",
+          fontSize: "14px",
+          resize: "none",
+          overflowY: "auto",
+        }}
       />
 
-      {isAddMemberPanelOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1000,
-            backgroundColor: "white",
-            padding: "20px",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <AddMemberPanel
-            allEmployees={allEmployees}
-            currentMembers={chatMembers}
-            onClose={() => setIsAddMemberPanelOpen(false)}
-            onConfirm={handleAddMemberConfirm}
-          />
-        </div>
-      )}
-
-      {/* 🔹 나머지 아이콘들 */}
-      <img className="bell" style={{ width: 30, height: 30, left: 31, top: 545, position: "absolute" }} src={bell} alt="icon" />
-      <img className="exit" style={{ width: 30, height: 30, left: 131, top: 545, position: "absolute" }} src={exit} alt="icon" />
+      {/* 전송 버튼 */}
+      {/* <div
+        onClick={sendMessage}
+        style={{
+          position: "absolute",
+          bottom: 5,
+          right: 20,
+          width: "70px",
+          height: "35px",
+          background: "#4880FF",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: "14px",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        전송
+      </div> */}
     </div>
   );
 };

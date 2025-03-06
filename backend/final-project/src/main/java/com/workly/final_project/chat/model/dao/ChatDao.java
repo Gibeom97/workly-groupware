@@ -132,6 +132,26 @@ public class ChatDao {
 		sqlSession.insert("chat.addMembersToChatRoom",  
 				Map.of("userNos", userNos, "chatRoomNo", chatRoomNo));
 	}
+	
+	public int deleteChatParticipant(int chatRoomNo, int userNo) {
+	    return sqlSession.delete("chat.deleteChatParticipant", Map.of("chatRoomNo", chatRoomNo, "userNo", userNo));
+	}
+
+	public int updateMemberStatus(Map<String, Object> params) {
+	    return sqlSession.update("chat.updateMemberStatus", params);
+	}
+	
+	// 사내공지 채팅방 생성
+	public void createDefaultChatRoom(com.workly.final_project.chat.model.vo.ChatRoom chatRoom) {
+	    sqlSession.insert("chat.createDefaultChatRoom", chatRoom);
+	}
+	
+	// 사내공지 채팅방 존재 여부 확인
+	public int countDefaultChatRoom() {
+	    return sqlSession.selectOne("chat.countDefaultChatRoom");
+	}
+
+
     	
 
 }

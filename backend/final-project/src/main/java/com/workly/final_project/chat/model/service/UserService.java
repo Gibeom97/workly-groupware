@@ -61,23 +61,31 @@ public class UserService {
     }
     
     public String saveProfileImage(int userNo, MultipartFile file) {
-        String fileName = "profile_" + userNo + "_" + System.currentTimeMillis() + ".png";
+        String originalFilename = file.getOriginalFilename();
+        String extension = ".png"; // 기본 확장자
+
+        // 원래 파일명에서 확장자 추출
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        }
+
+        // jpg, jpeg, png만 허용
+        if (!extension.equals(".png") && !extension.equals(".jpg") && !extension.equals(".jpeg")) {
+            // 허용하지 않는 파일 확장자 처리 (예: 예외 발생 또는 null 반환)
+            return null;
+        }
+
+        String fileName = "profile_" + userNo + "_" + System.currentTimeMillis() + extension;
         String filePath = UPLOAD_DIR + fileName;
-        
+
         try {
-            // 폴더가 없으면 생성
             File uploadDir = new File(UPLOAD_DIR);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-
-            // 파일 저장
             Path path = Paths.get(filePath);
             Files.write(path, file.getBytes());
-
-            // DB 업데이트
             updateChatProfile(userNo, "/uploads/chatFile/" + fileName);
-
             return "/uploads/chatFile/" + fileName;
         } catch (IOException e) {
             e.printStackTrace();
