@@ -108,7 +108,7 @@ export const ApprovalWriteFooter = ({ approvalData, selectedCCUsers, submitAppro
                             console.log("🔥 메모 저장 요청:", memoContent, "approvalNo:", approvalData.approvalNo);
                             if (memoContent) {
                                 axios.post("http://localhost:8003/workly/api/approvalMemos/create", {
-                                    approvalNo: approvalData.approvalNo, // ✅ 기존 approvalNo 유지
+                                    approvalNo: approvalNo, // ✅ 기존 approvalNo 유지
                                     userNo: userNo,
                                     memoContent: memoContent,
                                 }).then(() => {

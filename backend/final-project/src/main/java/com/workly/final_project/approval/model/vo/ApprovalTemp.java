@@ -22,8 +22,7 @@ public class ApprovalTemp {
 	private String approvalTitle;
 	private String approvalContent;
 	
-	// @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	// private Date startDate;
-	private Date createdAt;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	private Date startDate;
 	private int approvalNo; // 추후 상신 시 발생
 }

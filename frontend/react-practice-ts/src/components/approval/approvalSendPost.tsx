@@ -18,6 +18,9 @@ export const ApprovalSendPost = ({
   postsPerPage,
   setCurrentPage
 }: ApprovalPostProps) => {
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userNo = useSelector((state: RootState) => state.user.userNo);
@@ -55,7 +58,7 @@ export const ApprovalSendPost = ({
       //dispatch(markNotificationAsRead({ approvalNo, userNo }));
 
       // ✅ 페이지 이동
-      navigate(`/approvalCompletePage/${approvalNo}`);
+      navigate(`/ApprovalCompletePage2/${approvalNo}`);
     } catch (error) {
       console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
     }
@@ -96,8 +99,8 @@ export const ApprovalSendPost = ({
           </tr>
         </thead>
         <tbody>
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => (
+          {currentPosts.length > 0 ? (
+            currentPosts.map((post) => (
               <tr
                 key={post.approvalNo}
                 style={{ borderBottom: "1px solid #E0E0E0", cursor: "pointer" }}

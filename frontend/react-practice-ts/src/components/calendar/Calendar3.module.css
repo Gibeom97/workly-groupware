@@ -1,7 +1,6 @@
 /* ✅ 캘린더 컨테이너 */
 .calendarContainer {
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -20,7 +19,7 @@
   height: auto; /* FullCalendar 기본 높이 유지 */
   background: none; /* 🔥 배경 제거 */
   border-radius: 0;
-  margin-bottom: 0px; /* 🔥 간격 제거 */
+  margin-bottom: 8px;
 }
 
 /* ✅ 툴바 제목 (년/월) */
@@ -60,49 +59,20 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
-  margin-bottom: 0px; /* 🔥 '회의실 예약' 버튼과 간격 최소화 */
 }
 
 .calendarContainer .todayButton:hover {
   background: #ccc; /* Hover 시 더 어두운 회색 */
 }
 
-/* ✅ FullCalendar 스타일 (기본 스타일 강제 덮어쓰기) */
+/* ✅ FullCalendar 스타일 */
 .calendarContainer .fc {
   width: 100% !important;
   height: 100% !important;
-  max-width: 100% !important;
-  max-height: 100% !important;
-  flex-grow: 1 !important;
-  overflow: auto !important;
-  margin: 0 !important; /* 🔥 캘린더의 기본 margin 제거 */
-  padding: 0 !important; /* 🔥 내부 패딩 제거 */
-}
-
-/* ✅ FullCalendar 내부 요소 강제 조정 */
-.calendarContainer ::deep(.fc-toolbar) {
-  margin-bottom: 0 !important; /* 🔥 FullCalendar 내부 툴바 하단 여백 제거 */
-}
-
-.calendarContainer ::deep(.fc-header-toolbar) {
-  display: none !important; /* 🔥 FullCalendar 기본 툴바 숨기기 */
-}
-
-/* ✅ FullCalendar 내부 뷰(harness) 여백 제거 */
-.calendarContainer ::deep(.fc-view-harness) {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* ✅ FullCalendar 전체 Wrapper */
-.calendarWrapper {
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  margin-top: -8px !important; /* 🔥 캘린더 위쪽 간격 제거 */
+  max-width: 100%;
+  max-height: 100%;
+  flex-grow: 1;
+  overflow: auto;
 }
 
 /* ✅ FullCalendar 날짜 스타일 */
@@ -135,30 +105,8 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* ✅ "회의실 예약" 버튼 컨테이너 - 툴바 바로 아래에 붙이기 */
-.meetingRoomButtonContainer {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end; /* 🔥 '오늘' 버튼과 같은 위치(오른쪽 정렬) */
-  padding-right: 12px; /* 🔥 버튼이 너무 끝으로 가지 않도록 여백 조정 */
-  margin-top: -8px !important; /* 🔥 '오늘' 버튼과 간격 완전 제거 */
-  margin-bottom: -8px !important; /* 🔥 캘린더와 간격 완전 제거 */
-  padding-bottom: 0 !important; /* 🔥 불필요한 패딩 제거 */
+:global(.fc-daygrid-day-frame.fc-scrollgrid-sync-inner) {
+  max-height: 76px !important;
+  overflow-y: auto !important;
 }
 
-/* ✅ "회의실 예약" 버튼 스타일 */
-.meetingRoomButton {
-  background-color: #4C93FF !important;
-  color: white !important;
-  border: none !important;
-  padding: 8px 12px !important;
-  border-radius: 5px !important;
-  font-size: 14px !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s ease-in-out !important;
-  display: block !important; /* 🔥 버튼이 블록 요소로 자리 차지하게 설정 */
-}
-
-.meetingRoomButton:hover {
-  background-color: #357ae8 !important;
-}

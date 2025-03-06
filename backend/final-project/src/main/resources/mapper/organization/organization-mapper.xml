@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="organizationMapper">
+
+    <!-- 모든 부서 조회 -->
+    <select id="selectAllDepartments" resultType="com.workly.final_project.organization.model.vo.Department">
+        SELECT DEPT_NO AS deptNo, DEPT_NAME AS deptName, TOP_DEPT_CODE AS topDeptCode
+        FROM DEPARTMENT
+    </select>
+
+    <!-- 모든 사원(MEMBER) 조회: 결과를 Map으로 받음 -->
+	<select id="selectAllMembers" resultType="map">
+	    SELECT
+	        M.USER_NO         AS userNo,
+	        M.STATUS_TYPE     AS statusType,
+	        M.POSITION_NO     AS positionNo,
+	        M.DEPT_NO         AS deptNo,
+	        M.STATUS          AS status,
+	        M.USER_PWD        AS userPwd,
+	        M.USER_NAME       AS userName,
+	        M.PHONE           AS phone,
+	        M.EXTENSION       AS extension,
+	        M.EMAIL           AS email,
+	        M.ADDRESS         AS address,
+	        M.HIRE_DATE       AS hireDate,
+	        M.UPDATE_DATE     AS updateDate,
+	        M.ADDRESS_DETAIL  AS addressDetail,
+	        M.ROLE            AS role,
+	        M.COMPANY_ID      AS companyId,
+	        A.CHANGE_NAME     AS changeName,
+	        A.FILE_PATH       AS filePath
+	    FROM MEMBER M
+	    LEFT JOIN PROFILE_ATTACHMENT A 
+	       ON M.USER_NO = A.REF_USER_NO 
+	      AND A.ATTACH_STATUS = 'Y'
+	</select>
+
+    <!-- 모든 직급(POSITION) 조회 -->
+    <select id="selectAllPositions" resultType="com.workly.final_project.member.model.vo.Position">
+        SELECT 
+            POSITION_NO   AS positionNo,
+            POSITION_NAME AS positionName
+        FROM POSITION
+    </select>
+
+</mapper>

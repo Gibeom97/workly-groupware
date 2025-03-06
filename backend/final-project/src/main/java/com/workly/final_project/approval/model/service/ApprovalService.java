@@ -19,6 +19,8 @@ public interface ApprovalService {
 	
 	List<Approval> getAllApprovals(); // 모든 결재 문서 조회
 
+	List<Approval> getApprovalList(int userNo);  // 내문서함 조회
+	
 	List<Map<String, Object>> getDepartmentsWithEmployees();
 
 	List<Approval> getDraftApprovals();

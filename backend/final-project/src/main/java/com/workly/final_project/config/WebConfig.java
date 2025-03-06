@@ -32,8 +32,9 @@ public class WebConfig implements WebMvcConfigurer {
 
         // ✅ chatFile 폴더를 명확하게 매핑
         registry.addResourceHandler("/uploads/chatFile/**")
-                .addResourceLocations("file:C:/FinalProject/backend/final-project/src/main/resources/static/uploads/chatFile/")
-                .setCachePeriod(3600);
+        .addResourceLocations("classpath:/static/uploads/chatFile/")
+        .setCachePeriod(3600);
+
         
         registry.addResourceHandler("/uploads/**")
         .addResourceLocations("file:C:/upload/");

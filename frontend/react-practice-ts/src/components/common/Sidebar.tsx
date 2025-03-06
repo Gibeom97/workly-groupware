@@ -49,12 +49,14 @@ const Sidebar = () => {
             <span>홈</span>
           </li>
           </Link>
+          <Link to={"/OrganizationChart"} className={styles.link}>
           <li>
             <span>
               <img src={icon2} alt="조직도" />
             </span>
             <span>조직도</span>
           </li>
+          </Link>
           <Link to={"/calendar"} className={styles.link}>
           <li>
             <span>
