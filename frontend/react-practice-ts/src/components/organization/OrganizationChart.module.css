@@ -1,0 +1,153 @@
+.orgChartContainer {
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 800px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.orgChartTitle {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #202224;
+}
+
+.searchContainer {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.searchInput {
+  width: 60%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #f5f6fa;
+  outline: none;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.orgTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.orgTable th,
+.orgTable td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 14px;
+}
+
+.orgTable th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.orgTable tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* 모달 오버레이: 화면 전체 덮는 반투명 배경 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 모달 콘텐츠: 명함(명합) 카드 형식 */
+.modalContent {
+  position: relative; 
+  display: flex;              /* 가로 배치 */
+  flex-direction: row;        /* 명함처럼 좌우 구성 */
+  align-items: center;        /* 수직 가운데 정렬 */
+  width: 450px;               /* 카드 너비 (원하시면 조절) */
+  padding: 20px 25px;         /* 여백 */
+  background-color: #fff;     
+  border-radius: 10px;        /* 모서리 둥글게 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 그림자 */
+}
+
+/* 프로필 이미지 영역 (왼쪽) */
+.modalProfile {
+  flex: 0 0 140px;            /* 고정 너비 120px */
+  height: 140px;              /* 명함 내에서 적절한 높이 */
+  margin-right: 20px;         /* 오른쪽 간격 */
+  border-radius: 50%;         /* 사각형/둥근 모양 조절 */
+  overflow: hidden;           /* 이미지 넘치지 않도록 */
+  /* border: 1px solid #ddd;     테두리 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: #f9f9f9;  배경색(선택) */
+}
+
+/* 실제 프로필 이미지 */
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 명함 안에서 꽉 차도록 */
+}
+
+/* 텍스트 정보 영역 (오른쪽) */
+.modalInfo {
+  flex: 1;              /* 남은 공간 전부 차지 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 수직 가운데 정렬 */
+}
+
+/* 이름 */
+.modalName {
+  font-size: 17px;
+  font-weight: bold;
+  margin: 0 0 8px 0; /* 아래쪽 여백 */
+  color: #333;
+  border-bottom: 2px solid #b9b9b9;
+  padding-bottom: 3px;
+}
+
+/* 상세 정보 (직급, 연락처 등) */
+.modalDetail {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* 닫기 버튼: 우측 상단에 X 아이콘처럼 */
+.modalCloseButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  color: #888;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  color: #333;
+}

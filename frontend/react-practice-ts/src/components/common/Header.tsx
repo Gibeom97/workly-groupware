@@ -62,6 +62,10 @@ function Header() {
       title = "회사규정Q&A 관리";
       break
 
+    case pathname.includes("OrganizationChart"):
+      title = "조직도";
+      break
+
     default:
       title = "";
       break;
