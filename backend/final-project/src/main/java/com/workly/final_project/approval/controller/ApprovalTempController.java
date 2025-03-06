@@ -32,20 +32,32 @@ public class ApprovalTempController {
 
     // ✅ 사용자별 임시 저장 문서 조회 (GET)
     @GetMapping("/list/{userNo}")
-    public ResponseEntity<List<ApprovalTemp>> getTempApprovalsByUser(@PathVariable int userNo) {
-        return ResponseEntity.ok(service.getTempApprovalsByUser(userNo));
+    public ResponseEntity<?> getTempApprovalsByUser(@PathVariable int userNo) {
+        try {
+            List<ApprovalTemp> tempApprovals = service.getTempApprovalsByUser(userNo);
+            if (tempApprovals == null || tempApprovals.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("임시 저장 문서가 없습니다.");
+            }
+            return ResponseEntity.ok(tempApprovals);
+        } catch (Exception e) {
+            log.error("❌ 임시 저장 문서 조회 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("임시 저장 문서 조회 중 오류가 발생했습니다.");
+        }
     }
+
 
     // ✅ 특정 임시 저장 문서 상세 조회 (GET) → 기존 `/{tempNo}` 경로 복구
     @GetMapping("/{tempNo}")
-    public ResponseEntity<ApprovalTemp> getTempApprovalDetail(@PathVariable int tempNo) {
-        ApprovalTemp tempApproval = service.getTempApprovalDetail(tempNo);
-        if (tempApproval != null) {
-            return ResponseEntity.ok(tempApproval);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    public ResponseEntity<?> getApproval(@PathVariable int tempNo) {
+        ApprovalTemp approval = service.getTempApprovalDetail(tempNo);
+        if (approval == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No data found");
         }
+        System.out.println("Approval Data: " + approval); // 로그 확인
+        return ResponseEntity.ok(approval);
     }
+
 
     // ✅ 여러 개의 TEMP_NO를 받아 삭제 처리 (DELETE)
     @DeleteMapping("/deleteApprovalTemp")

@@ -16,41 +16,33 @@ export const ApprovalTempPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const postsPerPage = 10;
 
-  const userNoFromRedux = useSelector((state: any) => state.user?.userNo);
-  const userNoFromSession = sessionStorage.getItem("userNo");
-  const userNo = userNoFromRedux || userNoFromSession;
-
-  const fetchData = async () => {
-    if (!userNo) return;
-    try {
-      console.log("✅ API 요청 URL:", `http://localhost:8003/workly/api/approvalTemp/list/${userNo}`);
-      
-      const response = await axios.get(`http://localhost:8003/workly/api/approvalTemp/list/${userNo}`, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("✅ 응답 데이터:", response.data);
-      if (Array.isArray(response.data)) {
-        setPosts(response.data);
-        setFilteredPosts(response.data);
-      } else {
-        console.error("❌ 응답 데이터가 배열이 아님:", response.data);
-      }
-    } catch (error) {
-      console.error("🚨 임시저장 목록 조회 실패:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const userNo = useSelector((state: any) => state.user?.userNo) || sessionStorage.getItem("userNo");
 
   useEffect(() => {
+    const fetchData = async () => {
+      if (!userNo) return;
+      try {
+        console.log("✅ API 요청:", `http://localhost:8003/workly/api/approvalTemp/list/${userNo}`);
+        const response = await axios.get(`http://localhost:8003/workly/api/approvalTemp/list/${userNo}`);
+
+        if (response.status === 200 && Array.isArray(response.data)) {
+          console.log("✅ 데이터 로드 성공:", response.data);
+          setPosts(response.data);
+          setFilteredPosts(response.data);
+        } else if (response.status === 204) {
+          console.warn("⚠ 임시 저장 문서 없음");
+        } else {
+          console.error("❌ 예상치 못한 응답:", response);
+        }
+      } catch (error) {
+        console.error("🚨 임시저장 목록 조회 실패:", error.response?.data || error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchData();
   }, [userNo]);
-
-  // ✅ 삭제 후 데이터 새로 불러오기
-  const handleRefresh = () => {
-    fetchData();
-  };
 
   return (
     <div className="mainpageContainer">
@@ -65,7 +57,6 @@ export const ApprovalTempPage = () => {
             setSelectedPosts={setSelectedPosts}
             filteredPosts={filteredPosts}
             currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
             postsPerPage={postsPerPage}
             isLoading={isLoading}
           />
@@ -85,7 +76,9 @@ export const ApprovalTempPage = () => {
             setCurrentPage={setCurrentPage}
             selectedPosts={selectedPosts}
             setSelectedPosts={setSelectedPosts}
-            handleRefresh={handleRefresh} // ✅ 삭제 후 새로고침 함수 전달
+            handleRefresh={() => {
+              fetchData(); // ✅ 삭제 후 데이터 새로 불러오기
+            }}
           />
         </div>
       </div>

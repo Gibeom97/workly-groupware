@@ -20,9 +20,8 @@ public class ApprovalTempDaoImpl implements ApprovalTempDao {
 
     @Override
     public List<ApprovalTemp> getTempApprovalsByUser(int userNo) {
-        return sqlSession.selectList("approvalTempMapper.getTempApprovalsByUser", userNo);
+        return sqlSession.selectList("approvalTemp.getTempApprovalsByUser", userNo);
     }
-
 
     @Override
     public ApprovalTemp getTempApprovalById(int tempNo) {
