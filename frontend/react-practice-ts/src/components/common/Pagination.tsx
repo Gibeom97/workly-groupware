@@ -1,4 +1,4 @@
-import styles from "./Pagination.module.css";
+import styles from "../../styles/common/Pagination.module.css";
 
 const Pagination = ({pageInfo, setCurrentPage}) => {
   if(!pageInfo) return null;

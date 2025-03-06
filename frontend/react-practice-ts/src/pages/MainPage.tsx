@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import styles from './MainPage.module.css'
+import styles from '../styles/mainpage/MainPage.module.css';
 import Header from "../components/common/Header";
 import Sidebar from "../components/common/Sidebar";
 import { useSelector } from "react-redux";

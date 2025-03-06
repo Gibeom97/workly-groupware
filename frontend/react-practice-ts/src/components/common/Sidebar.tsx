@@ -1,4 +1,4 @@
-import styles from "./Sidebar.module.css";
+import styles from '../../styles/common/Sidebar.module.css';
 import icon1 from '../../assets/images/icon/1.png';
 import icon2 from '../../assets/images/icon/2.png';
 import icon3 from '../../assets/images/icon/3.png';
@@ -37,7 +37,7 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.title}>Wonk</div>
+      <div className={styles.title}>Workly</div>
       <div className={styles.sidebarNav}>
       <nav>
         <ul>
@@ -49,12 +49,14 @@ const Sidebar = () => {
             <span>홈</span>
           </li>
           </Link>
+          <Link to={"/OrganizationChart"} className={styles.link}>
           <li>
             <span>
               <img src={icon2} alt="조직도" />
             </span>
             <span>조직도</span>
           </li>
+          </Link>
           <Link to={"/calendar"} className={styles.link}>
           <li>
             <span>

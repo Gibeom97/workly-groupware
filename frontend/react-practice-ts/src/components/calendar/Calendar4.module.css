@@ -4,7 +4,6 @@
   padding: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-height: 250px !important;
   overflow: hidden; /* ✅ 스크롤 제거 */
   display: flex;
   flex-direction: column; /* ✅ 캘린더 비율 유지 */
@@ -17,7 +16,7 @@
   justify-content: space-between;
   width: 100%;
   padding: 4px;
-  height: 25px;
+  height: 20%;
 }
 
 .customTitle {
@@ -60,6 +59,7 @@
 /* ✅ 캘린더 크기 및 스타일 복구 */
 .calendarWrapper {
   width: 100%;
+  height: 80%;
   flex-grow: 1; /* ✅ 캘린더가 툴바 아래에서 자연스럽게 채워지도록 */
   display: flex;
   flex-direction: column;

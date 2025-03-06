@@ -4,7 +4,7 @@ import logout from '../../assets/images/icon/logout.png';
 import mypage from '../../assets/images/icon/mypage.png';
 import profileImg from '../../assets/images/icon/profile.png';
 import { useEffect, useState } from 'react';
-import styles from './Header.module.css';
+import styles from '../../styles/common/Header.module.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../../features/userSlice';
@@ -60,6 +60,10 @@ function Header() {
 
     case pathname.includes("AdminPolicyManager"):
       title = "회사규정Q&A 관리";
+      break
+
+    case pathname.includes("OrganizationChart"):
+      title = "조직도";
       break
 
     default:

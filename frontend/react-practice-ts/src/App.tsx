@@ -42,6 +42,8 @@ import OrganizationChartPage from "./pages/OrganizationChartPage";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
+
 function App() {
   // 전자결재 알림서비스 추가
   const userNo = useSelector((state: RootState) => state.user.userNo);
@@ -64,6 +66,7 @@ function App() {
 
       {/* 전자결재 알림 모달 (모든 페이지에서 표시) */}
       <NotificationModal />
+
 
       {/* 🔹 Chat 모달 (유저 정보 전달) */}
       {isChatOpen && (

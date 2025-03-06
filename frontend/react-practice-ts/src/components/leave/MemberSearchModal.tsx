@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import styles from './MemberSearchModal.module.css'
+import styles from '../../styles/leave/MemberSearchModal.module.css';
 
 const MemberSearchModal = ({setUser, setYear, memberList, setOpenModal }) => {
     const [searchUser, setSearchUser] = useState("");

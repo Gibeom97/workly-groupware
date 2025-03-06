@@ -28,7 +28,8 @@
             		WHEN #{deptNo} = 2 THEN 'ROLE_HR' 
             		ELSE 'ROLE_USER'
             		END,
-            	#{companyId} 
+            	#{companyId},
+            	DEFAULT
 				)
 	</insert>
 	
@@ -80,6 +81,36 @@
 			DEFAULT
 			)
 	</insert>
+	
+	<update id="updateFailCount">
+		UPDATE MEMBER
+		SET FAIL_COUNT = FAIL_COUNT +1
+		WHERE USER_NO = #{userNo} AND STATUS = 'Y'
+	</update>
+	
+	<select id="selectFailCount" resultType="int">
+		SELECT FAIL_COUNT
+		FROM MEMBER
+		WHERE USER_NO = #{userNo}
+	</select>
+	
+	<update id="initFailCount">
+		UPDATE MEMBER
+		SET FAIL_COUNT = 0
+		WHERE USER_NO = #{userNo}
+	</update>
+	
+	<update id="updatePwd">
+		UPDATE MEMBER
+		SET USER_PWD = #{userPwd}
+		WHERE USER_NO = #{userNo}
+	</update>
+	
+	<select id="selectEmail" resultType="String">
+		SELECT EMAIL
+		FROM MEMBER
+		WHERE USER_NO = #{userNo}
+	</select>
 </mapper>
 
 

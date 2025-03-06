@@ -18,8 +18,7 @@ interface Modal1Props {
 }
 
 /** 
- * 브라우저 팝업 차단과 무관하게 
- * "무조건" 화면에 표시되는 모달 컴포넌트 
+ * ForceAlertInModal: 강제 오류 메시지 모달 (CSS 모듈 사용)
  */
 function ForceAlertInModal({
   message,
@@ -31,42 +30,13 @@ function ForceAlertInModal({
   if (!message) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-      }}
-      onClick={onClose}
-    >
+    <div className={styles.forceAlertOverlay} onClick={onClose}>
       <div
-        style={{
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "8px",
-          width: "300px",
-          textAlign: "center",
-        }}
+        className={styles.forceAlertContent}
         onClick={(e) => e.stopPropagation()}
       >
-        <p style={{ marginBottom: "20px" }}>{message}</p>
-        <button
-          onClick={onClose}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-          }}
-        >
+        <p className={styles.forceAlertMessage}>{message}</p>
+        <button className={styles.forceAlertButton} onClick={onClose}>
           확인
         </button>
       </div>
@@ -90,20 +60,21 @@ const Modal1: React.FC<Modal1Props> = ({
   const [selectedColor, setSelectedColor] = useState("#000000");
   const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
   const [selectedRoom, setSelectedRoom] = useState("");
-
-  // 추가: 오류 메시지를 강제로 표시할 상태
   const [forceAlertMessage, setForceAlertMessage] = useState("");
 
   const user = useSelector((state: any) => state.user);
   const userNo = user?.userNo;
 
-  // 회의실 목록 불러오기
+  // 회의실 목록 불러오기 (mrNo 기준 오름차순 정렬)
   useEffect(() => {
     axios
       .get("http://localhost:8003/workly/meeting-rooms")
       .then((response) => {
         if (Array.isArray(response.data) && response.data.length > 0) {
-          setMeetingRooms(response.data);
+          const sortedData = response.data.sort(
+            (a: MeetingRoom, b: MeetingRoom) => Number(a.mrNo) - Number(b.mrNo)
+          );
+          setMeetingRooms(sortedData);
         } else {
           console.error("🚨 빈 데이터 반환됨", response.data);
         }
@@ -203,16 +174,12 @@ const Modal1: React.FC<Modal1Props> = ({
     } catch (error: any) {
       console.error("📌 회의실 예약 저장 오류:", error);
 
-      // 강제 모달에 표시할 메시지 결정
       if (error.response) {
-        // 서버에서 문자열로 반환하는 경우
         const data = error.response.data;
-        // 혹은 서버가 { message: "..." } 형태로 보낸다면:
         const message =
           typeof data === "object" && data.message
             ? data.message
             : data || "오류가 발생했습니다.";
-
         setForceAlertMessage(message);
       } else {
         setForceAlertMessage("네트워크 오류가 발생했습니다.");
@@ -223,7 +190,11 @@ const Modal1: React.FC<Modal1Props> = ({
   // 예약 삭제
   const handleDeleteClick = async () => {
     if (!selectedEvent || !onDelete) return;
-    if (window.confirm(`정말 "${selectedEvent.title}" 회의 예약을 삭제하시겠습니까?`)) {
+    if (
+      window.confirm(
+        `정말 "${selectedEvent.title}" 회의 예약을 삭제하시겠습니까?`
+      )
+    ) {
       try {
         await axios.delete(
           `http://localhost:8003/workly/meeting-reservation/delete/${selectedEvent.id}`
@@ -255,7 +226,10 @@ const Modal1: React.FC<Modal1Props> = ({
       />
 
       <div className={styles.modal1Overlay} onClick={onClose}>
-        <div className={styles.modal1Container} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.modal1Container}
+          onClick={(e) => e.stopPropagation()}
+        >
           <h2 className={styles.modal1Title}>회의실 예약</h2>
 
           {/* 회의실 선택 */}
@@ -334,7 +308,10 @@ const Modal1: React.FC<Modal1Props> = ({
           {/* 버튼 그룹 */}
           <div className={styles.buttonGroup}>
             {selectedEvent && onDelete && (
-              <button className={styles.deleteButton} onClick={handleDeleteClick}>
+              <button
+                className={styles.deleteButton}
+                onClick={handleDeleteClick}
+              >
                 예약 삭제
               </button>
             )}

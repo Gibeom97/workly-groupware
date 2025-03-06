@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 
+
 const backendHost = "192.168.130.8"; // 학원
 //const backendHost = "192.168.0.11"; // 테스트용 - 방
 //const backendHost ="192.168.200.102"; // 거실
@@ -141,6 +142,49 @@ const GroupChat = ({
 }, [room.chatRoomNo]);
 
 
+  // ✅ WebSocket 연결 및 메시지 수신
+  useEffect(() => {
+    
+    const sock = new SockJS(`http://${backendHost}:8003/workly/ws-stomp`);
+
+    const stompClient = new Client({
+        webSocketFactory: () => sock,
+        reconnectDelay: 5000,
+        debug: (str) => console.log("🛠 [WebSocket Debug]:", str),
+        connectHeaders: {
+            userNo: currentUser.userNo.toString(),
+        },
+        onConnect: () => {
+            console.log("🟢 WebSocket Connected");
+
+            if (subscriptionRef.current) {
+                stompClient.unsubscribe(subscriptionRef.current);
+            }
+
+            const subscription = stompClient.subscribe(`/sub/chatRoom/${room.chatRoomNo}`, (message) => {
+                console.log("📩 새 메시지 수신:", message.body);
+                const newMessage = JSON.parse(message.body);
+                setChatMessages((prev) => [
+                    ...prev,
+                    { ...newMessage, isMine: newMessage.userNo === currentUser.userNo },
+                ]);
+            });
+
+            subscriptionRef.current = subscription.id;
+            setClient(stompClient);
+        },
+        onDisconnect: () => console.log("🔴 WebSocket Disconnected"),
+    });
+
+    stompClient.activate();
+
+    return () => {
+        if (subscriptionRef.current) {
+            stompClient.unsubscribe(subscriptionRef.current);
+        }
+        stompClient.deactivate();
+    };
+}, [room.chatRoomNo]);
 
   // ✅ 날짜 및 시간 변환 함수
   
@@ -170,7 +214,7 @@ useEffect(() => {
   // 채팅 메시지 불러오기 (비동기 함수)
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`http://localhost:8003/workly/api/chat/messages/${room.chatRoomNo}`);
+      const response = await axios.get(`http://${backendHost}:8003/workly/api/chat/messages/${room.chatRoomNo}`);
       const profileMap = await fetchOtherProfiles(); // ✅ 나 제외 프로필 정보 가져오기
   
       // ✅ 각 메시지에 프로필 이미지 추가
@@ -194,7 +238,7 @@ useEffect(() => {
   // 나를 제외한 멤버들의 프로필 정보 가져오기
   const fetchOtherProfiles = async () => {
     try {
-      const response = await axios.get(`http://localhost:8003/workly/api/chat/membersWithoutMe`, {
+      const response = await axios.get(`http://${backendHost}:8003/workly/api/chat/membersWithoutMe`, {
         params: { chatRoomNo: room.chatRoomNo, userNo: currentUser.userNo },
       });
   
@@ -213,6 +257,35 @@ useEffect(() => {
   };
   
 
+
+  
+  // 다른 방으로 이동
+  const leaveChatRoom = async () => {
+    try {
+        await axios.post(`http://${backendHost}:8003/workly/api/chat/leave/${room.chatRoomNo}/${currentUser.userNo}`);
+        console.log("🚪 [프론트엔드] leaveChatRoom 요청 완료");
+
+        // WebSocket 구독 해제
+        if (subscriptionRef.current && client) {
+            client.unsubscribe(subscriptionRef.current);
+        }
+
+    } catch (error) {
+        console.error("❌ [프론트엔드] leaveChatRoom 요청 실패:", error);
+    }
+};
+
+// 다른 채팅방으로 이동 시 호출
+// const handleRoomChange = async (newRoom: ChatRoom) => {
+//   try {
+//     await leaveChatRoom();  // 기존 방에서 나가기 (WebSocket 구독 해제)
+//     onChangeRoom(newRoom);  // ✅ 새로운 채팅방으로 변경
+//   } catch (error) {
+//     console.error("🚨 채팅방 변경 중 오류 발생:", error);
+//   }
+// };
+
+
 // 스크롤 하단으로
 useEffect(() => {
   if (chatContainerRef.current) {
@@ -222,7 +295,7 @@ useEffect(() => {
 // ✅ 안 읽은 메시지 개수 가져오는 함수
 const fetchUnreadMessages = async () => {
   try {
-      const response = await axios.get(`http://localhost:8003/workly/api/chat/unread/${room.chatRoomNo}/${currentUser.userNo}`);
+      const response = await axios.get(`http://${backendHost}:8003/workly/api/chat/unread/${room.chatRoomNo}/${currentUser.userNo}`);
       setUnreadCount(response.data);
   } catch (error) {
       console.error("❌ [프론트엔드] 안 읽은 메시지 개수 불러오기 실패", error);
@@ -241,7 +314,7 @@ useEffect(() => {
 
   // ✅ 마지막 읽은 메시지 가져오기
   useEffect(() => {
-    axios.get(`http://localhost:8003/workly/api/chat/lastRead/${room.chatRoomNo}/${currentUser.userNo}`)
+    axios.get(`http://${backendHost}:8003/workly/api/chat/lastRead/${room.chatRoomNo}/${currentUser.userNo}`)
       .then(response => {
         setLastReadChatNo(response.data); // ✅ 데이터가 바로 정수값이므로 그대로 사용
       })
@@ -414,7 +487,7 @@ const handleClose = async () => {
 
 const updateUserChatStatus = async () => {
   try {
-      await axios.put(`http://localhost:8003/workly/api/chat/updateStatus/${room.chatRoomNo}/${currentUser.userNo}`);
+      await axios.put(`http://${backendHost}:8003/workly/api/chat/updateStatus/${room.chatRoomNo}/${currentUser.userNo}`);
       console.log("✅ [프론트엔드] updateUserChatStatus 요청 완료");
   } catch (error) {
       console.error("❌ [프론트엔드] updateUserChatStatus 요청 실패:", error);
@@ -429,7 +502,7 @@ useEffect(() => {
 
 const isUnread = (msg: ChatMessage) => {
   return lastReadChatNo !== null && msg.chatNo > lastReadChatNo;
-};  
+};
 
   
 

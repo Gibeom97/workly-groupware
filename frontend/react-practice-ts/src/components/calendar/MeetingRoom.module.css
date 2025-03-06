@@ -1,106 +1,132 @@
-/* ✅ 회의실 현황판 컨테이너 */
-.meetingRoomContainer {
-  width: 100%;
-  height: 100%;  /* 부모 컨테이너에 꽉 차게 */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 0;
-  overflow: auto;
-}
-
-/* ✅ FullCalendar 기본 툴바 크기 유지 */
-.meetingRoomContainer .customToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px 12px;
-  height: auto;
-  background: none;
-  border-radius: 0;
-  margin-bottom: 8px;
-}
-
-/* ✅ 툴바 제목 (년/월) */
-.meetingRoomContainer .customTitle {
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
-  flex-grow: 1;
-  min-width: 80px;
-}
-
-/* ✅ 이전, 다음 버튼 */
-.meetingRoomContainer .toolbarButton {
-  font-size: 16px;
-  padding: 8px 10px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: none;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  cursor: pointer;
-  color: black;
-}
-
-/* ✅ '오늘' 버튼 */
-.meetingRoomContainer .todayButton {
-  font-size: 16px;
-  padding: 8px 12px;
-  min-width: 60px;
-  height: 40px;
-  background: #ddd;
-  color: black;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.meetingRoomContainer .todayButton:hover {
-  background: #ccc;
-}
-
-/* ✅ FullCalendar 스타일 - 높이를 부모 div에 맞추기 */
-.meetingRoomContainer .fc {
-  width: 100% !important;
-  height: 100% !important;  /* 전체 높이 맞추기 */
-  max-width: 100%;
-  max-height: 100%;
-  flex-grow: 1;
-  overflow: auto;
-}
-
-/* ✅ FullCalendar 날짜 스타일 */
-.meetingRoomContainer .fc-daygrid-day-number {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
-}
-
-/* ✅ 이벤트 스타일 */
-.meetingRoomContainer .fc-event {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  padding: 6px 10px;
-  border-radius: 8px !important;
-  font-size: 13px;
-  font-weight: bold;
-  text-align: center !important;
-  border: none !important;
-  transition: all 0.2s ease-in-out;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-.meetingRoomContainer .fc-event:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
+/***************************************************************
+ * 1) FullCalendar 라이선스 메시지 & 팝업 메시지 숨기기 (:global)
+ *    - 유효한 라이선스 키가 없을 때 표시되는 문구를 CSS로 가립니다.
+ *    - CSS Modules에서는 :global(...)을 사용해야 글로벌 클래스가 덮어집니다.
+ ***************************************************************/
+ :global(.fc-license-message),
+ :global(.fc-popover .fc-message) {
+   display: none !important;
+   visibility: hidden !important;
+ }
+ 
+ /***************************************************************
+  * 2) Resource Timeline 행 높이 강제 늘리기
+  *    - .fc-timeline .fc-scrollgrid-sync-table (버전에 따라 다를 수 있음)
+  *    - height, min-height를 !important로 지정해야 기존 스타일보다 우선 적용
+  ***************************************************************/
+ :global(.fc .fc-timeline .fc-scrollgrid-sync-table tr),
+ :global(.fc .fc-timeline .fc-scrollgrid-sync-table td),
+ :global(.fc .fc-timeline .fc-scrollgrid-sync-table th) {
+   min-height: 60px !important; /* 원하는 값으로 조정 */
+   height: 60px !important;     /* 원하는 값으로 조정 */
+ }
+ 
+ /***************************************************************
+  * 아래부터는 기존 MeetingRoom.module.css 스타일
+  ***************************************************************/
+ 
+ /* ✅ 회의실 현황판 컨테이너 */
+ .meetingRoomContainer {
+   width: 100%;
+   display: flex;
+   flex-direction: column;
+   justify-content: flex-start;
+   align-items: center;
+   padding: 0;
+   overflow: auto;
+ }
+ 
+ /* ✅ FullCalendar 기본 툴바 크기 유지 */
+ .meetingRoomContainer .customToolbar {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   width: 100%;
+   padding: 8px 12px;
+   height: auto;
+   background: none;
+   border-radius: 0;
+   margin-bottom: 30px;
+ }
+ 
+ /* ✅ 툴바 제목 (년/월) */
+ .meetingRoomContainer .customTitle {
+   font-size: 28px;
+   font-weight: bold;
+   text-align: center;
+   flex-grow: 1;
+   min-width: 80px;
+ }
+ 
+ /* ✅ 이전, 다음 버튼 */
+ .meetingRoomContainer .toolbarButton {
+   font-size: 16px;
+   padding: 8px 10px;
+   width: 40px;
+   height: 40px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   background: none;
+   border: 2px solid #ddd;
+   border-radius: 6px;
+   cursor: pointer;
+   color: black;
+ }
+ 
+ /* ✅ '오늘' 버튼 */
+ .meetingRoomContainer .todayButton {
+   font-size: 16px;
+   padding: 8px 12px;
+   min-width: 60px;
+   height: 40px;
+   background: #ddd;
+   color: black;
+   border: none;
+   border-radius: 6px;
+   cursor: pointer;
+   transition: background-color 0.2s ease-in-out;
+ }
+ 
+ .meetingRoomContainer .todayButton:hover {
+   background: #ccc;
+ }
+ 
+ /* ✅ FullCalendar 스타일 - 높이를 부모 div에 맞추기 */
+ .meetingRoomContainer .fc {
+   width: 100% !important;
+   max-width: 100%;
+   max-height: 100%;
+   flex-grow: 1;
+   overflow: auto;
+ }
+ 
+ /* ✅ FullCalendar 날짜 스타일 */
+ .meetingRoomContainer .fc-daygrid-day-number {
+   font-size: 14px;
+   font-weight: bold;
+   color: #333;
+ }
+ 
+ /* ✅ 이벤트 스타일 */
+ .meetingRoomContainer .fc-event {
+   display: flex !important;
+   justify-content: center !important;
+   align-items: center !important;
+   padding: 6px 10px;
+   border-radius: 8px !important;
+   font-size: 13px;
+   font-weight: bold;
+   text-align: center !important;
+   border: none !important;
+   transition: all 0.2s ease-in-out;
+   white-space: nowrap !important;
+   overflow: hidden !important;
+   text-overflow: ellipsis !important;
+ }
+ 
+ .meetingRoomContainer .fc-event:hover {
+   transform: scale(1.05);
+   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+ }
+ 

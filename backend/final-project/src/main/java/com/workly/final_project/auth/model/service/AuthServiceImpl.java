@@ -69,7 +69,6 @@ public class AuthServiceImpl implements AuthService {
 		
 		if(verify) {
 			user = dao.loadUserByUserName(m);
-			user.setUserPwd("");
 		}
 		
 		return user;
@@ -77,6 +76,43 @@ public class AuthServiceImpl implements AuthService {
 	
     public boolean verifyPassword(int userNo, String userPwd) {
         Member member = dao.findByUserNo(userNo);
+        System.out.println("member: " + member);
+        if(member == null) {
+        	return false;
+        }
+        
         return passwordEncoder.matches(userPwd, member.getUserPwd());
     }
+
+    @Transactional(rollbackFor = Exception.class)
+	@Override
+	public int updateFailCount(Member m) {
+		int userNo = m.getUserNo();
+		int result = dao.updateFailCount(userNo);
+		
+		if(result <= 0) {
+			  TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			  return 0;
+		}
+		
+		result = dao.selectFailCount(userNo);
+		return result;
+	}
+
+	@Override
+	public void initFailCount(Member m) {
+		dao.initFailCount(m);
+	}
+
+	@Override
+	public void updatePwd(Member m) {
+		String changePwd = passwordEncoder.encode(m.getUserPwd());
+		m.setUserPwd(changePwd);
+		dao.updatePwd(m);
+	}
+
+	@Override
+	public String selectEmail(Member m) {
+		return dao.selectEmail(m);
+	}
 }

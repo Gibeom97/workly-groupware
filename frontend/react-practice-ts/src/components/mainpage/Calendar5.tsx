@@ -3,7 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import allLocales from "@fullcalendar/core/locales-all";
 import interactionPlugin from "@fullcalendar/interaction";
-import styles from "./Calendar5.module.css"; // ✅ module.css 불러오기
+import styles from "../../styles/mainpage/Calendar5.module.css";
 
 function Calendar5() {
   const calendarRef = useRef<FullCalendar | null>(null);
