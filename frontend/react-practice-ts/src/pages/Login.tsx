@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from '../styles/mainpage/Login.module.css';
 import axios from "../utils/CustomAxios";
 import { useDispatch } from "react-redux";
-import { loginUser, logoutUser } from "../features/userSlice";
+import { loginUser } from "../features/userSlice";
 import { getCookie, removeCookie, setCookie, setIdCookie } from "../utils/Cookie";
 
 const Login = () => {
@@ -28,7 +28,7 @@ const Login = () => {
         }
 
         if (rememberId) {
-            setIdCookie('rememberId', userNo, 7);
+            setIdCookie('rememberId', userNo, 90);
         } else {
             removeCookie("rememberId");
         }
@@ -51,6 +51,7 @@ const Login = () => {
                 console.log("localStorage 확인: ", localStorage.getItem("user"));
                 navigate("/main");
             }).catch((error) => {
+                
                 console.log(error.response.data);
                 const failCount = error.response.data.failCount;
                 if(failCount < 5) {

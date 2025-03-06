@@ -69,7 +69,6 @@ public class AuthServiceImpl implements AuthService {
 		
 		if(verify) {
 			user = dao.loadUserByUserName(m);
-			user.setUserPwd("");
 		}
 		
 		return user;
@@ -77,6 +76,11 @@ public class AuthServiceImpl implements AuthService {
 	
     public boolean verifyPassword(int userNo, String userPwd) {
         Member member = dao.findByUserNo(userNo);
+        System.out.println("member: " + member);
+        if(member == null) {
+        	return false;
+        }
+        
         return passwordEncoder.matches(userPwd, member.getUserPwd());
     }
 

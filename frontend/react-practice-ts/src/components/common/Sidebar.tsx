@@ -37,7 +37,7 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.title}>Wonk</div>
+      <div className={styles.title}>Workly</div>
       <div className={styles.sidebarNav}>
       <nav>
         <ul>

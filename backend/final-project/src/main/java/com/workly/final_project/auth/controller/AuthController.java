@@ -47,11 +47,11 @@ public class AuthController {
 	    } else {
 	    	int failCount = service.updateFailCount(m);
 	    	if(failCount == 0) {
-	    		map.put("msg", "일시적인 오류로 로그인에 실패하였습니다. 잠시 후 다시 로그인해주세요.");
+	    		map.put("msg", "계정 정보가 일치하지 않습니다.");
 	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
 	    	}
 	    	
-	    	if(failCount >= 5) {
+	    	if(failCount == 5) {
 	    		map.put("msg", "5회 이상 로그인에 실패하였습니다. 이메일로 임시 비밀번호를 발송합니다.");
 	    		map.put("failCount", failCount);
 	    		
@@ -65,9 +65,12 @@ public class AuthController {
 	    		emailService.sendMail(email, subject, text);
 	    		
 		    	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
-	    	} else {
+	    	} else if(failCount < 5) {
 	    		map.put("msg", "계정 정보가 일치하지 않습니다.");
 	    		map.put("failCount", failCount);
+	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+	    	} else {
+	    		map.put("msg", "5회 이상 로그인에 실패하여 이메일로 임시 비밀번호가 발송되었습니다.");
 	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
 	    	}
 	    }

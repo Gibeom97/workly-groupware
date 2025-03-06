@@ -85,7 +85,7 @@
 	<update id="updateFailCount">
 		UPDATE MEMBER
 		SET FAIL_COUNT = FAIL_COUNT +1
-		WHERE USER_NO = #{userNo}
+		WHERE USER_NO = #{userNo} AND STATUS = 'Y'
 	</update>
 	
 	<select id="selectFailCount" resultType="int">
