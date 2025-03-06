@@ -19,5 +19,15 @@ public interface AuthDao {
 	int insertLeave(Member m);
 
 	int insertAttachment(Attachment at);
+
+	int updateFailCount(int userNo);
+
+	int selectFailCount(int userNo);
+
+	void initFailCount(Member m);
+
+	void updatePwd(Member m);
+
+	String selectEmail(Member m);
 }
 

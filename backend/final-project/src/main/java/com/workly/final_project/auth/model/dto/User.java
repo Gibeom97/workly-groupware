@@ -8,9 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.workly.final_project.member.model.vo.Member;
-
-
 public class User extends UserDTO implements UserDetails {
 
 	private List<SimpleGrantedAuthority> authorities; 

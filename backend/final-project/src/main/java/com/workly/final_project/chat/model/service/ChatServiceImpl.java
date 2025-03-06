@@ -1,5 +1,6 @@
 package com.workly.final_project.chat.model.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.workly.final_project.chat.model.dao.ChatDao;
+import com.workly.final_project.chat.model.dto.FavoriteDTO;
 import com.workly.final_project.chat.model.vo.Chat;
-import com.workly.final_project.chat.model.vo.ChatFile;
 import com.workly.final_project.chat.model.vo.ChatRoom;
 import com.workly.final_project.chat.model.vo.UserChat;
-import com.workly.final_project.chat.model.dto.FavoriteDTO;
 import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -225,11 +225,6 @@ public class ChatServiceImpl implements ChatService {
 		    }
 	}
 
-	@Override
-	public List<Integer> getUnreadUserList(int chatRoomNo, int lastReadChatNo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	// 채팅방에 멤버 추가하기
 	@Override
@@ -237,6 +232,77 @@ public class ChatServiceImpl implements ChatService {
 		 chatDao.addMembersToChatRoom(chatRoomNo, userNos);
 		
 	}
+
+	// ChatServiceImpl.java
+	@Override
+	@Transactional
+	public void exitChatRoom(int userNo, int chatRoomNo, String userName) {
+	    log.info("🔹 [Chat Exit] 채팅방 종료 처리 - userNo: {}, chatRoomNo: {}", userNo, chatRoomNo);
+	    
+	    int result = chatDao.deleteChatParticipant(chatRoomNo, userNo);
+	    if (result > 0) {
+	         // 시스템 메시지 삽입 (그룹 채팅 알림)
+	         Chat systemMessage = new Chat();
+	         systemMessage.setChatRoomNo(chatRoomNo);
+	         systemMessage.setUserNo(userNo);
+	         // SYSTEM 혹은 별도의 구분 문자열을 사용해도 되고, 메시지 내용에 실제 이름 포함
+	         systemMessage.setUserName("SYSTEM");
+	         systemMessage.setMessage(userName + "님이 채팅방을 나갔습니다.");
+	         chatDao.saveChatMessage(systemMessage);
+	         log.info("🔹 [Chat Exit] 시스템 메시지 삽입 완료");
+	    } else {
+	         log.warn("⚠️ [Chat Exit] 채팅방 나가기 실패, 해당 참여자 정보가 존재하지 않습니다.");
+	    }
+	    
+}
+
+	@Override
+	@Transactional
+	public int updateMemberStatus(int userNo, int statusType) {
+	    return chatDao.updateMemberStatus(Map.of("userNo", userNo, "statusType", statusType));
+	}
+	
+	// 알림기능 구현?
+	@Override
+	public List<Integer> getUnreadUserList(int chatRoomNo, int currentChatNo) {
+	    List<Integer> participantUserNos = chatDao.getUserNosByChatRoom(chatRoomNo);
+	    List<Integer> unreadUserNos = new ArrayList<>();
+	    
+	    for (Integer userNo : participantUserNos) {
+	        // 보낸 사람은 제외 (자기 자신에게 알림 전송할 필요 없음)
+	        // 또는 필요에 따라 필터 처리
+	        int lastReadChatNo = getLastReadChatNo(userNo, chatRoomNo);
+	        if (lastReadChatNo < currentChatNo) {
+	            unreadUserNos.add(userNo);
+	        }
+	    }
+	    return unreadUserNos;
+	}
+	
+	// 사내공지 채팅방 생성
+	@Override
+	@Transactional
+	public void createDefaultChatRoom() {
+	    // 기본 채팅방 존재 여부 확인 (0번 채팅방)
+	    int count = chatDao.countDefaultChatRoom();
+	    if (count == 0) {
+	        com.workly.final_project.chat.model.vo.ChatRoom defaultRoom = new com.workly.final_project.chat.model.vo.ChatRoom();
+	        // 강제로 0번으로 설정 (insert 쿼리에서 0번을 사용하므로 생략 가능)
+	        defaultRoom.setRoomTitle("사내 공지 톡방");
+	        defaultRoom.setChatType("NOTICE");
+	        // createdChat은 SYSDATE로 처리됨
+	        chatDao.createDefaultChatRoom(defaultRoom);
+	        log.info("기본 채팅방(0번) 생성 완료");
+	    } else {
+	        log.info("기본 채팅방(0번)이 이미 존재합니다.");
+	    }
+	}
+
+
+
+
+
+
 	
 
 

@@ -8,56 +8,46 @@ import { ApprovalSendPost } from "../../components/approval/approvalSendPost";
 import { ApprovalFooter } from "../../components/approval/approvalFooter";
 import Header from "../../components/common/Header";
 import Sidebar from "../../components/common/Sidebar";
-
 export const ApprovalSendPage = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
   const userNo = useSelector((state: any) => state.user.userNo);
-
   useEffect(() => {
     if (!userNo) {
-      console.error("❌ 로그인 정보가 없습니다.");
+      console.error(":x: 로그인 정보가 없습니다.");
       return;
     }
-
     const fetchData = async () => {
       try {
         const response = await axios.get(
           `http://localhost:8003/workly/api/approval/sendList/${userNo}`
         );
-
-        console.log("✅ 기안함 응답 데이터:", response.data);
-
+        console.log(":흰색_확인_표시: 기안함 응답 데이터:", response.data);
         if (Array.isArray(response.data)) {
           setPosts(response.data);
           setFilteredPosts(response.data);
         } else {
-          console.error("❌ 응답 데이터가 배열이 아닙니다:", response.data);
+          console.error(":x: 응답 데이터가 배열이 아닙니다:", response.data);
         }
       } catch (error: any) {
-        console.error("🚨 기안함 목록 조회 실패:", error?.response?.status, error?.response?.data);
+        console.error(":경광등: 기안함 목록 조회 실패:", error?.response?.status, error?.response?.data);
       }
     };
-
     fetchData();
   }, [userNo]);
-
   const handleSearch = (searchParams: { approvalType: string; year: string; searchText: string }) => {
     let result = [...posts];
-
     if (searchParams.approvalType) {
       result = result.filter(post => post.approvalType === searchParams.approvalType);
     }
-
     if (searchParams.year) {
       result = result.filter(post => {
         const postDate = new Date(post.startDate);
         return postDate.getFullYear().toString() === searchParams.year;
       });
     }
-
     if (searchParams.searchText) {
       const searchLower = searchParams.searchText.toLowerCase().trim();
       result = result.filter(post =>
@@ -67,10 +57,8 @@ export const ApprovalSendPage = () => {
         post.approvalUser?.toLowerCase().includes(searchLower)
       );
     }
-
     setFilteredPosts(result);
   };
-
   return (
     <div className="mainpageContainer">
       <Sidebar />
@@ -79,21 +67,21 @@ export const ApprovalSendPage = () => {
         <div className="componentContainer1">
           <ApprovalHeader />
           <ApprovalSearchBar onSearch={handleSearch} />
-          <ApprovalSendPost 
-            filteredPosts={filteredPosts} 
-            currentPage={currentPage} 
-            postsPerPage={postsPerPage} 
-            setCurrentPage={setCurrentPage} 
+          <ApprovalSendPost
+            filteredPosts={filteredPosts}
+            currentPage={currentPage}
+            postsPerPage={postsPerPage}
+            setCurrentPage={setCurrentPage}
           />
-          <ApprovalFooter 
+          <ApprovalFooter
             pageInfo={{
               listCount: filteredPosts.length,
               currentPage,
               pageLimit: 5,
               contentsLimit: postsPerPage,
               maxPage: Math.ceil(filteredPosts.length / postsPerPage) || 1,
-            }} 
-            setCurrentPage={setCurrentPage} 
+            }}
+            setCurrentPage={setCurrentPage}
           />
         </div>
       </div>

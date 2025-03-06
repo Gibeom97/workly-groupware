@@ -19,6 +19,7 @@ public interface ApprovalDao {
 	int insertApproval(Approval approval);
 	Approval selectApprovalById(int approvalNo);
 	List<Approval> getAllApprovals();
+	List<Approval> getApprovalList(int userNo); // 내문서함 조회
 	List<Map<String, Object>> getDepartmentsWithEmployees();
 
 	List<Approval> getDraftApprovals();

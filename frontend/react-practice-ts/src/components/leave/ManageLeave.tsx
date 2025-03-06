@@ -1,4 +1,4 @@
-import styles from './ManageLeave.module.css'
+import styles from '../../styles/leave/ManageLeave.module.css';
 import search from '../../assets/images/icon/search.png';
 import { useEffect, useState } from 'react';
 import MemberSearchModal from './MemberSearchModal';
@@ -54,6 +54,7 @@ const ManageLeave = () => {
             }
         })
             .then((response) => {
+                console.log("response: ", response);
                 setAnnualLeave(response.data[0].annualLeave);
                 setleaveHistory(response.data);
                 setUpdateLeave(response.data[0].annualLeave.totalAnnualLeave);
@@ -86,6 +87,8 @@ const ManageLeave = () => {
     }
 
     useEffect(() => {
+        // console.log(user);
+        // console.log(annualLeave);
         handleLeaveDetail();
     }, [user, year])
 

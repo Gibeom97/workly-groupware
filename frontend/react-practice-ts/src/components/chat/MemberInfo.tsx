@@ -64,7 +64,7 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
         width: 300,
         height: 500,
         backgroundColor: "white",
-        paddingBottom: 16,
+        paddingBottom: 10,
         marginLeft: "-10px",
         position: "relative",
       }}
@@ -74,7 +74,7 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
         onClick={onClose}
         style={{
           position: "absolute",
-          top: -45,
+          top: -30,
           right: 5,
           background: "transparent",
           border: "none",
@@ -82,7 +82,7 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
           cursor: "pointer",
         }}
       >
-        ✕
+        ←
       </button>
 
       {/* 프로필 이미지 */}
@@ -91,12 +91,12 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
         style={{
           display: "flex",
           alignItems: "center",
-          marginTop: 40,
-          paddingLeft: 75,
+          marginTop: 10,
+          paddingLeft: 55,
         }}
       >
         <img
-          style={{ width: 100, height: 100, borderRadius: "50%" }}
+          style={{ width: 130, height: 130, borderRadius: "50%" }}
           src={profileImage}
           alt="profile"
           onError={(e) => (e.currentTarget.src = profileBig)}
@@ -104,7 +104,7 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
       </div>
 
       {/* 멤버 정보 */}
-      <div style={{ marginTop: 35, paddingLeft: 0, paddingRight: 16 }}>
+      <div style={{ marginTop: 20, paddingLeft: 0, paddingRight: 16 }}>
         {[
           { label: "이름", value: member.userName },
           { label: "부서", value: member.deptName },
@@ -113,12 +113,12 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
           { label: "연락처", value: member.phone },
           { label: "내선번호", value: member.extension },
         ].map((item, index) => (
-          <div key={index} style={{ display: "flex", marginBottom: 15 }}>
+          <div key={index} style={{ display: "flex", marginBottom: 13 }}>
             <div
               style={{
                 width: 90,
                 color: "#979797",
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: "600",
                 fontFamily: "Inter",
               }}
@@ -128,7 +128,7 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
             <div
               style={{
                 color: "#202224",
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: "600",
                 fontFamily: "Inter",
               }}
@@ -143,9 +143,9 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
       <div
         style={{
           display: "flex",
-          gap: "25px",
-          paddingTop: "35px",
-          marginLeft: "15px",
+          gap: "35px",
+          paddingTop: "10px",
+          marginLeft: "10px",
           position: "relative",
         }}
       >
@@ -178,7 +178,8 @@ const MemberInfo = ({ member = defaultMember, onClose }: MemberInfoProps) => {
             알림 설정
           </span>
         </div>
-
+  
+  
         {/* 즐겨찾기 */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <img className="starBig" style={{ width: 28, height: 28 }} src={starBig} alt="favorite icon" />

@@ -38,4 +38,6 @@ public interface MemberDao {
 	Member currentPwdCheck(int userNo);
 
 	int updatePassword(ChangePwd changePwd);
+	
+	void initUserNoSeq();
 }

@@ -16,50 +16,49 @@ interface ApprovalTempProps {
   setCurrentPage: (page: number) => void;
   selectedPosts: number[];
   setSelectedPosts: React.Dispatch<React.SetStateAction<number[]>>;
+  handleRefresh: () => void; // ✅ handleRefresh 추가
 }
 
 export const ApprovalTempFooter: React.FC<ApprovalTempProps> = ({ 
   pageInfo, 
   setCurrentPage, 
   selectedPosts, 
-  setSelectedPosts 
+  setSelectedPosts,
+  handleRefresh // ✅ handleRefresh 사용
 }) => {
   const navigate = useNavigate();
 
-  // 선택한 게시글 삭제 함수
   const handleDelete = async () => {
     if (selectedPosts.length === 0) {
       alert("삭제할 항목을 선택해주세요.");
       return;
     }
-  
-    try {
-      const response = await axios.delete(
-        "http://localhost:8003/workly/api/approvalTemp/delete",
-        {
-          data: selectedPosts,  // 배열을 data 속성으로 전달
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
 
-      console.log("✅ 삭제 완료:", response.data);
-      alert("선택한 항목이 삭제되었습니다.");
-      // 삭제 후 목록 새로고침
-      window.location.reload();
+    if (!window.confirm("정말 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      for (const tempNo of selectedPosts) {
+        await axios.delete(
+          `http://localhost:8003/workly/api/approvalTemp/deleteApprovalTemp/${tempNo}`
+        );
+      }
+
+      alert("✅ 선택한 항목이 삭제되었습니다.");
+      setSelectedPosts([]);
+      handleRefresh(); // ✅ 삭제 후 목록 새로고침
     } catch (error) {
-      console.error("삭제 실패:", error);
+      console.error("🚨 삭제 실패:", error);
       alert("삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
-  
 
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center"}}>
       <div style={{ width: "90%", margin: "auto", display: "flex", justifyContent: "flex-end", paddingTop: "20px" }}>
         <button
-          onClick={() => navigate("/ApprovalWritePage")}
+          onClick={() => navigate("/approvalWritePage")}
           style={{
             padding: "8px 16px",
             backgroundColor: "#4880FF",

@@ -28,4 +28,5 @@ public class UserDTO {
 	private String role;
 	private String userPwd;
 	private int companyId;
+	private int failCount;
 }

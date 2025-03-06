@@ -19,6 +19,7 @@ export const ApprovalMemoModal = ({ onClose, onSave, approvalNo }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        zIndex: 1000
       }}
     >
       <div
@@ -85,7 +86,7 @@ export const ApprovalMemoModal = ({ onClose, onSave, approvalNo }) => {
             marginTop: "15px",
           }}
           onClick={() => {
-            onSave(memoContent); // 부모 컴포넌트로 의견 전달
+            onSave(memoContent, approvalNo); // 부모 컴포넌트로 의견 전달
             navigate(`/ApprovalCompletePage/${approvalNo}`);
             setTimeout(() => {
               window.location.reload(); // 이동 후 새로고침

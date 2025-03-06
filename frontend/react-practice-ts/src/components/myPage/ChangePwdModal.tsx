@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './ChangePwdModal.module.css'
+import styles from '../../styles/myPage/ChangePwdModal.module.css';
 import { useSelector } from 'react-redux';
 import axios from '../../utils/CustomAxios';
 // import axios from 'axios';

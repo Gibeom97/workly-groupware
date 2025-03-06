@@ -1,10 +1,10 @@
 import ApprovalCompleteDocument from "../../components/approval/approvalCompleteDocument";
-import { ApprovalCompleteFooter } from "../../components/approval/approvalCompleteFooter";
 import { ApprovalCompleteHeader } from "../../components/approval/approvalCompleteHeader";
 import ApprovalCompleteReply from "../../components/approval/approvalCompleteRply";
 
 import Header from "../../components/common/Header";
 import Sidebar from "../../components/common/Sidebar";
+import { ApprovalCompleteFooter } from "../../components/approval/approvalCompleteFooter";
 
 export const ApprovalCompletePage = () => {
 

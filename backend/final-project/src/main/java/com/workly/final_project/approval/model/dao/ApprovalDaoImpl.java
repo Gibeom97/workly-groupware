@@ -44,6 +44,11 @@ public class ApprovalDaoImpl implements ApprovalDao{
 	public List<Approval> getAllApprovals() {
 		return sqlSession.selectList("Approval.getAllApprovals");
 	}
+	
+	@Override
+	public List<Approval> getApprovalList(int userNo) {
+		return sqlSession.selectList("Approval.getApprovalList", userNo);
+	}
 
 	@Override
 	public List<Map<String, Object>> getDepartmentsWithEmployees() {

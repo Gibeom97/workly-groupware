@@ -59,7 +59,7 @@ const ChatCreate = ({
         className="ChatCreate-Background"
         style={{
           width: 390,
-          height: 600,
+          height: 560,
           left: 0,
           top: 0,
           position: "absolute",
@@ -96,7 +96,7 @@ const ChatCreate = ({
           display: "inline-flex",
         }}
       >
-        <div
+        {/* <div
           className="ChatCreate-TitleText"
           style={{
             width: 88.84,
@@ -108,9 +108,9 @@ const ChatCreate = ({
           }}
         >
           New Chat
-        </div>
+        </div> */}
         {/* 닫기 버튼 */}
-        <button
+         <button
           onClick={onClose}
           style={{
             position: "absolute",
@@ -121,7 +121,7 @@ const ChatCreate = ({
             cursor: "pointer",
           }}
         >
-          ✕
+          ←
         </button>
       </div>
 
@@ -141,7 +141,7 @@ const ChatCreate = ({
       >
         <img
           className="chat"
-          style={{ width: "60px", height: "60px" }}
+          style={{ width: "70px", height: "70px" ,  marginTop:"-25px"}}
           src={chatIcon}
           alt="1:1 채팅 아이콘"
         />
@@ -173,7 +173,7 @@ const ChatCreate = ({
       >
         <img
           className="group-chat"
-          style={{ width: "60px", height: "60px" }}
+          style={{ width: "70px", height: "70px" , marginTop:"-25px"}}
           src={group}
           alt="그룹 채팅 아이콘"
         />

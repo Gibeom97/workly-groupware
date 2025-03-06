@@ -24,21 +24,22 @@ type MyInfoProps = {
 };
 
 const MyInfo = ({ myinfo, onClose }: MyInfoProps) => {
- 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState(profileBig);
 
   // ✅ 서버에서 프로필 이미지 가져오기
   const fetchProfileImage = async () => {
     try {
-      const response = await axios.get(`http://localhost:8003/workly/api/user/profile/${myinfo.userNo}`);
+      const response = await axios.get(
+        `http://localhost:8003/workly/api/user/profile/${myinfo.userNo}`
+      );
       console.log("📌 서버에서 받은 프로필 이미지:", response.data.profileImg);
-  
+
       if (response.data.profileImg) {
         const imageUrl = response.data.profileImg.startsWith("http")
           ? response.data.profileImg
           : new URL(response.data.profileImg, "http://localhost:8003").href;
-  
+
         setProfileImage(imageUrl);
       } else {
         setProfileImage(profileBig);
@@ -48,10 +49,6 @@ const MyInfo = ({ myinfo, onClose }: MyInfoProps) => {
       setProfileImage(profileBig);
     }
   };
-  
-  
-  
-  
 
   // ✅ 처음 렌더링될 때 DB에서 프로필 이미지 가져오기 (새로고침해도 유지됨)
   useEffect(() => {
@@ -81,14 +78,16 @@ const MyInfo = ({ myinfo, onClose }: MyInfoProps) => {
     formData.append("userNo", myinfo.userNo.toString());
 
     try {
-      const response = await axios.post("http://localhost:8003/workly/api/user/uploadProfile", formData);
+      const response = await axios.post(
+        "http://localhost:8003/workly/api/user/uploadProfile",
+        formData
+      );
       console.log("📌 서버 응답:", response.data);
 
       if (response.data.profileImg) {
-        
-        setProfileImage(new URL(response.data.profileImg, "http://localhost:8003").href);
-
-
+        setProfileImage(
+          new URL(response.data.profileImg, "http://localhost:8003").href
+        );
         alert("프로필 이미지가 변경되었습니다.");
       }
     } catch (error) {
@@ -97,32 +96,63 @@ const MyInfo = ({ myinfo, onClose }: MyInfoProps) => {
     }
   };
 
-
-
-
-
-
-
   return (
-    <div className="myinfo" style={{ width: 300, height: 500, backgroundColor: "white", paddingBottom: 16, marginLeft: "-10px", position: "relative" }}>
+    <div
+      className="myinfo"
+      style={{
+        width: 300,
+        height: 500,
+        backgroundColor: "white",
+        paddingBottom: 10,
+        marginLeft: "-10px",
+        position: "relative",
+      }}
+    >
       {/* 닫기 버튼 */}
-      <button onClick={onClose} style={{ position: "absolute", top: -45, right: 5, background: "transparent", border: "none", fontSize: 18, cursor: "pointer" }}>
-        ✕
+      <button
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          top: -30,
+          right: 5,
+          background: "transparent",
+          border: "none",
+          fontSize: 18,
+          cursor: "pointer",
+        }}
+      >
+        ←
       </button>
 
-      <div className="meminfo-profile" style={{ display: "flex", alignItems: "center", marginTop: 40, paddingLeft: 75 }}>
-      <label htmlFor="profile-upload" style={{ cursor: "pointer" }}>
-        <img
-          style={{ width: 100, height: 100, borderRadius: "50%" }}
-          src={profileImage}
-          alt="profile"
-          onError={(e) => { e.currentTarget.src = profileBig; }}
+      <div
+        className="meminfo-profile"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginTop: 10,
+          paddingLeft: 55,
+        }}
+      >
+        <label htmlFor="profile-upload" style={{ cursor: "pointer" }}>
+          <img
+            style={{ width: 130, height: 130, borderRadius: "50%" }}
+            src={profileImage}
+            alt="profile"
+            onError={(e) => {
+              e.currentTarget.src = profileBig;
+            }}
+          />
+        </label>
+        <input
+          id="profile-upload"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
         />
-      </label>
-        <input id="profile-upload" type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
       </div>
 
-      <div style={{ marginTop: 35, paddingLeft: 0, paddingRight: 16 }}>
+      <div style={{ marginTop: 20, paddingLeft: 0, paddingRight: 16 }}>
         {[
           { label: "이름", value: myinfo.userName },
           { label: "부서", value: myinfo.deptName },
@@ -132,21 +162,81 @@ const MyInfo = ({ myinfo, onClose }: MyInfoProps) => {
           { label: "내선번호", value: myinfo.extension },
         ].map((item, index) => (
           <div key={index} style={{ display: "flex", marginBottom: 15 }}>
-            <div style={{ width: 90, color: "#979797", fontSize: 16, fontWeight: "600", fontFamily: "Inter" }}>{item.label}</div>
-            <div style={{ color: "#202224", fontSize: 16, fontWeight: "600", fontFamily: "Inter" }}>{item.value}</div>
+            <div
+              style={{
+                width: 90,
+                color: "#979797",
+                fontSize: 18,
+                fontWeight: "600",
+                fontFamily: "Inter",
+              }}
+            >
+              {item.label}
+            </div>
+            <div
+              style={{
+                color: "#202224",
+                fontSize: 18,
+                fontWeight: "600",
+                fontFamily: "Inter",
+              }}
+            >
+              {item.value}
+            </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: "35px", paddingTop: "35px", marginLeft: "27px", position: "relative" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <img className="chatBig" style={{ width: 28, height: 28 }} src={chatBig} alt="chat icon" />
-          <span style={{ fontSize: "14px", fontFamily: "Inter", fontWeight: "600", marginTop: "4px" }}>나와의 채팅</span>
+      <div
+        style={{
+          display: "flex",
+          gap: "35px",
+          paddingTop: "10px",
+          marginLeft: "40px",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+        >
+          <img
+            className="chatBig"
+            style={{ width: 28, height: 28 }}
+            src={chatBig}
+            alt="chat icon"
+          />
+          <span
+            style={{
+              fontSize: "14px",
+              fontFamily: "Inter",
+              fontWeight: "600",
+              marginTop: "4px",
+            }}
+          >
+            1:1 채팅
+          </span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }} onClick={handleUpload}>
-          <img className="edit" style={{ width: 28, height: 28 }} src={edit} alt="edit icon" />
-          <span style={{ fontSize: "14px", fontFamily: "Inter", fontWeight: "600", marginTop: "4px" }}>이미지 저장</span>
+        <div
+          style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+          onClick={handleUpload}
+        >
+          <img
+            className="edit"
+            style={{ width: 28, height: 28 }}
+            src={edit}
+            alt="edit icon"
+          />
+          <span
+            style={{
+              fontSize: "14px",
+              fontFamily: "Inter",
+              fontWeight: "600",
+              marginTop: "4px",
+            }}
+          >
+            이미지 저장
+          </span>
         </div>
       </div>
     </div>

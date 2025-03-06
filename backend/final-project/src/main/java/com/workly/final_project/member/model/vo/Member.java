@@ -28,4 +28,5 @@ public class Member {
 	private String addressDetail;
 	private String role;
 	private int companyId;
+	private int failCount;
 }

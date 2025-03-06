@@ -8,18 +8,6 @@ if (storedUser) {
     const user = parsed;
   
     initialState = {
-        // userNo: member?.userNo || 0,
-        // userName: member?.userName || "",
-        // statusType: member?.statusType || "",
-        // totalAnnualLeave : annualLeave?.totalAnnualLeave || 0,
-        // usedAnnualLeave : annualLeave?.usedAnnualLeave || 0,
-        // deptNo: member?.deptNo || 0,
-        // deptName: department?.deptName || "",
-        // positionNo: member?.positionNo || 0, 
-        // positionName: position?.positionName || "",
-        // changeName: attachment?.changeName || "",
-        // filePath: attachment?.filePath || "",
-        // hireDate: member?.hireDate || ""
         userNo: user.userNo || 0,
         userName: user.userName || "",
         statusType: user.statusType || "",

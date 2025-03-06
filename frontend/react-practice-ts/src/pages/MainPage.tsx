@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import styles from './MainPage.module.css'
+import styles from '../styles/mainpage/MainPage.module.css';
 import Header from "../components/common/Header";
 import Sidebar from "../components/common/Sidebar";
 import { useSelector } from "react-redux";
@@ -10,6 +10,14 @@ import MeetingRoom from "../components/mainpage/MeetingRoom";
 import Calendar5 from "../components/mainpage/Calendar5";
 
 const MainPage = () => {
+    useEffect(() => {
+        // 이미 새로고침한 적이 없으면 새로고침
+        if (!sessionStorage.getItem("mainPageRefreshed")) {
+          sessionStorage.setItem("mainPageRefreshed", "true");
+          window.location.reload();
+        }
+      }, []);
+
     let user = useSelector((state) => {
         return state.user;
     });

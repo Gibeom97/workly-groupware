@@ -1,28 +1,23 @@
 package com.workly.final_project.approval.model.service;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.workly.final_project.approval.model.dao.ApprovalTempDao;
-import com.workly.final_project.approval.model.vo.ApprovalTemp;
-
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import com.workly.final_project.approval.model.dao.ApprovalTempDao;
+import com.workly.final_project.approval.model.vo.ApprovalTemp;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class ApprovalTempServiceImpl implements ApprovalTempService{
+public class ApprovalTempServiceImpl implements ApprovalTempService {
 
-	private final ApprovalTempDao dao;
-	private static final Logger log = LoggerFactory.getLogger(ApprovalTempServiceImpl.class);
+    private final ApprovalTempDao dao;
+    private static final Logger log = LoggerFactory.getLogger(ApprovalTempServiceImpl.class);
 
-	@Override
+    @Override
     public int saveTempApproval(ApprovalTemp approvalTemp) {
-       return dao.saveTempApproval(approvalTemp);
+        return dao.saveTempApproval(approvalTemp);
     }
 
     @Override
@@ -31,16 +26,12 @@ public class ApprovalTempServiceImpl implements ApprovalTempService{
     }
 
     @Override
-    @Transactional
-    public void deleteTempApprovals(List<Integer> tempNos) {
-        int result = dao.deleteTempApprovals(tempNos);
-        if (result <= 0) {
-            throw new RuntimeException("임시저장 문서 삭제 실패");
-        }
+    public void deleteApprovalTemp(List<Integer> tempNos) {
+        dao.deleteApprovalTemp(tempNos);
     }
 
     @Override
-    public ApprovalTemp getTempApprovalById(int tempNo) {
+    public ApprovalTemp getTempApprovalDetail(int tempNo) {
         return dao.getTempApprovalById(tempNo);
     }
 
@@ -48,6 +39,4 @@ public class ApprovalTempServiceImpl implements ApprovalTempService{
     public int updateTempApproval(ApprovalTemp approvalTemp) {
         return dao.updateTempApproval(approvalTemp);
     }
-	
-	
 }

@@ -53,7 +53,7 @@
 	        	AND USER_NAME LIKE '%'||#{filter.name}||'%'
 	        </if>
 	    </where>
-		            ORDER BY DEPT_NO, HIRE_DATE DESC) A)
+		            ORDER BY DEPT_NO, POSITION_NO) A)
 		WHERE RNUM BETWEEN #{pr.startRow} AND #{pr.endRow} 
 	</select>
 	
@@ -227,6 +227,19 @@
 		UPDATE MEMBER
 		SET USER_PWD = #{newPwd}
 		WHERE USER_NO = #{userNo}
+	</update>
+	
+	<update id="initUserNoSeq">
+		<![CDATA[
+		DECLARE
+    		CURRENT_VAL NUMBER;
+		BEGIN
+		    SELECT USER_NO_SEQ.NEXTVAL INTO CURRENT_VAL FROM dual;
+	    	EXECUTE IMMEDIATE 'ALTER SEQUENCE USER_NO_SEQ INCREMENT BY ' || (1 - CURRENT_VAL);
+		    SELECT USER_NO_SEQ.NEXTVAL INTO CURRENT_VAL FROM dual;
+		    EXECUTE IMMEDIATE 'ALTER SEQUENCE USER_NO_SEQ INCREMENT BY 1';
+		END;
+		]]>
 	</update>
 </mapper>
 

@@ -131,7 +131,7 @@ const handleConfirm = async () => {
       className="searchMember"
       style={{
         width: '390px',
-        height: '600px',
+        height: '560px',
         backgroundColor: 'white',
         position: 'relative',
         borderRadius: '3px',
@@ -141,7 +141,7 @@ const handleConfirm = async () => {
         paddingLeft: '5px',
       }}
     >
-      <div
+      {/* <div
         style={{
           backgroundColor: '#E9EBF1',
           height: '33px',
@@ -152,10 +152,10 @@ const handleConfirm = async () => {
         }}
       >
         <span style={{ color: '#4880FF', fontWeight: '800', fontSize: '18px' }}>사용자 검색</span>
-      </div>
+      </div> */}
 
       {/* 검색창 */}
-      <div style={{ margin: '10px 45px' }}>
+      <div style={{ margin: '15px 28px' }}>
       <SearchClick 
       onProfileClick={(member) => { 
         toggleCheck(member.userNo);  
@@ -164,10 +164,10 @@ const handleConfirm = async () => {
       />
       </div>
 
-      <div style={{ overflowY: 'auto', maxHeight: '440px', paddingLeft: '30px' }}>
+      <div style={{ overflowY: 'auto', maxHeight: '420px', paddingLeft: '30px' }}>
         <table
           style={{
-            width: '90%',
+            width: '95%',
             borderCollapse: 'collapse',
           }}
         >
@@ -267,8 +267,8 @@ const handleConfirm = async () => {
             border: 'none',
             padding: '8px 16px',
             cursor: 'pointer',
+           
           }}
-          //onClick={() => console.log('선택된 멤버:', checkedMembers)}
           onClick={handleConfirm}
         >
           확인

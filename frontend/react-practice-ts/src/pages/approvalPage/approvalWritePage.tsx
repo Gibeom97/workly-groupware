@@ -5,12 +5,14 @@ import { ApprovalWriteHeader } from "../../components/approval/approvalWriteHead
 import Header from "../../components/common/Header"
 import Sidebar from "../../components/common/Sidebar"
 import axios from "axios"
+import { useSearchParams } from "react-router-dom"; // ✅ URL 파라미터 가져오기
 import { useSelector } from "react-redux"
 
 export const ApprovalWritePage = () => {
   const userNo = useSelector((state: any) => state.user.userNo);
   
   const [selectedCCUsers, setSelectedCCUsers] = useState([]); // ✅ 참조자 목록 상태 추가
+  const [searchParams] = useSearchParams();
   const [approvalNo, setApprovalNo] = useState<number | null>(null); // ✅ 결재 번호 상태 추가
 
   useEffect(() => {
