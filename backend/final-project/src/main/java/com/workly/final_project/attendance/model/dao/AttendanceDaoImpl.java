@@ -1,15 +1,7 @@
 package com.workly.final_project.attendance.model.dao;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 import java.util.Date;
 
-=======
->>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
-=======
-import java.util.Date;
-
->>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
@@ -41,30 +33,13 @@ public class AttendanceDaoImpl implements AttendanceDao {
 		return session.update("attendance.updateAttendance", userNo);
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 	@Override
 	public Date selectWorkOn(int userNo) {
 		return session.selectOne("attendance.selectWorkOn", userNo);
 	}
-<<<<<<< HEAD
 
 	@Override
 	public Date selectWorkOff(int userNo) {
 		return session.selectOne("attendance.selectWorkOff", userNo);
 	}
-=======
-
-
-	
->>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
-=======
-
-	@Override
-	public Date selectWorkOff(int userNo) {
-		return session.selectOne("attendance.selectWorkOff", userNo);
-	}
->>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 }

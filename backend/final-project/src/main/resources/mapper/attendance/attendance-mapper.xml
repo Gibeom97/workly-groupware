@@ -34,10 +34,6 @@
 		WHERE USER_NO = #{userNo}
 		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
 	</select>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 	
 	<select id="selectWorkOn" resultType="Date">
 		SELECT WORK_ON
@@ -52,12 +48,6 @@
 		WHERE USER_NO = #{userNo}
 		    AND TRUNC(WORK_DATE) = TRUNC(SYSDATE)
 	</select>
-	
-<<<<<<< HEAD
-=======
->>>>>>> b991b03 ((팀원) 출퇴근 기록 커밋 3.5(수))
-=======
->>>>>>> b1eec7b ((팀원) 또커밋함 ㅈㅅ 3.5(수))
 </mapper>
 
 
