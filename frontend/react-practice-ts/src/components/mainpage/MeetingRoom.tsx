@@ -27,14 +27,13 @@ const MeetingRoom = () => {
     time: string;
     title: string;
     room: string;
-  }[]>([]); // meetings 배열 타입 명시
+  }[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toLocaleDateString('en-CA')); // 'YYYY-MM-DD' 형식으로 현재 날짜 설정
-  const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]); // 회의실 정보 저장
+  const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
   const [searchQuery, setSearchQuery] = useState(''); // 회의실명 검색 값
 
-  // 회의실 목록과 예약 데이터 가져오기
+  // 회의실 목록 불러오기
   useEffect(() => {
-    // 회의실 목록 불러오기
     axios
       .get('http://localhost:8003/workly/meeting-rooms')
       .then((response) => {
@@ -43,51 +42,60 @@ const MeetingRoom = () => {
       .catch((error) => {
         console.error('🚨 회의실 목록 불러오기 오류:', error);
       });
-  }, []); // 한 번만 호출하여 회의실 목록을 초기화
+  }, []);
 
   // 예약 데이터 업데이트 함수
   const fetchMeetingReservations = () => {
     if (meetingRooms.length === 0) {
-      return; // meetingRooms가 비어 있으면 더 이상 실행하지 않음
+      return;
     }
 
-    // 회의실 예약 데이터 불러오기
     axios
       .get(`http://localhost:8003/workly/meeting-reservation?date=${selectedDate}`)
       .then((response) => {
         console.log('📌 가져온 회의실 예약 데이터:', response.data);
-        // 예약 데이터와 회의실 데이터를 결합
-        setMeetings(
-          response.data
-            .filter((reservation: Reservation) => {
-              // 예약이 selectedDate와 일치하는 경우만 필터링
-              const reservationDate = new Date(reservation.startTime).toLocaleDateString('en-CA');
-              return reservationDate === selectedDate; // 예약 날짜가 selectedDate와 일치하는지 확인
-            })
-            .filter((reservation: Reservation) =>
-              reservation.mrResTitle
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) || // 회의 제목이 검색어에 포함되는지 확인
-              meetingRooms.some(room => room.mrName.toLowerCase().includes(searchQuery.toLowerCase()) && room.mrNo === reservation.mrNo) // 회의실명 검색
+        // 예약 데이터를 필터링, 매핑 후 정렬
+        const sortedMeetings = response.data
+          .filter((reservation: Reservation) => {
+            // 예약 날짜가 selectedDate와 일치하는지 확인
+            const reservationDate = new Date(reservation.startTime).toLocaleDateString('en-CA');
+            return reservationDate === selectedDate;
+          })
+          .filter((reservation: Reservation) =>
+            reservation.mrResTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            meetingRooms.some(room => 
+              room.mrName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+              room.mrNo === reservation.mrNo
             )
-            .map((reservation: Reservation) => {
-              const room = meetingRooms.find((room) => room.mrNo === reservation.mrNo);
+          )
+          .map((reservation: Reservation) => {
+            const room = meetingRooms.find((room) => room.mrNo === reservation.mrNo);
 
-              // 시간 포맷팅: 09:00~12:00 형식으로 변환
-              const formatTime = (time: string) => {
-                const date = new Date(time);
-                const hours = date.getHours().toString().padStart(2, '0');
-                const minutes = date.getMinutes().toString().padStart(2, '0');
-                return `${hours}:${minutes}`;
-              };
+            // 시간 포맷팅: 09:00~12:00 형식으로 변환
+            const formatTime = (time: string) => {
+              const date = new Date(time);
+              const hours = date.getHours().toString().padStart(2, '0');
+              const minutes = date.getMinutes().toString().padStart(2, '0');
+              return `${hours}:${minutes}`;
+            };
 
-              return {
-                time: `${formatTime(reservation.startTime)}~${formatTime(reservation.endTime)}`,
-                title: reservation.mrResTitle,
-                room: room ? room.mrName : 'Unknown', // 회의실 이름 추가
-              };
-            })
-        );
+            return {
+              time: `${formatTime(reservation.startTime)}~${formatTime(reservation.endTime)}`,
+              title: reservation.mrResTitle,
+              room: room ? room.mrName : 'Unknown',
+            };
+          })
+          // 정렬: 먼저 시작시간 오름차순, 시작시간이 같으면 회의실명 오름차순
+          .sort((a, b) => {
+            const timeA = a.time.split('~')[0];
+            const timeB = b.time.split('~')[0];
+
+            if (timeA < timeB) return -1;
+            if (timeA > timeB) return 1;
+            return a.room.localeCompare(b.room);
+          });
+
+        setMeetings(sortedMeetings);
       })
       .catch((error) => {
         console.error('🚨 회의실 예약 데이터 불러오기 오류:', error);
@@ -98,19 +106,19 @@ const MeetingRoom = () => {
   const handleChangeDate = (direction: string) => {
     const currentDate = new Date(selectedDate);
     if (direction === 'prev') {
-      currentDate.setDate(currentDate.getDate() - 1); // 이전 날짜로
+      currentDate.setDate(currentDate.getDate() - 1);
     } else if (direction === 'next') {
-      currentDate.setDate(currentDate.getDate() + 1); // 다음 날짜로 이동
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-    setSelectedDate(currentDate.toLocaleDateString('en-CA')); // 'YYYY-MM-DD' 형식으로 설정
+    setSelectedDate(currentDate.toLocaleDateString('en-CA'));
   };
 
-  // selectedDate가 변경될 때마다 예약 데이터를 다시 불러옴
+  // selectedDate, meetingRooms, searchQuery 변경 시 예약 데이터 불러오기
   useEffect(() => {
     if (meetingRooms.length > 0 && selectedDate) {
-      fetchMeetingReservations(); // selectedDate와 meetingRooms 상태가 변경되면 회의실 예약 데이터를 불러옵니다.
+      fetchMeetingReservations();
     }
-  }, [selectedDate, meetingRooms, searchQuery]); // selectedDate, meetingRooms, searchQuery 변경 시 예약 데이터 불러오기
+  }, [selectedDate, meetingRooms, searchQuery]);
 
   return (
     <div className={styles.card}>
@@ -120,14 +128,14 @@ const MeetingRoom = () => {
       <div className={styles.datePicker}>
         <button
           className={styles.navButton}
-          onClick={() => handleChangeDate('prev')} // 이전 날짜로 이동
+          onClick={() => handleChangeDate('prev')}
         >
           {'<'}
         </button>
         <span className={styles.date}>{selectedDate}</span>
         <button
           className={styles.navButton}
-          onClick={() => handleChangeDate('next')} // 다음 날짜로 이동
+          onClick={() => handleChangeDate('next')}
         >
           {'>'}
         </button>
@@ -138,7 +146,7 @@ const MeetingRoom = () => {
           className={styles.input}
           placeholder="회의실명"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // 검색어 업데이트
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
         <button className={styles.searchButton}>
           <img src={search} alt="search" />

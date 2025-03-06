@@ -82,6 +82,8 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: 121px;
+    overflow-y: auto;
 }
 
 .meetingItem {

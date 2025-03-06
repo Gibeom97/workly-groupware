@@ -38,6 +38,7 @@ import NotificationModal from "./components/approval/approvalNotification";
 import AdminPolicyManagerPage from "./pages/AdminPolicyManagerPage";
 import AIAssistantPage from "./pages/AIAssistantPage";
 import CompanyEnrollPage from "./pages/CompanyEnrollPage";
+import OrganizationChartPage from "./pages/OrganizationChartPage";
 
 function App() {
   // 전자결재 알림서비스 추가
@@ -66,6 +67,7 @@ function App() {
         <Route path="/" element={<Login/>} />
         <Route path="/main" element={<MainPage/>} />
         <Route path="/calendar" element={<Calendar />} />
+        <Route path="/OrganizationChart" element={<OrganizationChartPage />} />
       
         {/*전자결재Route*/}
         <Route path="/approvalMain" element={<ApprovalMain />}/>
