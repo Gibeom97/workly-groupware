@@ -94,39 +94,43 @@ export const ApprovalRequestPost = ({
 // ✅ 스타일 정의
 const containerStyle = {
   width: "100%",
-  display: "flex",
-  justifyContent: "center",
   padding: "20px",
+  backgroundColor: "#fff",
 };
 
 const tableStyle = {
-  width: "90%",
-  borderCollapse: "collapse",
-  textAlign: "center",
-  justifyContent: "center",
+  width: "100%",
+  borderCollapse: "collapse" as const,
+  marginTop: "10px",
 };
 
 const thStyle = {
   padding: "12px",
   borderBottom: "2px solid #202224",
   fontSize: "13px",
-  fontWeight: 700,
+  fontWeight: "bold",
+  textAlign: "center" as const,
 };
 
 const tdStyle = {
-  padding: "10px",
+  padding: "12px",
   fontSize: "12px",
   color: "#202224",
+  textAlign: "center" as const,
 };
 
 const tdTitleStyle = {
   ...tdStyle,
-  textAlign: "left",
+  textAlign: "left" as const,
 };
 
 const tdIconStyle = {
+  ...tdStyle,
   width: "20px",
-  textAlign: "center",
+};
+
+const rowStyle = {
+  borderBottom: "1px solid #E0E0E0",
 };
 
 const emptyRowStyle = {
@@ -134,6 +138,20 @@ const emptyRowStyle = {
   textAlign: "center" as const,
   fontSize: "14px",
   color: "#888",
+};
+
+const paginationStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '5px',
+  marginTop: '20px',
+};
+
+const paginationButtonStyle = {
+  padding: '5px 10px',
+  border: '1px solid #ddd',
+  borderRadius: '4px',
+  cursor: 'pointer',
 };
 
 // ✅ 상태 텍스트 변환 함수

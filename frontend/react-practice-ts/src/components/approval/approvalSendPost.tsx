@@ -25,24 +25,18 @@ export const ApprovalSendPost = ({
   const dispatch = useDispatch();
   const userNo = useSelector((state: RootState) => state.user.userNo);
 
-
   // ✅ 13자리 숫자를 한국 시간(KST) 형식으로 변환하는 함수
-
   const formatKST = (timestamp: number | string) => {
-    if (!timestamp || isNaN(new Date(timestamp).getTime())) {
-      console.error("⛔ Invalid timestamp:", timestamp);
-      return "N/A"; // 날짜가 유효하지 않으면 기본값 반환
-    }
-  
+    if (!timestamp) return "N/A";
+
     let ts = Number(timestamp);
     if (ts.toString().length === 10) {
       ts *= 1000; // 초 단위(10자리) → 밀리초(13자리) 변환
     }
-  
+
     const date = addHours(new Date(ts), 9); // UTC → KST 변환 (9시간 추가)
     return format(date, "yyyy. MM. dd. a hh:mm", { locale: ko });
   };
-  
 
 
    // ✅ 게시글 클릭 시 읽음 처리, 페이지 이동동
@@ -69,6 +63,8 @@ export const ApprovalSendPost = ({
       console.error("❌ 읽음 처리 API 호출 중 오류 발생:", error);
     }
   };
+
+
   const thStyle = {
     padding: "12px",
     borderBottom: "2px solid #202224",
