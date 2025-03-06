@@ -2,19 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useNavigate } from "react-router-dom";
-
 const NotificationModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [notificationType, setNotificationType] = useState<string | null>(null);
   const navigate = useNavigate(); // ✅ 페이지 이동을 위한 Hook 추가
-
   // ✅ Redux에서 현재 알림 상태 가져오기
   const approvalRequest = useSelector((state: RootState) => state.notifications.approvalRequest);
   const approvalSend = useSelector((state: RootState) => state.notifications.approvalSend);
   const approvalReference = useSelector((state: RootState) => state.notifications.approvalReference);
   const approvalFinish = useSelector((state: RootState) => state.notifications.approvalFinish);
   const approvalReject = useSelector((state: RootState) => state.notifications.approvalReject);
-
   useEffect(() => {
     let previousState;
     try {
@@ -23,25 +20,26 @@ const NotificationModal = () => {
       console.error("❌ JSON 파싱 오류:", error);
       previousState = {}; // 기본값 설정
     }
-
-    let newNotification = null;
-
-    if (approvalRequest > (previousState.approvalRequest || 0)) {
-      newNotification = "결재 요청";
-    } else if (approvalSend > (previousState.approvalSend || 0)) {
-      newNotification = "결재 수신";
-    } else if (approvalReference > (previousState.approvalReference || 0)) {
-      newNotification = "결재 참조";
-    } else if (approvalFinish > (previousState.approvalFinish || 0)) {
-      newNotification = "결재 완료";
-    } else if (approvalReject > (previousState.approvalReject || 0)) {
-      newNotification = "결재 반려";
-    }
-
-    if (newNotification) {
-      setNotificationType(newNotification);
+  
+    // ✅ 각 알림 유형별 증가량 계산
+    const changes = {
+      "결재 요청": approvalRequest - (previousState.approvalRequest || 0),
+      "결재 수신": approvalSend - (previousState.approvalSend || 0),
+      "결재 참조": approvalReference - (previousState.approvalReference || 0),
+      "결재 완료": approvalFinish - (previousState.approvalFinish || 0),
+      "결재 반려": approvalReject - (previousState.approvalReject || 0),
+    };
+  
+    // ✅ 가장 큰 증가량을 가진 알림 유형 찾기
+    const maxChangeType = Object.keys(changes).reduce((a, b) =>
+      changes[a] > changes[b] ? a : b
+    );
+  
+    // ✅ 증가량이 0보다 클 때만 알림 표시
+    if (changes[maxChangeType] > 0) {
+      setNotificationType(maxChangeType);
       setIsModalOpen(true);
-
+  
       sessionStorage.setItem(
         "latestNotification",
         JSON.stringify({
@@ -52,20 +50,17 @@ const NotificationModal = () => {
           approvalReject,
         })
       );
-
+  
       // ✅ 5초 후 자동으로 모달 닫기
       const timer = setTimeout(() => {
         setIsModalOpen(false);
       }, 5000);
-
       return () => clearTimeout(timer);
     }
   }, [approvalRequest, approvalSend, approvalReference, approvalFinish, approvalReject]);
-
   // ✅ 모달 클릭 시 페이지 이동
   const handleModalClick = () => {
     let targetPage = "/approvalMain"; // 기본 경로
-
     switch (notificationType) {
       case "결재 요청":
         targetPage = "/ApprovalRequestPage";
@@ -85,11 +80,9 @@ const NotificationModal = () => {
       default:
         targetPage = "/approvalMain";
     }
-
     navigate(targetPage);
     setIsModalOpen(false); // ✅ 모달 닫기
   };
-
   return (
     <>
       {isModalOpen && notificationType && (
@@ -144,11 +137,9 @@ const NotificationModal = () => {
           >
             x
           </button>
-
           📢 새로운 {notificationType} 문서가 도착했습니다
         </div>
       )}
-
       {/* ✅ 모달 애니메이션 효과 */}
       <style>
         {`
@@ -161,5 +152,4 @@ const NotificationModal = () => {
     </>
   );
 };
-
 export default NotificationModal;
