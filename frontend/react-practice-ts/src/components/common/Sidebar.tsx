@@ -76,7 +76,7 @@ const Sidebar = () => {
               <img src={icon5} alt="채팅" />
             </span>
             <span>채팅</span>
-              <span className={styles.badge}>3</span>
+              {/* <span className={styles.badge}>3</span> */}
           </li>
           <Link to={"/leave"} className={styles.link}>
           <li>

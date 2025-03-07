@@ -16,9 +16,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 
-const backendHost = "192.168.130.8"; // 학원
-//const backendHost = "192.168.0.11"; // 테스트용 - 방
-//const backendHost ="192.168.200.102"; // 거실
+const backendHost = "192.168.130.8"; 
+
 dayjs.extend(utc);
 
 
@@ -419,33 +418,30 @@ useEffect(() => {
   // ✅ 메시지 전송 함수
   const sendMessage = () => {
     if (!client || !client.connected || !inputMessage.trim()) return;
-
+  
+    // 현재 한국 로컬시간을 UTC로 변환한 후 "YYYY-MM-DD HH:mm:ss"로 포맷
     const chatMessage = {
-        chatRoomNo: room.chatRoomNo,
-        userNo: currentUser.userNo,
-        userName: currentUser.userName,
-        message: inputMessage,
-        receivedDate: dayjs().format("YYYY-MM-DD HH:mm:ss")
+      chatRoomNo: room.chatRoomNo,
+      userNo: currentUser.userNo,
+      userName: currentUser.userName,
+      message: inputMessage,
+      receivedDate: dayjs().utc().format("YYYY-MM-DD HH:mm:ss")
     };
-
+  
     console.log("📤 [프론트엔드] WebSocket으로 메시지 전송:", chatMessage);
-
     try {
-        client.publish({
-            destination: `/pub/chat/sendMessage/${room.chatRoomNo}`,
-            body: JSON.stringify(chatMessage),
-        });
-
-        console.log("✅ [프론트엔드] WebSocket 메시지 전송 성공");
-
-        setInputMessage(""); // 입력 필드 초기화
-
-        // ✅ 내가 메시지를 보낸 경우 lastReadChatNo 업데이트
-        updateUserChatStatus();
+      client.publish({
+        destination: `/pub/chat/sendMessage/${room.chatRoomNo}`,
+        body: JSON.stringify(chatMessage),
+      });
+      console.log("✅ [프론트엔드] WebSocket 메시지 전송 성공");
+      setInputMessage("");
+      updateUserChatStatus();
     } catch (error) {
-        console.error("❌ [프론트엔드] WebSocket 메시지 전송 실패", error);
+      console.error("❌ [프론트엔드] WebSocket 메시지 전송 실패", error);
     }
-};
+  };
+  
 
 // exitChatRoom API 호출 함수
 const exitChatRoomAPI = async () => {

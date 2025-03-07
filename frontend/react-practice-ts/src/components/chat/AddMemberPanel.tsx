@@ -5,6 +5,7 @@ import { setMemberInvite } from "../../features/chatSlice";
 import { RootState } from "../../store";
 import axios from 'axios';
 import { Member } from '../../type/chatType';
+import SearchSelect from './SearchSelect';
 
 interface ChatRoomProps {
   chatRoomNo: number;  // 백엔드 API와 일치하는 필드명
@@ -88,6 +89,7 @@ const AddMemberPanel = ({
         userNos: newUserNos,
       });
       console.log("✅ 멤버 추가 성공");
+      alert("멤버 추가에 성공했습니다.");
       dispatch(setMemberInvite(selectedMembersObjects.map(m => m.userName)));
       onConfirm(selectedMembersObjects);
       onClose();
@@ -158,7 +160,7 @@ const AddMemberPanel = ({
 
       {/* 검색 컴포넌트 (필요시) */}
       <div style={{ padding: '10px' }}>
-        <SearchClick onProfileClick={() => console.log("프로필 클릭됨")} />
+        <SearchSelect onProfileClick={() => console.log("프로필 클릭됨")} />
       </div>
 
       {/* 테이블: 필터된 사원 목록 */}

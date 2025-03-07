@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import com.workly.final_project.chat.model.dto.FavoriteDTO;
 import com.workly.final_project.chat.model.vo.Chat;
-import com.workly.final_project.chat.model.vo.ChatFile;
 import com.workly.final_project.chat.model.vo.ChatRoom;
 import com.workly.final_project.chat.model.vo.UserChat;
 import com.workly.final_project.member.model.dto.MemberDeptPositionDTO;

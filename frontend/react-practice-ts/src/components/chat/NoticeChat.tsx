@@ -14,7 +14,8 @@ import { RootState } from "../../store";
 import speaker from "../../assets/Images/chat/loud-speaker 11.png";
 import profileDefault from "../../assets/Images/chat/profile.png";
 
-const backendHost = "192.168.130.8"; // 학원
+const backendHost = "192.168.130.8"; 
+
 dayjs.extend(utc);
 
 interface ChatMessage {
@@ -33,6 +34,26 @@ interface NoticeChatProps {
   onClose: () => void;
 }
 
+// 그룹챗에서 사용한 함수와 동일하게 작성 (DB 시간은 UTC)
+const formatTime = (dateTimeString: string) => {
+  if (!dateTimeString) return "";
+  // DB의 UTC 값을 한국 로컬 시간으로 변환하여 "HH:mm" (예: 22:01) 형식으로 출력
+  return dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("HH:mm");
+};
+
+const formatDate = (dateTimeString: string) => {
+  if (!dateTimeString) return "";
+  // 날짜 구분선에 사용, "YYYY년 MM월 DD일 dddd" 형식
+  return dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("YYYY년 MM월 DD일 dddd");
+};
+
+function getDateKey(dateString: string): string | null {
+  if (!dateString) return null;
+  const parsed = dayjs.utc(dateString, "YYYY-MM-DD HH:mm:ss");
+  if (!parsed.isValid()) return null;
+  return parsed.local().format("YYYY-MM-DD");
+}
+
 const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
   const currentUser = useSelector((state: RootState) => state.user);
   
@@ -40,12 +61,6 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
   const [inputMessage, setInputMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const stompClientRef = useRef<Client | null>(null);
-
-  const formatTime = (dateTimeString: string) =>
-    dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("HH:mm");
-
-  const formatDate = (dateTimeString: string) =>
-    dayjs.utc(dateTimeString, "YYYY-MM-DD HH:mm:ss").local().format("YYYY년 MM월 DD일 dddd");
 
   // 초기 메시지 로딩 (axios)
   useEffect(() => {
@@ -103,7 +118,8 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
       userNo: currentUser.userNo,
       userName: currentUser.userName,
       message: inputMessage,
-      receivedDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+      // 전송 시 한국 로컬시간을 UTC로 변환하여 "YYYY-MM-DD HH:mm:ss" 형식으로 보내기
+      receivedDate: dayjs().utc().format("YYYY-MM-DD HH:mm:ss"),
       profileImg: currentUser.profileImg || profileDefault,
     };
 
@@ -118,7 +134,7 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
     <div
       style={{
         width: 390,
-        height: 600,
+        height: 560,
         position: "relative",
         background: "white",
         boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
@@ -175,7 +191,7 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
           }}
         />
       </div>
-      {/* 닫기 화살표 (그룹 채팅과 동일하게 onClose 호출) */}
+      {/* 닫기 화살표 */}
       <div
         className="noticechat-close-icon"
         style={{
@@ -196,10 +212,10 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
         ref={chatContainerRef}
         style={{
           position: "absolute",
-          top: 70,
+          top: 85,
           left: 20,
           right: 20,
-          bottom: 90,
+          bottom: 120,
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
@@ -209,8 +225,7 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
         {messages.map((msg, index) => {
           const isNewDay =
             index === 0 ||
-            formatDate(messages[index - 1].receivedDate) !==
-              formatDate(msg.receivedDate);
+            formatDate(messages[index - 1].receivedDate) !== formatDate(msg.receivedDate);
           return (
             <div key={msg.chatNo}>
               {isNewDay && (
@@ -226,7 +241,7 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
                 </div>
               )}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                <div style={{ display: "flex", alignItems: "center", marginBottom: 3 }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 10}}>
                   <img
                     src={msg.profileImg || profileDefault}
                     alt="sender profile"
@@ -238,7 +253,7 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
                       marginRight: 5,
                     }}
                   />
-                  <span style={{ fontSize: "12px", fontWeight: "600", color: "#333" }}>
+                  <span style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
                     {msg.userName}
                   </span>
                 </div>
@@ -247,9 +262,9 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
                     background: "#D2E3FF",
                     padding: "10px",
                     borderRadius: "7px",
-                    fontSize: "14px",
+                    fontSize: "13px",
                     color: "black",
-                    maxWidth: "230px",
+                    maxWidth: "270px",
                   }}
                 >
                   {msg.message}
@@ -277,10 +292,10 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
         maxLength={5000}
         style={{
           position: "absolute",
-          bottom: 20,
+          bottom: 35,
           left: 20,
           width: 350,
-          height: 60,
+          height: 70,
           borderRadius: "5px",
           border: "1px solid #ccc",
           padding: "10px",
@@ -289,28 +304,6 @@ const NoticeChat: React.FC<NoticeChatProps> = ({ onClose }) => {
           overflowY: "auto",
         }}
       />
-
-      {/* 전송 버튼 */}
-      {/* <div
-        onClick={sendMessage}
-        style={{
-          position: "absolute",
-          bottom: 5,
-          right: 20,
-          width: "70px",
-          height: "35px",
-          background: "#4880FF",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          fontSize: "14px",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        전송
-      </div> */}
     </div>
   );
 };

@@ -20,5 +20,4 @@ public class Chat {
 	private String receivedDate;
 	private int userNo;
 	private String userName;
-	private String fileUrl; // 파일 url 저장 필드 추가
 }

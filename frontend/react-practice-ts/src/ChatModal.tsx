@@ -10,11 +10,11 @@ interface ChatModalProps {
 
 const ChatModal = ({ isOpen, onClose, children }: ChatModalProps) => {
   const nodeRef = useRef<HTMLDivElement>(null);
-
+  
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <Draggable nodeRef={nodeRef} handle=".chat-drag-handle">
+    <Draggable handle=".chat-drag-handle">
       <div
         ref={nodeRef}
         style={{
