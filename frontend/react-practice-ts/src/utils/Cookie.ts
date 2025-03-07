@@ -20,4 +20,4 @@ export const setIdCookie = (name:string, value:string, days:number) => {
     const expires = "expires=" + date.toUTCString();
     
     document.cookie = `${name}=${encodeURIComponent(value)}; ${expires}; path=/;`;
-  }
+}

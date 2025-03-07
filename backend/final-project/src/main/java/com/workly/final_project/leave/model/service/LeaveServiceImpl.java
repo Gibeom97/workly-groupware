@@ -11,11 +11,9 @@ import com.workly.final_project.leave.model.vo.AnnualLeave;
 import com.workly.final_project.leave.model.vo.LeavePolicy;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class LeaveServiceImpl implements LeaveService{
 
 	private final LeaveDao dao;

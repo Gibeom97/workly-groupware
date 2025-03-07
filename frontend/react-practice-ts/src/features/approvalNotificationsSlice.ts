@@ -13,7 +13,7 @@ interface NotificationState {
     approvalNo: number;
     approvalTitle: string;
     userName: string;
-  } | null; // ✅ 최신 결재 문서 정보 추가
+  } | null; // 최신 결재 문서 정보 추가
 }
 const initialState: NotificationState = {
   approvalMain: 0,
@@ -24,9 +24,9 @@ const initialState: NotificationState = {
   approvalReference: 0,
   approvalSend: 0,
   approvalReject: 0,
-  latestApproval: null, // ✅ 최신 결재 문서 초기값
+  latestApproval: null, // 최신 결재 문서 초기값
 };
-// ✅ Redux Thunk: 알림 데이터 가져오기 (결재 요청, 참조, 수신)
+// Redux Thunk: 알림 데이터 가져오기 (결재 요청, 참조, 수신)
 export const fetchNotifications = createAsyncThunk(
   "notifications/fetchNotifications",
   async (userNo: number) => {
@@ -34,7 +34,7 @@ export const fetchNotifications = createAsyncThunk(
     return response.data;
   }
 );
-// ✅ Redux Thunk: 결재완료 및 결재반려 데이터 가져오기
+// Redux Thunk: 결재완료 및 결재반려 데이터 가져오기
 export const fetchApprovalStatus = createAsyncThunk(
   "notifications/fetchApprovalStatus",
   async (userNo: number) => {
@@ -56,17 +56,17 @@ const approvalNotificationsSlice = createSlice({
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         const notifications = action.payload;
         if (!Array.isArray(notifications)) {
-          console.error("❌ Redux 상태 업데이트 오류! 배열이 아님:", notifications);
+          console.error("Redux 상태 업데이트 오류! 배열이 아님:", notifications);
           return;
         }
-        // ✅ 기존 알림 개수 저장 (결재완료, 결재반려 유지)
+        // 기존 알림 개수 저장 (결재완료, 결재반려 유지)
         const approvalFinish = state.approvalFinish;
         const approvalReject = state.approvalReject;
-        // ✅ Redux 상태 초기화 후 업데이트
+        // Redux 상태 초기화 후 업데이트
         Object.keys(state).forEach((key) => {
           state[key as keyof typeof state] = 0;
         });
-        // ✅ 유지했던 값 복구
+        // 유지했던 값 복구
         state.approvalFinish = approvalFinish;
         state.approvalReject = approvalReject;
         notifications.forEach((noti: any) => {
@@ -74,11 +74,11 @@ const approvalNotificationsSlice = createSlice({
           else if (noti.approvalLineType === "수신") state.approvalSend++;
           else if (noti.type === "참조자") state.approvalReference++;
         });
-        // ✅ 최신 결재 문서 정보 저장 (타입 강제 변환)
+        // 최신 결재 문서 정보 저장 (타입 강제 변환)
         const latest = notifications.length > 0 ? notifications[0] : null;
         state.latestApproval = latest
           ? {
-              approvalNo: Number(latest.approvalNo), // ✅ number 타입 변환
+              approvalNo: Number(latest.approvalNo),
               approvalTitle: String(latest.approvalTitle),
               userName: String(latest.userName),
             }
@@ -87,10 +87,10 @@ const approvalNotificationsSlice = createSlice({
       .addCase(fetchApprovalStatus.fulfilled, (state, action) => {
         const approvalStatusData = action.payload;
         if (!Array.isArray(approvalStatusData)) {
-          console.error("❌ Redux 상태 업데이트 오류! 배열이 아님:", approvalStatusData);
+          console.error("Redux 상태 업데이트 오류! 배열이 아님:", approvalStatusData);
           return;
         }
-        // ✅ 결재완료 및 반려 개수 초기화 후 업데이트
+        // 결재완료 및 반려 개수 초기화 후 업데이트
         state.approvalFinish = 0;
         state.approvalReject = 0;
         approvalStatusData.forEach((noti: any) => {

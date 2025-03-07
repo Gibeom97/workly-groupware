@@ -1,13 +1,12 @@
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import htmlToPdfmake from "html-to-pdfmake"; // ✅ HTML → pdfMake 변환 라이브러리
-import fontBase64 from "../../fonts/fontBase64.json"; // ✅ 한글 폰트 로드
+import htmlToPdfmake from "html-to-pdfmake"; // HTML → pdfMake 변환 라이브러리
+import fontBase64 from "../../fonts/fontBase64.json"; // 한글 폰트 로드
 
-// ✅ 한글 폰트 등록
+// 한글 폰트 등록
 pdfMake.vfs = {
   ...(pdfFonts.pdfMake.vfs?.vfs || {}),
   ...fontBase64, // Base64 인코딩된 폰트 추가
@@ -39,13 +38,13 @@ export const ApprovalCompleteDocument = () => {
         if (response.data && response.data.approvalContent) {
           setApprovalContent(response.data.approvalContent);
 
-          // ✅ HTML을 pdfMake가 인식할 수 있는 형식으로 변환
+          // HTML을 pdfMake가 인식할 수 있는 형식으로 변환
           const convertedHtml = htmlToPdfmake(response.data.approvalContent, {
             defaultStyles: { font: "NotoSansKR", fontSize: 12 },
           });
 
-          // ✅ PDF 문서 정의
-          const docDefinition = {
+          // PDF 문서 정의
+          const docDefinition: any = {
             content: [{ text: "전자결재 문서", style: "header" }, { text: " ", margin: [0, 10] }, convertedHtml],
             styles: {
               header: { fontSize: 18, bold: true, alignment: "center" },
@@ -53,7 +52,7 @@ export const ApprovalCompleteDocument = () => {
             defaultStyle: { font: "NotoSansKR" },
           };
 
-          // ✅ PDF Blob 생성
+          // PDF Blob 생성
           const pdfDocGenerator = pdfMake.createPdf(docDefinition);
           pdfDocGenerator.getBlob((blob) => {
             const pdfUrl = URL.createObjectURL(blob);
@@ -79,7 +78,7 @@ export const ApprovalCompleteDocument = () => {
         </a>
       </div>
 
-      {/* ✅ 결재 문서 미리보기 */}
+      {/* 결재 문서 미리보기 */}
       <div ref={documentRef} style={previewContainerStyle}>
         <iframe
           src={generatedFileUrl}
@@ -91,7 +90,7 @@ export const ApprovalCompleteDocument = () => {
   );
 };
 
-// ✅ **스타일 정의**
+// **스타일 정의**
 const containerStyle = {
   maxWidth: "800px",
   margin: "1px auto",

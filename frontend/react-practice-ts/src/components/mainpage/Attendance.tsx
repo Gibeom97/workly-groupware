@@ -21,7 +21,10 @@ const Attendance = () => {
     }, []);
 
     const formatDate = (time) => {
-        return time.toISOString().split("T")[0];
+        const year = time.getFullYear();
+        const month = String(time.getMonth() + 1).padStart(2, "0");
+        const day = String(time.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
     };
 
     const formatTime = (time) => {

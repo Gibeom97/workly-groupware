@@ -20,7 +20,9 @@ const Weather = () => {
     const [forecast, setForecast] = useState([]);
 
     const getCurrentLocation = () => {
-        navigator.geolocation.getCurrentPosition(() => {
+        navigator.geolocation.getCurrentPosition((position) => {
+            // let lat = position.coords.latitude;
+            // let lon = position.coords.longitude;
             let lat = "37.5683"; // 서울 좌표
             let lon = "126.9778"; // 서울 좌표
             getWeather(lat, lon);
