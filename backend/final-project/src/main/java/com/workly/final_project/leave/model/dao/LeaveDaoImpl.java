@@ -14,16 +14,17 @@ import com.workly.final_project.leave.model.vo.AnnualLeave;
 import com.workly.final_project.leave.model.vo.LeavePolicy;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class LeaveDaoImpl implements LeaveDao {
 
 	private final SqlSession session;
 	
 	@Override
 	public List<AnnualHistoryDTO> selectLeaveHistory(PageInfo pi, AnnualHistoryDTO history) {
-		
 		PageRow pr = Util.pagerow(pi);
 		
 		history.setPr(pr);
@@ -62,9 +63,9 @@ public class LeaveDaoImpl implements LeaveDao {
 	public void insertAnnualLeave() {
 		try {
 			session.insert("leave.insertAnnualLeave");
-            System.out.println("AnnualLeave 데이터 삽입 성공!");
+            log.info("AnnualLeave 데이터 삽입 성공");
         } catch (Exception e) {
-            System.err.println("AnnualLeave 데이터 삽입 실패: " + e.getMessage());
+            log.error("AnnualLeave 데이터 삽입 실패: " + e.getMessage());
         }
 	}
 }

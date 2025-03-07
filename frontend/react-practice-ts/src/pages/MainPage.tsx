@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import styles from '../styles/mainpage/MainPage.module.css';
 import Header from "../components/common/Header";
 import Sidebar from "../components/common/Sidebar";
-import { useSelector } from "react-redux";
 import Weather from "../components/mainpage/Weather";
 import Attendance from "../components/mainpage/Attendance";
 import ApprovalCard from "../components/mainpage/ApprovalCard";
@@ -17,14 +16,6 @@ const MainPage = () => {
           window.location.reload();
         }
       }, []);
-
-    let user = useSelector((state) => {
-        return state.user;
-    });
-
-    useEffect(() => {
-        console.log("메인페이지 리덕스에 받아온 : ", user)
-    }, []);
 
     return (
         <div className="mainpageContainer">

@@ -31,7 +31,7 @@ export const ApprovalRejectBody = ({
  // 깃 이전 
 // export const ApprovalRejectBody = () => {
 //   const navigate = useNavigate();
-//   const dispatch = useDispatch();
+  const dispatch = useDispatch();
   
   // 로그인한 유저의 userNO
   const userNo = useSelector((state: any) => state.user.userNo);

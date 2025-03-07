@@ -11,7 +11,7 @@ const ChangePwdModal = ({ setOpenModal }) => {
     const [pwdErrorMessage, setPwdErrorMessage] = useState("");
     const [regErrorMessage, setRegErrorMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    // const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
 
     let user = useSelector((state) => {
         return state.user;
@@ -22,12 +22,12 @@ const ChangePwdModal = ({ setOpenModal }) => {
         setErrorMessage("");
 
         // 새 비밀번호 유효성 검사
-        // if (!passwordRegex.test(newPwd)) {
-        //     setRegErrorMessage("영문, 숫자, 특수문자 를 포함하여 8~20자로 입력해주세요.");
-        //     setNewPwd("");
-        //     setConfirmPwd("");
-        //     return;
-        // }
+        if (!passwordRegex.test(newPwd)) {
+            setRegErrorMessage("영문, 숫자, 특수문자 를 포함하여 8~20자로 입력해주세요.");
+            setNewPwd("");
+            setConfirmPwd("");
+            return;
+        }
 
         // 새 비밀번호와 확인 비밀번호 일치 여부 확인
         if (newPwd !== confirmPwd) {

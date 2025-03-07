@@ -79,7 +79,6 @@ public class LeaveController {
 				  								   .build();
 		
 		List<AnnualHistoryDTO> list = service.selectLeaveDetail(history);
-		System.out.println("list: " + list);
 		
 		return list;
 	}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Pagination from '../common/Pagination';
+import Pagination2 from '../common/Pagination';
 import SearchBar from '../common/SearchBar';
 import styles from '../../styles/personnel/PersonnelTable.module.css'
 import axios from '../../utils/CustomAxios';
@@ -98,7 +98,7 @@ const PersonnelTable = () => {
                     ))}
                 </tbody> }
             </table>
-            <Pagination pageInfo={pageInfo} setCurrentPage={setCurrentPage}/>
+            <Pagination2 pageInfo={pageInfo} setCurrentPage={setCurrentPage}/>
         </div>
     )
 }
