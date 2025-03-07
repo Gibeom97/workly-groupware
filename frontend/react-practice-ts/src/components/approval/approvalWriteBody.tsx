@@ -5,11 +5,11 @@ const ApprovalWriteBody = ({ approvalData, setApprovalData }) => {
   const editorRef = useRef(null);
 
 
-  // ✅ 에디터의 초기 값 설정
+  // 에디터의 초기 값 설정
   const [editorContent, setEditorContent] = useState(approvalData.approvalContent || "");
 
   useEffect(() => {
-    setApprovalData((prevData) => ({
+    setApprovalData((prevDataL) => ({
       ...prevData,
       approvalContent: editorContent,
     }));
@@ -25,7 +25,7 @@ const ApprovalWriteBody = ({ approvalData, setApprovalData }) => {
         init={{
           height: 550,
           width: 900,
-          menubar: true, // ✅ 상단 메뉴바 표시
+          menubar: true, // 상단 메뉴바 표시
           plugins: [
             "advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code fullscreen",

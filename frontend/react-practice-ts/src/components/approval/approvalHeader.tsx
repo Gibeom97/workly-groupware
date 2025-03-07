@@ -10,11 +10,11 @@ export const ApprovalHeader = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const dispatch = useDispatch();
 
-  // ✅ Redux에서 알림 개수 가져오기 (타입 명시)
+  // Redux에서 알림 개수 가져오기 (타입 명시)
   const notifications = useSelector((state: RootState) => state.notifications);
   const userNo = useSelector((state: RootState) => state.user.userNo);
 
-  // ✅ 알림 데이터 가져오기 (백엔드 연동)
+  // 알림 데이터 가져오기 (백엔드 연동)
   useEffect(() => {
     if (userNo) {
       dispatch(fetchNotifications(userNo) as any);
@@ -31,7 +31,7 @@ export const ApprovalHeader = () => {
     <header style={headerStyle}>
       {buttons.map((button, index) => {
         const isActive = location.pathname === button.path;
-        const notificationCount = notifications?.[button.page] ?? 0; // ✅ undefined 방지 처리
+        const notificationCount = notifications?.[button.page] ?? 0; // undefined 방지 처리
 
         return (
           <button
@@ -50,7 +50,7 @@ export const ApprovalHeader = () => {
   );
 };
 
-// ✅ 버튼 목록
+// 버튼 목록
 const buttons = [
   { label: "내 문서함", path: "/approvalMain", page: "approvalMain" },
   { label: "임시저장", path: "/approvalTempPage", page: "approvalTemp" },
@@ -62,7 +62,7 @@ const buttons = [
   { label: "결재반려", path: "/approvalRejectPage", page: "approvalReject" },
 ];
 
-// ✅ 스타일 정의
+// 스타일 정의
 const headerStyle = {
   display: "flex",
   justifyContent: "center",
@@ -88,7 +88,7 @@ const buttonStyle = {
   fontWeight: "bold",
   transition: "0.3s",
   padding: "0 15px",
-  position: "relative", // ✅ 알림 뱃지 스타일 적용을 위해 추가
+  position: "relative", // 알림 뱃지 스타일 적용을 위해 추가
 };
 
 const activeButtonStyle = {
@@ -100,7 +100,7 @@ const activeButtonStyle = {
 
 const notificationBadgeStyle = {
   position: "absolute",
-  top: -5, // ✅ 뱃지 위치 조정
+  top: -5, // 뱃지 위치 조정
   right: -5,
   background: "red",
   color: "white",
