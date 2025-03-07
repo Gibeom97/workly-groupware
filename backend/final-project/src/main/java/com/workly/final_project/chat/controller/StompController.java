@@ -58,10 +58,9 @@ public class StompController {
     }
     
     
- // << NoticeChat: 기본 채팅방 (chatRoomNo = 0) 실시간 메시지 처리 >>
+ // NoticeChat 기본 채팅방 (chatRoomNo = 0) 실시간 메시지 처리 
     @MessageMapping("/noticeChat/sendMessage")
     public void sendNoticeChatMessage(@Payload Chat chat) {
-        // 기본 채팅방 메시지는 chatRoomNo가 0이어야 함
         if (chat.getChatRoomNo() != 0) {
             log.warn("NoticeChat 메시지는 chatRoomNo가 0이어야 합니다.");
             return;
@@ -106,7 +105,7 @@ public class StompController {
     public ResponseEntity<?> getChatMessages(@PathVariable int chatRoomNo) {
         List<Chat> messages = chatService.getChatMessages(chatRoomNo);
         if (messages == null || messages.isEmpty()) {
-            return ResponseEntity.ok(List.of()); // 빈 배열 반환 (204 No Content 방지)
+            return ResponseEntity.ok(List.of()); 
         }
         return ResponseEntity.ok(messages);
     }
