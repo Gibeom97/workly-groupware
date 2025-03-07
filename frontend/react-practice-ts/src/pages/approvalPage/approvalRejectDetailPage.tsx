@@ -4,7 +4,7 @@ import ApprovalCompleteReply from "../../components/approval/approvalCompleteRpl
 
 import Header from "../../components/common/Header";
 import Sidebar from "../../components/common/Sidebar";
-import { ApprovalRejectFooter } from "../../components/approval/approvalRejectFooter";
+import { ApprovalRejectDetailFooter } from "../../components/approval/approvalRejectDetailFooter";
 
 export const ApprovalRejectDetailPage = () => {
   return (
@@ -16,7 +16,7 @@ export const ApprovalRejectDetailPage = () => {
           <ApprovalCompleteHeader />
           <ApprovalCompleteDocument />
           <ApprovalCompleteReply />
-          <ApprovalRejectFooter />
+          <ApprovalRejectDetailFooter />
         </div>
       </div>
     </div>

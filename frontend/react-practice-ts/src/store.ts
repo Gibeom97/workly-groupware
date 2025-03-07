@@ -6,7 +6,6 @@ import userReducer from "./features/userSlice";
 import chatReducer from "./features/chatSlice";
 import notificationsReducer from "./features/approvalNotificationsSlice"; // ✅ 추가
 import sidebarReducer from "./features/sidebarSlice"; 
-import notificationsReducer from "./features/approvalNotificationsSlice"; // ✅ 알림 리듀서 추가
 
 const persistConfig = {
     key: "root", // localStorage에 저장

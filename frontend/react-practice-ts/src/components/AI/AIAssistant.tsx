@@ -10,7 +10,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 const AIAssistant: React.FC = () => {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
-  const [cache, setCache] = useState<{ [key: string]: string }>({}); // ✅ 캐시 추가
+  const [cache, setCache] = useState<{ [key: string]: string }>({}); 
   const companyId = useSelector((state: any) => state.user.companyId);
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
@@ -56,7 +56,7 @@ const AIAssistant: React.FC = () => {
     const userMessage = { role: "user", content: cleanedInputText };
     setMessages(prevMessages => [...prevMessages, userMessage]);
 
-    // ✅ 캐시에 동일한 질문이 있는지 확인
+    // 캐시에 동일한 질문이 있는지 확인
     if (cache[cleanedInputText]) {
       console.log("캐시에서 즉시 응답:", cache[cleanedInputText]);
       const aiMessage = { role: "assistant", content: cache[cleanedInputText] };
@@ -65,7 +65,7 @@ const AIAssistant: React.FC = () => {
     }
 
     try {
-      // ✅ 사내 규정 가져오기
+      // 사내 규정 가져오기
       const policyResponse = await axios.get(`http://localhost:8003/workly/api/policies/${companyId}`);
       const policies = policyResponse.data;
 
@@ -79,23 +79,23 @@ const AIAssistant: React.FC = () => {
         return;
       }
 
-      // ✅ LangChain 벡터 데이터 변환
+      // LangChain 벡터 데이터 변환
       const embeddings = new OpenAIEmbeddings({ openAIApiKey: import.meta.env.VITE_OPENAI_API_KEY });
       const vectorStore = await MemoryVectorStore.fromTexts(
-        policies.map((p: any) => `${p.question} ${p.answer}`),  // ✅ 백틱(`) 추가하여 템플릿 문자열 수정
+        policies.map((p: any) => `${p.question} ${p.answer}`),  // 백틱(`) 추가하여 템플릿 문자열 수정
         policies.map((p: any) => ({ id: p.id })),
         embeddings
       );
 
       const retriever = vectorStore.asRetriever();
 
-      // ✅ Streaming AI 모델 생성
+      // Streaming AI 모델 생성
       const model = new ChatOpenAI({ 
         openAIApiKey: import.meta.env.VITE_OPENAI_API_KEY,
-        streaming: true,  // ✅ Streaming 활성화
+        streaming: true,  // Streaming 활성화
       });
 
-      // ✅ ConversationalRetrievalQAChain 생성
+      // ConversationalRetrievalQAChain 생성
       const chain = ConversationalRetrievalQAChain.fromLLM(model, retriever, {
         returnSourceDocuments: true
       });
@@ -108,11 +108,11 @@ const AIAssistant: React.FC = () => {
         return;
       }
 
-      // ✅ AI 응답을 실시간으로 받기 위해 초기 메시지를 설정
+      // AI 응답을 실시간으로 받기 위해 초기 메시지를 설정
       const aiMessage = { role: "assistant", content: "" };
       setMessages(prevMessages => [...prevMessages, aiMessage]);
 
-      // ✅ `call()` 실행하여 AI 응답 받기
+      // `call()` 실행하여 AI 응답 받기
       const response = await chain.call({
         question: cleanedInputText,
         chat_history: [] // 초기에는 빈 배열로 전달
@@ -126,11 +126,11 @@ const AIAssistant: React.FC = () => {
         return;
       }
 
-      // ✅ 응답을 문자열로 변환하여 처리
+      // 응답을 문자열로 변환하여 처리
       const responseText = typeof response.text === "string" ? response.text : JSON.stringify(response.text, null, 2);
       const cleanedResponse = responseText.replace(/\s+/g, " ").trim();
 
-      // ✅ 캐시에 저장하여 동일한 질문이 오면 빠르게 응답
+      // 캐시에 저장하여 동일한 질문이 오면 빠르게 응답
       setCache(prevCache => ({
         ...prevCache,
         [cleanedInputText]: cleanedResponse
@@ -177,7 +177,7 @@ const AIAssistant: React.FC = () => {
 };
 
 
-// ✅ CSS 스타일 객체 (기존 코드 유지)
+// CSS 스타일 객체 (기존 코드 유지)
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "600px",
@@ -197,7 +197,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid #ddd",
     padding: "10px",
     height: "650px",
-    overflowY: "auto",  // ✅ 스크롤 필요 시에만 표시
+    overflowY: "auto",  // 스크롤 필요 시에만 표시
     backgroundColor: "#ffffff",
     borderRadius: "15px",
     display: "flex",
@@ -252,7 +252,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "15px",
     transition: "0.3s"
   },
-  voiceButton: { // 🎤 음성 버튼 스타일 추가
+  voiceButton: {
     padding: "10px",
     fontSize: "14px",
     backgroundColor: "#4880ff",
