@@ -59,14 +59,15 @@ public class CalendarMemoServiceImpl implements CalendarMemoService {
             .userNo(userNo)
             .memo(memoDTO.getMemo())
             .build();
-        
+
+        // 1) 먼저 update 시도
         int result = calendarMemoDao.updateMemo(memo);
-        
-        if (result > 0) {
-            System.out.println("✅ 메모 수정 성공!");
-        } else {
-            System.err.println("🚨 메모 수정 실패! 트랜잭션이 롤백됩니다.");
+
+        // 2) update 대상이 없으면 (result == 0) insert 실행
+        if (result == 0) {
+            calendarMemoDao.insertMemo(memo);
         }
     }
+
 
 }
