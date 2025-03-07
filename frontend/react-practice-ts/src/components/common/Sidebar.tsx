@@ -20,14 +20,14 @@ import { removeCookie } from "../../utils/Cookie";
 
 const Sidebar = () => {
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => {
     return state.user;
   });
 
   const handleLogout = () => {
-    if(confirm("로그아웃하시겠습니까?")) {
+    if (confirm("로그아웃하시겠습니까?")) {
       removeCookie("user");
       removeCookie("accessToken")
       dispatch(logoutUser());
@@ -39,94 +39,96 @@ const Sidebar = () => {
     <div className={styles.sidebar}>
       <div className={styles.title}>Workly</div>
       <div className={styles.sidebarNav}>
-      <nav>
-        <ul>
-          <Link to={"/main"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon1} alt="홈" />
-            </span>
-            <span>홈</span>
-          </li>
-          </Link>
-          <Link to={"/OrganizationChart"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon2} alt="조직도" />
-            </span>
-            <span>조직도</span>
-          </li>
-          </Link>
-          <Link to={"/calendar"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon3} alt="캘린더" />
-            </span>
-            <span>캘린더</span>
-          </li>
-          </Link>
-          <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
-            <span>
-              <img src={icon4} alt="전자결재" />
-            </span>
-            <span>전자결재</span>
-          </li>
-          <li onClick={() => dispatch(openChat())} style={{ cursor: "pointer" }}>
-            <span>
-              <img src={icon5} alt="채팅" />
-            </span>
-            <span>채팅</span>
+        <nav>
+          <ul>
+            <Link to={"/main"} className={styles.link}>
+              <li>
+                <span>
+                  <img src={icon1} alt="홈" />
+                </span>
+                <span>홈</span>
+              </li>
+            </Link>
+            <Link to={"/OrganizationChart"} className={styles.link}>
+              <li>
+                <span>
+                  <img src={icon2} alt="조직도" />
+                </span>
+                <span>조직도</span>
+              </li>
+            </Link>
+            <Link to={"/calendar"} className={styles.link}>
+              <li>
+                <span>
+                  <img src={icon3} alt="캘린더" />
+                </span>
+                <span>캘린더</span>
+              </li>
+            </Link>
+            <li onClick={() => navigate('/approvalMain')} style={{ cursor: "pointer" }}>
+              <span>
+                <img src={icon4} alt="전자결재" />
+              </span>
+              <span>전자결재</span>
+            </li>
+            <li onClick={() => dispatch(openChat())} style={{ cursor: "pointer" }}>
+              <span>
+                <img src={icon5} alt="채팅" />
+              </span>
+              <span>채팅</span>
               <span className={styles.badge}>3</span>
-          </li>
-          <Link to={"/leave"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon6} alt="연차관리" />
-            </span>
-            <span>연차관리</span>
-          </li>
-          </Link>
-          <li onClick={() => navigate('/AIAssistantPage')} style={{ cursor: "pointer" }}>
-            <span>
-              <img src={icon7} alt="회사규정Q&A" />
-            </span>
-            <span>회사규정Q&A</span>
-          </li>
-        </ul>
-        <ul>
-          {/* <li>
+            </li>
+            <Link to={"/leave"} className={styles.link}>
+              <li>
+                <span>
+                  <img src={icon6} alt="연차관리" />
+                </span>
+                <span>연차관리</span>
+              </li>
+            </Link>
+            <li onClick={() => navigate('/AIAssistantPage')} style={{ cursor: "pointer" }}>
+              <span>
+                <img src={icon7} alt="회사규정Q&A" />
+              </span>
+              <span>회사규정Q&A</span>
+            </li>
+          </ul>
+          <ul>
+            {/* <li>
             <span>
               <img src={icon8} alt="급여관리" />
             </span>
             <span>급여관리</span>
           </li> */}
-          { user.role === "ROLE_HR" &&
-          <Link to={"/personnel"} className={styles.link}>
-          <li>
-            <span>
-              <img src={icon9} alt="인사관리" />
-            </span>
-            <span>인사관리</span>
-          </li>
-          </Link>
-          }
-        <li onClick={() => navigate('/AdminPolicyManagerPage')} style={{ cursor: "pointer" }}>
-          <span>
-            <img src={icon7} alt="근태관리" />
-          </span>
-          <span>회사규정Q&A 관리</span>
-      </li>
-        </ul>
-      </nav>
+            {user.role === "ROLE_HR" &&
+              <Link to={"/personnel"} className={styles.link}>
+                <li>
+                  <span>
+                    <img src={icon9} alt="인사관리" />
+                  </span>
+                  <span>인사관리</span>
+                </li>
+              </Link>
+            }
+            {user.role === "ROLE_HR" &&
+              <li onClick={() => navigate('/AdminPolicyManagerPage')} style={{ cursor: "pointer" }}>
+                <span>
+                  <img src={icon7} alt="근태관리" />
+                </span>
+                <span>회사규정Q&A 관리</span>
+              </li>
+            }
+          </ul>
+        </nav>
       </div>
       <div className={styles.logout}>
         <Link to={"/myPage"} className={styles.link}>
-        <button className={styles.mypageButton}>
-          <span>
-            <img className={styles.imgIcon} src={icon11} alt="마이페이지" />
-          </span>
-          <span>마이페이지</span>
-        </button>
+          <button className={styles.mypageButton}>
+            <span>
+              <img className={styles.imgIcon} src={icon11} alt="마이페이지" />
+            </span>
+            <span>마이페이지</span>
+          </button>
         </Link>
         <button className={styles.logoutButton} onClick={handleLogout}>
           <span>

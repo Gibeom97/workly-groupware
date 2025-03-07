@@ -58,7 +58,7 @@ public class JwtTokenProvider {
 	// 토큰의 유효기간 확인
 	public boolean validateToken(String token) {
 		try {
-			Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token); // jwt = jwt 내부의 정보를 저장하는 객체
+			Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token); // jws = jwt 내부의 정보를 저장하는 객체
 			System.out.println("tokenProvider, 받은 token의 claims 추출: " + claims);
 			
 			return !claims.getBody().getExpiration().before(new Date()); // 유효기간이 현재 시간보다 이전인지 확인 -> 유효하면 true 반환해야하므로 !연산자 필요

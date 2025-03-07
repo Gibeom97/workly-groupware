@@ -118,7 +118,7 @@ const statusStyle = {
   padding: "5px 10px",
   borderRadius: "4px",
   backgroundColor: "#ffa500",
-  color: "#EEEEEE",
+  color: "#FFF ",
   fontSize: "12px",
   fontWeight: "bold",
 };

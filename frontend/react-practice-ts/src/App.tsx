@@ -68,7 +68,6 @@ function App() {
       {/* 전자결재 알림 모달 (모든 페이지에서 표시) */}
       <NotificationModal />
 
-
       {/* 🔹 Chat 모달 (유저 정보 전달) */}
       {isChatOpen && (
         <Chat currentUser={currentUser} onClose={() => dispatch(closeChat())} />
@@ -115,7 +114,7 @@ function App() {
           <Route path="/ApprovalRejectDetailPage/:approvalNo" element={<ApprovalRejectDetailPage />} />
 
           <Route path="/AIAssistantPage" element={<AIAssistantPage />} />
-          <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage />} />
+          {/* <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage />} /> */}
           <Route path="/CompanyEnrollPage" element={<CompanyEnrollPage />} />
           {/*전자결재Route*/}
 
@@ -132,13 +131,9 @@ function App() {
             <Route path="managePermissions" element={<ManagePermission />} />
             <Route path=":userNo" element={<PersonnelDetail />} />
           </Route>
+          <Route path="/AdminPolicyManagerPage" element={<AdminPolicyManagerPage />} />
         </Route>
 
-        {/* <Route path="/leave" element={<LeaveMain />}>
-            <Route index element={<MyLeave />} />
-            <Route path="manage" element={<ManageLeave />} />
-            <Route path="policy" element={<LeavePolicy />} />
-          </Route> */}
         <Route path="/leave" element={<LeaveMain />}>
           <Route element={<RoleRoute roles={["ROLE_HR", "ROLE_USER"]} />}>
             <Route index element={<MyLeave />} />

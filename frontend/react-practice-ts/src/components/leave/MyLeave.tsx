@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import styles from '../../styles/leave/MyLeave.module.css';
 import { useSelector } from 'react-redux';
 import axios from '../../utils/CustomAxios';
-import Pagination from '../common/Pagination';
+import Pagination2 from '../common/Pagination';
 
 const MyLeave = () => {
     const [year, setYear] = useState(new Date().getFullYear());
@@ -113,7 +113,7 @@ const MyLeave = () => {
                     }
                 </tbody>
             </table>
-            <Pagination pageInfo={pageInfo} setCurrentPage={setCurrentPage}/>
+            <Pagination2 pageInfo={pageInfo} setCurrentPage={setCurrentPage}/>
         </div>
     )
 }
