@@ -18,26 +18,20 @@ public class CalendarMemoDaoImpl implements CalendarMemoDao {
         return memo;
     }
 
-
     @Override
     public int insertMemo(CalendarMemo memo) {
         System.out.println("🛠 insertMemo 실행됨! userNo: " + memo.getUserNo() + ", memo: " + memo.getMemo());
         int result = sqlSession.insert("calendarMemoMapper.insertMemo", memo);
-
         if (result > 0) {
-            System.out.println("✅ insertMemo 성공! COMMIT 실행");
-            sqlSession.commit();
+            System.out.println("✅ insertMemo 성공!");
         } else {
-            System.err.println("🚨 insertMemo 실패! ROLLBACK 발생");
+            System.err.println("🚨 insertMemo 실패!");
         }
         return result;
     }
-
-
 
     @Override
     public int updateMemo(CalendarMemo memo) {
         return sqlSession.update("calendarMemoMapper.updateMemo", memo);
     }
-
 }
