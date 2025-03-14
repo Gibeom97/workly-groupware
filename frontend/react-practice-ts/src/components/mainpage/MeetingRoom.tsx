@@ -154,7 +154,7 @@ const MeetingRoom = () => {
       </div>
       <div className={styles.meetingList}>
         {meetings.length === 0 ? (
-          <span>예약된 회의가 없습니다.</span>
+          <span className={styles.meetingInfo}>예약된 회의가 없습니다.</span>
         ) : (
           meetings.map((meeting, index) => (
             <div key={index} className={styles.meetingItem}>
