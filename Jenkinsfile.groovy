@@ -19,9 +19,9 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './mvnw clean package'
+                sh './backend/final-project/mvnw clean package'
             }
-        }        
+        }       
         stage('Docker Image Build') {
             steps {
                 script {
