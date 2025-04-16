@@ -1,7 +1,7 @@
 FROM openjdk:8
 
 ARG VERSION
-# 빌드 완료한 jar파일
+# 빌드 완료한 jar파일 zz
 COPY backend/final-project/target/final-project-0.0.1-SNAPSHOT.jar /app/final-project.jar
 
 LABEL maintainer="yebin<teammate@naver.com>" \
