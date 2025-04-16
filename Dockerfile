@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:17
 
 ARG VERSION
 # 빌드 완료한 jar파일 zz
