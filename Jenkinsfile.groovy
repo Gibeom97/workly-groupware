@@ -19,9 +19,13 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './backend/final-project/mvnw clean package'
+                sh '''
+                    cd backend/final-project
+                    chmod 777 mvnw
+                    ./mvnw clean package
+                '''
             }
-        }       
+        }
         stage('Docker Image Build') {
             steps {
                 script {
